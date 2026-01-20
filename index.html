@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6807,165 +6808,341 @@ html, body {
                 });
         }
 
-        function loadUpcomingBirthdays() {
-            const today = new Date();
-            const upcomingDays = 7; // Próximos 7 dias
-            
-            const upcomingBirthdays = clients.filter(client => {
-                if (!client.birthdate) return false;
-                
-                const birthdate = new Date(client.birthdate);
-                const currentYear = today.getFullYear();
-                
-                // Data de aniversário este ano
-                const birthdayThisYear = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
-                
-                // Se já passou, considerar próximo ano
-                const birthday = birthdayThisYear < today ? 
-                    new Date(currentYear + 1, birthdate.getMonth(), birthdate.getDate()) : 
-                    birthdayThisYear;
-                
-                const daysUntilBirthday = Math.ceil((birthday - today) / (1000 * 60 * 60 * 24));
-                return daysUntilBirthday >= 0 && daysUntilBirthday <= upcomingDays;
-            });
-            
-            // Ordenar por proximidade
-            upcomingBirthdays.sort((a, b) => {
-                const dateA = new Date(a.birthdate);
-                const dateB = new Date(b.birthdate);
-                const today = new Date();
-                
-                const nextBirthdayA = new Date(today.getFullYear(), dateA.getMonth(), dateA.getDate());
-                if (nextBirthdayA < today) {
-                    nextBirthdayA.setFullYear(today.getFullYear() + 1);
-                }
-                
-                const nextBirthdayB = new Date(today.getFullYear(), dateB.getMonth(), dateB.getDate());
-                if (nextBirthdayB < today) {
-                    nextBirthdayB.setFullYear(today.getFullYear() + 1);
-                }
-                
-                return nextBirthdayA - nextBirthdayB;
-            });
-            
-            updateBirthdaysUI(upcomingBirthdays);
+       function loadUpcomingBirthdays() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // ⭐⭐ IMPORTANTE: Zerar as horas para comparar apenas datas!
+    const upcomingDays = 7; // Próximos 7 dias (incluindo hoje)
+    
+    const upcomingBirthdays = clients.filter(client => {
+        if (!client.birthdate) return false;
+        
+        const birthdate = new Date(client.birthdate);
+        const currentYear = today.getFullYear();
+        
+        // Data de aniversário este ano
+        const birthdayThisYear = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+        birthdayThisYear.setHours(0, 0, 0, 0); // ⭐ Zerar horas também!
+        
+        // Se já passou, considerar próximo ano
+        let nextBirthday;
+        if (birthdayThisYear < today) {
+            nextBirthday = new Date(currentYear + 1, birthdate.getMonth(), birthdate.getDate());
+        } else {
+            nextBirthday = birthdayThisYear;
         }
+        nextBirthday.setHours(0, 0, 0, 0); // ⭐ Zerar horas da próxima data também!
+        
+        // Calcular diferença em dias
+        const daysUntilBirthday = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+        
+        // ⭐⭐ CORREÇÃO PRINCIPAL: Incluir hoje (0) e os próximos 7 dias
+        return daysUntilBirthday >= 0 && daysUntilBirthday <= upcomingDays;
+    });
+    
+    // Ordenar por proximidade (hoje primeiro, depois por dias)
+    upcomingBirthdays.sort((a, b) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const birthdateA = new Date(a.birthdate);
+        const birthdateB = new Date(b.birthdate);
+        const currentYear = today.getFullYear();
+        
+        // Calcular próximo aniversário de A
+        let nextA = new Date(currentYear, birthdateA.getMonth(), birthdateA.getDate());
+        nextA.setHours(0, 0, 0, 0);
+        if (nextA < today) {
+            nextA = new Date(currentYear + 1, birthdateA.getMonth(), birthdateA.getDate());
+            nextA.setHours(0, 0, 0, 0);
+        }
+        
+        // Calcular próximo aniversário de B
+        let nextB = new Date(currentYear, birthdateB.getMonth(), birthdateB.getDate());
+        nextB.setHours(0, 0, 0, 0);
+        if (nextB < today) {
+            nextB = new Date(currentYear + 1, birthdateB.getMonth(), birthdateB.getDate());
+            nextB.setHours(0, 0, 0, 0);
+        }
+        
+        // Ordenar: hoje primeiro (0 dias), depois por proximidade
+        const daysA = Math.ceil((nextA - today) / (1000 * 60 * 60 * 24));
+        const daysB = Math.ceil((nextB - today) / (1000 * 60 * 60 * 24));
+        
+        return daysA - daysB;
+    });
+    
+    updateBirthdaysUI(upcomingBirthdays);
+}
 
-        function updateBirthdaysUI(upcomingBirthdays) {
-            const dashboardList = document.getElementById('upcomingBirthdaysList');
-            const birthdaysList = document.getElementById('birthdaysList');
-            const countElement = document.getElementById('upcomingBirthdays');
-            
-            countElement.textContent = upcomingBirthdays.length;
-            
-            if (upcomingBirthdays.length === 0) {
-                dashboardList.innerHTML = '<p class="text-muted">Nenhum aniversário próximo.</p>';
-                birthdaysList.innerHTML = '<p class="text-muted">Nenhum aniversário próximo encontrado.</p>';
-                return;
-            }
-            
-            // Dashboard (apenas próximos 3)
-            let dashboardHtml = '';
-            const dashboardBirthdays = upcomingBirthdays.slice(0, 3);
-            
-            dashboardBirthdays.forEach(client => {
-                const birthdate = new Date(client.birthdate);
-                const today = new Date();
-                const currentYear = today.getFullYear();
-                
-                // Calcular próxima data de aniversário
-                let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
-                if (nextBirthday < today) {
-                    nextBirthday.setFullYear(currentYear + 1);
-                }
-                
-                const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-                const age = nextBirthday.getFullYear() - birthdate.getFullYear();
-                
-                let badgeClass = 'bg-secondary';
-                if (daysUntil === 0) {
-                    badgeClass = 'bg-warning text-dark';
-                } else if (daysUntil <= 3) {
-                    badgeClass = 'bg-danger';
-                }
-                
-                dashboardHtml += `
-                    <div class="birthday-item ${daysUntil === 0 ? 'birthday-today' : ''}">
-                        <div>
-                            <strong>${client.name}</strong>
-                            <div class="small text-muted">
-                                ${formatDate(client.birthdate)} (${age} anos)
-                            </div>
-                        </div>
-                        <span class="badge ${badgeClass}">
-                            ${daysUntil === 0 ? 'HOJE' : `em ${daysUntil} dias`}
-                        </span>
-                    </div>
-                `;
-            });
-            
-            if (upcomingBirthdays.length > 3) {
-                dashboardHtml += `<p class="text-center text-muted mt-2">... e mais ${upcomingBirthdays.length - 3} aniversários</p>`;
-            }
-            
-            dashboardList.innerHTML = dashboardHtml;
-            
-            // Página de aniversários (todos)
-            let birthdaysHtml = '';
-            
-            upcomingBirthdays.forEach(client => {
-                const birthdate = new Date(client.birthdate);
-                const today = new Date();
-                const currentYear = today.getFullYear();
-                
-                // Calcular próxima data de aniversário
-                let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
-                if (nextBirthday < today) {
-                    nextBirthday.setFullYear(currentYear + 1);
-                }
-                
-                const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-                const age = nextBirthday.getFullYear() - birthdate.getFullYear();
-                const nextBirthdayStr = formatDate(nextBirthday.toISOString());
-                
-                birthdaysHtml += `
-                    <div class="card mb-2 ${daysUntil === 0 ? 'birthday-today' : ''}">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <h6 class="mb-1">${client.name}</h6>
-                                    <p class="text-muted mb-1">
-                                        <i class="fas fa-phone me-1"></i>${client.phone}
-                                        ${client.email ? `<br><i class="fas fa-envelope me-1"></i>${client.email}` : ''}
-                                    </p>
-                                    <p class="mb-0">
-                                        <small><i class="fas fa-birthday-cake me-1"></i>
-                                        Nascimento: ${formatDate(client.birthdate)} | 
-                                        Próximo aniversário: ${nextBirthdayStr} (${age} anos)
-                                        </small>
-                                    </p>
-                                </div>
-                                <div class="col-md-4 text-end">
-                                    <span class="badge ${daysUntil === 0 ? 'birthday-today-badge' : 'bg-primary'}">
-                                        ${daysUntil === 0 ? 'ANIVERSÁRIO HOJE!' : `Faltam ${daysUntil} dias`}
-                                    </span>
-                                    <div class="mt-2">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="editClient('${client.id}')">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success ms-1" onclick="sendBirthdayMessage('${client.id}')">
-                                            <i class="fas fa-sms"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            birthdaysList.innerHTML = birthdaysHtml;
+function updateBirthdaysUI(upcomingBirthdays) {
+    const dashboardList = document.getElementById('upcomingBirthdaysList');
+    const birthdaysList = document.getElementById('birthdaysList');
+    const countElement = document.getElementById('upcomingBirthdays');
+    
+    // Contar aniversários (separar hoje vs futuros)
+    const todayBirthdays = upcomingBirthdays.filter(client => {
+        const birthdate = new Date(client.birthdate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const currentYear = today.getFullYear();
+        let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+        nextBirthday.setHours(0, 0, 0, 0);
+        
+        if (nextBirthday < today) {
+            nextBirthday = new Date(currentYear + 1, birthdate.getMonth(), birthdate.getDate());
+            nextBirthday.setHours(0, 0, 0, 0);
         }
+        
+        const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+        return daysUntil === 0;
+    });
+    
+    countElement.textContent = upcomingBirthdays.length;
+    
+    // ⭐⭐ NOVO: Mostrar contagem separada de aniversários de HOJE
+    if (todayBirthdays.length > 0) {
+        countElement.innerHTML = `${upcomingBirthdays.length} <small class="text-warning">(${todayBirthdays.length} hoje!)</small>`;
+    }
+    
+    if (upcomingBirthdays.length === 0) {
+        dashboardList.innerHTML = '<p class="text-muted">Nenhum aniversário próximo.</p>';
+        birthdaysList.innerHTML = '<p class="text-muted">Nenhum aniversário próximo encontrado.</p>';
+        return;
+    }
+    
+    // Dashboard (apenas próximos 5)
+    let dashboardHtml = '';
+    const dashboardBirthdays = upcomingBirthdays.slice(0, 5);
+    
+    dashboardBirthdays.forEach(client => {
+        const birthdate = new Date(client.birthdate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const currentYear = today.getFullYear();
+        
+        // Calcular próxima data de aniversário
+        let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+        nextBirthday.setHours(0, 0, 0, 0);
+        
+        if (nextBirthday < today) {
+            nextBirthday.setFullYear(currentYear + 1);
+            nextBirthday.setHours(0, 0, 0, 0);
+        }
+        
+        const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+        const age = nextBirthday.getFullYear() - birthdate.getFullYear();
+        
+        let badgeClass = 'bg-secondary';
+        let badgeText = `em ${daysUntil} dias`;
+        
+        if (daysUntil === 0) {
+            badgeClass = 'birthday-today-badge';
+            badgeText = 'HOJE 🎂';
+        } else if (daysUntil === 1) {
+            badgeClass = 'bg-danger';
+            badgeText = 'AMANHÃ!';
+        } else if (daysUntil <= 3) {
+            badgeClass = 'bg-warning';
+            badgeText = `em ${daysUntil} dias`;
+        }
+        
+        dashboardHtml += `
+            <div class="birthday-item ${daysUntil === 0 ? 'birthday-today' : ''}">
+                <div>
+                    <strong>${client.name}</strong>
+                    <div class="small text-muted">
+                        ${formatDate(client.birthdate)} (${age} anos)
+                        ${client.phone ? `<br><i class="fas fa-phone"></i> ${client.phone}` : ''}
+                    </div>
+                </div>
+                <span class="badge ${badgeClass}">
+                    ${badgeText}
+                </span>
+            </div>
+        `;
+    });
+    
+    if (upcomingBirthdays.length > 5) {
+        dashboardHtml += `<p class="text-center text-muted mt-2">... e mais ${upcomingBirthdays.length - 5} aniversários</p>`;
+    }
+    
+    dashboardList.innerHTML = dashboardHtml;
+    
+    // ⭐⭐ NOVO: Título especial para a página de aniversários
+    let pageTitle = 'Próximos Aniversários';
+    if (todayBirthdays.length > 0) {
+        pageTitle += ` <span class="badge birthday-today-badge">${todayBirthdays.length} HOJE!</span>`;
+    }
+    
+    // Página de aniversários (todos)
+    let birthdaysHtml = `
+        <div class="mb-3">
+            <h5 class="d-inline">${pageTitle}</h5>
+            <button class="btn btn-sm btn-outline-primary float-end" onclick="refreshBirthdays()">
+                <i class="fas fa-sync-alt"></i> Atualizar
+            </button>
+        </div>
+    `;
+    
+    if (todayBirthdays.length > 0) {
+        birthdaysHtml += `
+            <div class="card border-warning mb-3">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-birthday-cake me-2"></i>
+                    <strong>ANIVERSARIANTES DE HOJE! (${todayBirthdays.length})</strong>
+                </div>
+                <div class="card-body">
+        `;
+        
+        todayBirthdays.forEach(client => {
+            const birthdate = new Date(client.birthdate);
+            const age = new Date().getFullYear() - birthdate.getFullYear();
+            
+            birthdaysHtml += `
+                <div class="row align-items-center mb-2 birthday-today p-2 rounded">
+                    <div class="col-md-8">
+                        <h6 class="mb-1"><i class="fas fa-user me-2"></i>${client.name}</h6>
+                        <p class="mb-1">
+                            <i class="fas fa-birthday-cake me-1"></i>
+                            ${formatDate(client.birthdate)} (${age} anos hoje!)
+                        </p>
+                        <p class="mb-0 text-muted small">
+                            <i class="fas fa-phone me-1"></i>${client.phone}
+                            ${client.email ? `<br><i class="fas fa-envelope me-1"></i>${client.email}` : ''}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-sm btn-warning mb-1" onclick="sendBirthdayMessage('${client.id}')">
+                            <i class="fas fa-sms me-1"></i> Parabéns!
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editClient('${client.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        birthdaysHtml += `</div></div>`;
+    }
+    
+    // Separar aniversários futuros (apenas se houver)
+    const futureBirthdays = upcomingBirthdays.filter(client => !todayBirthdays.includes(client));
+    
+    if (futureBirthdays.length > 0) {
+        birthdaysHtml += `<h6 class="mt-3 mb-2">Próximos Aniversários:</h6>`;
+        
+        futureBirthdays.forEach(client => {
+            const birthdate = new Date(client.birthdate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const currentYear = today.getFullYear();
+            
+            // Calcular próxima data de aniversário
+            let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+            nextBirthday.setHours(0, 0, 0, 0);
+            
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(currentYear + 1);
+                nextBirthday.setHours(0, 0, 0, 0);
+            }
+            
+            const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+            const age = nextBirthday.getFullYear() - birthdate.getFullYear();
+            const nextBirthdayStr = formatDate(nextBirthday.toISOString());
+            
+            let badgeClass = 'bg-primary';
+            let badgeText = `Faltam ${daysUntil} dias`;
+            
+            if (daysUntil === 1) {
+                badgeClass = 'bg-danger';
+                badgeText = 'AMANHÃ!';
+            } else if (daysUntil <= 3) {
+                badgeClass = 'bg-warning text-dark';
+                badgeText = `Em ${daysUntil} dias`;
+            }
+            
+            birthdaysHtml += `
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-1">${client.name}</h6>
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-phone me-1"></i>${client.phone}
+                                    ${client.email ? `<br><i class="fas fa-envelope me-1"></i>${client.email}` : ''}
+                                </p>
+                                <p class="mb-0">
+                                    <small><i class="fas fa-birthday-cake me-1"></i>
+                                    Nascimento: ${formatDate(client.birthdate)} | 
+                                    Aniversário: ${nextBirthdayStr} (${age} anos)
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span class="badge ${badgeClass}">
+                                    ${badgeText}
+                                </span>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editClient('${client.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success ms-1" onclick="sendBirthdayMessage('${client.id}')">
+                                        <i class="fas fa-sms"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    birthdaysList.innerHTML = birthdaysHtml;
+}
+
+// ⭐⭐ NOVA FUNÇÃO: Atualizar aniversários
+function refreshBirthdays() {
+    loadUpcomingBirthdays();
+    showSuccess('Lista de aniversários atualizada!');
+}
+
+// Adicione este CSS extra para melhor visualização:
+const style = document.createElement('style');
+style.textContent = `
+    .birthday-today {
+        background: linear-gradient(135deg, #fff9c4, #ffecb3) !important;
+        border-left: 4px solid #ff9800 !important;
+        animation: pulse 2s infinite;
+    }
+    
+    .birthday-today-badge {
+        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+        color: white !important;
+        font-weight: bold;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .birthday-item {
+        transition: all 0.3s ease;
+    }
+    
+    .birthday-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+`;
+document.head.appendChild(style);
 
         function sendBirthdayMessage(clientId) {
             const client = clients.find(c => c.id === clientId);
