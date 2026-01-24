@@ -4147,41 +4147,120 @@ html, body {
 
         function updateAgendaProfessionals() {
             const container = document.getElementById('agendaProfessionals');
-            if (!container) return; // Proteção se elemento não existe
+            if (!container) return;
             container.innerHTML = '';
             
             const activeCollaborators = collaborators.filter(c => c.active);
-            activeCollaborators.slice(0, 5).forEach(collaborator => {
+            
+            // Se não há colaboradores, mostrar placeholder
+            if (activeCollaborators.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center p-3">Nenhum colaborador ativo</div>';
+                return;
+            }
+            
+            activeCollaborators.forEach((collaborator, index) => {
                 const div = document.createElement('div');
                 div.className = 'agenda-professional';
+                div.style.textAlign = 'center';
+                div.style.display = 'flex';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                
+                // Criar foto ou placeholder
+                const photoUrl = collaborator.photoUrl || '';
+                const initials = collaborator.name.charAt(0).toUpperCase();
+                
                 div.innerHTML = `
-                    <img src="${collaborator.photoUrl || ''}" class="agenda-professional-photo" 
-                         onerror="this.src=''" alt="${collaborator.name}"
-                         data-id="${collaborator.id}">
-                    <div class="agenda-professional-name">${collaborator.name}</div>
+                    <div class="agenda-professional-photo-container" style="display: flex; justify-content: center; align-items: center; margin-bottom: 5px;">
+                        ${photoUrl ? 
+                            `<img src="${photoUrl}" class="agenda-professional-photo" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                                 alt="${collaborator.name}"
+                                 data-id="${collaborator.id}"
+                                 style="margin: 0 auto;">
+                             <div class="agenda-professional-placeholder" 
+                                  data-id="${collaborator.id}"
+                                  style="display: none; width: 50px; height: 50px; border-radius: 50%; background: #26196b; color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto;">
+                                 ${initials}
+                             </div>` :
+                            `<div class="agenda-professional-placeholder" 
+                                  data-id="${collaborator.id}"
+                                  style="width: 50px; height: 50px; border-radius: 50%; background: #26196b; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto;">
+                                 ${initials}
+                             </div>`
+                        }
+                    </div>
+                    <div class="agenda-professional-name" style="text-align: center;">${collaborator.name}</div>
                 `;
                 container.appendChild(div);
+                
+                // Marcar primeiro colaborador como selecionado
+                if (index === 0 && !selectedCollaboratorId) {
+                    selectedCollaboratorId = collaborator.id;
+                }
             });
             
-            // Adicionar evento de clique nas fotos
-            container.querySelectorAll('.agenda-professional-photo').forEach(photo => {
+            // Adicionar evento de clique nas fotos/placeholders
+            container.querySelectorAll('.agenda-professional-photo, .agenda-professional-placeholder').forEach(photo => {
                 photo.addEventListener('click', function() {
                     const collaboratorId = this.getAttribute('data-id');
-                    showCollaboratorProfile(collaboratorId);
+                    if (collaboratorId) {
+                        selectedCollaboratorId = collaboratorId;
+                        showCollaboratorProfile(collaboratorId);
+                    }
                 });
             });
         }
 
         function renderTimeColumn() {
             const container = document.getElementById('agendaTimeColumn');
-            if (!container) return; // Proteção se elemento não existe
+            if (!container) return;
             container.innerHTML = '';
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
             
             for (let hour = 0; hour < 24; hour++) {
                 const slot = document.createElement('div');
                 slot.className = 'agenda-time-slot';
+                slot.style.position = 'relative';
                 slot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                
+                // Adicionar linha vermelha do horário atual
+                if (hour === currentHour) {
+                    const linePosition = (currentMinute / 60) * 100;
+                    slot.innerHTML += `
+                        <div class="current-time-line" style="
+                            position: absolute;
+                            left: 0;
+                            right: -200%;
+                            top: ${linePosition}%;
+                            height: 2px;
+                            background-color: #dc3545;
+                            z-index: 10;
+                            pointer-events: none;
+                        ">
+                            <div style="
+                                position: absolute;
+                                left: -5px;
+                                top: -4px;
+                                width: 10px;
+                                height: 10px;
+                                background-color: #dc3545;
+                                border-radius: 50%;
+                            "></div>
+                        </div>
+                    `;
+                }
+                
                 container.appendChild(slot);
+            }
+            
+            // Atualizar linha do horário atual a cada minuto
+            if (!window.currentTimeInterval) {
+                window.currentTimeInterval = setInterval(renderTimeColumn, 60000);
             }
         }
 
@@ -4324,9 +4403,94 @@ html, body {
             return overlay;
         }
 
+        // Variáveis para controle de toque longo
+        let longPressTimer = null;
+        let isLongPress = false;
+        let touchStartY = 0;
+        let lastTouchY = 0;
+        
         function startTimeSelection(e) {
-            e.preventDefault();
-            isSelectingTime = true;
+            const slot = e.target.closest('.agenda-slot-quarter');
+            if (!slot) return;
+            
+            const date = slot.getAttribute('data-date');
+            const hour = parseInt(slot.getAttribute('data-hour'));
+            const quarter = parseInt(slot.getAttribute('data-quarter'));
+            
+            // Para eventos de mouse, iniciar seleção diretamente
+            if (e.type === 'mousedown') {
+                e.preventDefault();
+                isSelectingTime = true;
+                isLongPress = true;
+                selectionStartTime = { date, hour, quarter };
+                selectionEndTime = { date, hour, quarter };
+                updateSelectionOverlay();
+                return;
+            }
+            
+            // Para eventos de toque, verificar toque longo
+            if (e.type === 'touchstart') {
+                touchStartY = e.touches[0].clientY;
+                lastTouchY = touchStartY;
+                isLongPress = false;
+                
+                // Iniciar timer para toque longo (500ms)
+                longPressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    isSelectingTime = true;
+                    selectionStartTime = { date, hour, quarter };
+                    selectionEndTime = { date, hour, quarter };
+                    updateSelectionOverlay();
+                    
+                    // Feedback visual/háptico
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                }, 500);
+            }
+        }
+
+        function updateTimeSelection(e) {
+            // Para scroll normal no touch, não fazer nada
+            if (e.type === 'touchmove') {
+                const currentY = e.touches[0].clientY;
+                const deltaY = Math.abs(currentY - touchStartY);
+                
+                // Se moveu muito sem toque longo, cancelar timer e permitir scroll
+                if (!isLongPress && deltaY > 10) {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    return;
+                }
+                
+                // Se é toque longo, prevenir scroll e atualizar seleção
+                if (isLongPress && isSelectingTime) {
+                    e.preventDefault();
+                    lastTouchY = currentY;
+                    
+                    // Encontrar o slot sob o dedo
+                    const touch = e.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const slot = element ? element.closest('.agenda-slot-quarter') : null;
+                    
+                    if (slot) {
+                        const hour = parseInt(slot.getAttribute('data-hour'));
+                        const quarter = parseInt(slot.getAttribute('data-quarter'));
+                        const date = slot.getAttribute('data-date');
+                        
+                        if (date === selectionStartTime.date) {
+                            selectionEndTime = { date, hour, quarter };
+                            updateSelectionOverlay();
+                        }
+                    }
+                }
+                return;
+            }
+            
+            // Para mouse, atualizar normalmente
+            if (!isSelectingTime || e.type !== 'mouseenter') return;
             
             const slot = e.target.closest('.agenda-slot-quarter');
             if (!slot) return;
@@ -4335,36 +4499,89 @@ html, body {
             const hour = parseInt(slot.getAttribute('data-hour'));
             const quarter = parseInt(slot.getAttribute('data-quarter'));
             
-            selectionStartTime = { date, hour, quarter };
-            selectionEndTime = { date, hour, quarter };
-            
-            updateSelectionOverlay();
+            if (date === selectionStartTime.date) {
+                selectionEndTime = { date, hour, quarter };
+                updateSelectionOverlay();
+            }
         }
-
-        function updateTimeSelection(e) {
-            if (!isSelectingTime) return;
-            
-            e.preventDefault();
-            let clientX, clientY;
-            
-            if (e.type.includes('touch')) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
+        
+        function endTimeSelection(e) {
+            // Limpar timer de toque longo
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
             }
             
-            const element = document.elementFromPoint(clientX, clientY);
-            const slot = element?.closest('.agenda-slot-quarter');
-            if (!slot) return;
+            if (!isSelectingTime) {
+                isLongPress = false;
+                return;
+            }
             
-            const date = slot.getAttribute('data-date');
-            const hour = parseInt(slot.getAttribute('data-hour'));
-            const quarter = parseInt(slot.getAttribute('data-quarter'));
+            if (e.type === 'touchend' && isLongPress && selectionStartTime && selectionEndTime) {
+                e.preventDefault();
+            }
             
-            selectionEndTime = { date, hour, quarter };
-            updateSelectionOverlay();
+            isSelectingTime = false;
+            
+            if (selectionStartTime && selectionEndTime) {
+                // Calcular hora selecionada
+                const startTotal = selectionStartTime.hour * 60 + selectionStartTime.quarter * 15;
+                const endTotal = selectionEndTime.hour * 60 + selectionEndTime.quarter * 15;
+                
+                const minTotal = Math.min(startTotal, endTotal);
+                const hour = Math.floor(minTotal / 60);
+                const minute = minTotal % 60;
+                
+                selectedDate = selectionStartTime.date;
+                selectedTime = { hour, minute };
+                
+                // Mostrar seleção de cliente
+                showClientSelection();
+            }
+            
+            // Limpar overlay
+            const overlay = document.getElementById('agendaSelectionOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            
+            selectionStartTime = null;
+            selectionEndTime = null;
+            isLongPress = false;
+        }
+
+        function updateSelectionOverlay() {
+            if (!selectionStartTime || !selectionEndTime) return;
+            
+            const overlay = document.getElementById('agendaSelectionOverlay');
+            if (!overlay) return;
+            
+            const startTotal = selectionStartTime.hour * 4 + selectionStartTime.quarter;
+            const endTotal = selectionEndTime.hour * 4 + selectionEndTime.quarter;
+            
+            const minPos = Math.min(startTotal, endTotal);
+            const maxPos = Math.max(startTotal, endTotal);
+            
+            overlay.style.display = 'block';
+            overlay.style.top = `${minPos * 15}px`;
+            overlay.style.height = `${(maxPos - minPos + 1) * 15}px`;
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            
+            // Mostrar hora selecionada
+            const startHour = Math.floor(minPos / 4);
+            const startMin = (minPos % 4) * 15;
+            const endHour = Math.floor((maxPos + 1) / 4);
+            const endMin = ((maxPos + 1) % 4) * 15;
+            
+            overlay.innerHTML = `
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                            background: rgba(38, 25, 107, 0.9); color: white; padding: 5px 10px; 
+                            border-radius: 4px; font-size: 12px; font-weight: bold;">
+                    ${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')} - 
+                    ${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}
+                </div>
+            `;
         }
 
         function endTimeSelection(e) {
@@ -4878,64 +5095,142 @@ html, body {
                 return;
             }
             
+            // Calcular duração total dos serviços
+            const totalDuration = selectedServices.reduce((sum, s) => sum + (s.duration || 30), 0);
+            
+            // Calcular hora de término
+            const startMinutes = selectedTime.hour * 60 + selectedTime.minute;
+            const endMinutes = startMinutes + totalDuration;
+            const endHour = Math.floor(endMinutes / 60);
+            const endMinute = endMinutes % 60;
+            
             const appointmentData = {
                 clientId: selectedClient.id,
                 clientName: selectedClient.name,
-                clientPhone: selectedClient.phone,
+                clientPhone: selectedClient.phone || '',
                 date: selectedDate,
                 startTime: `${selectedTime.hour.toString().padStart(2, '0')}:${selectedTime.minute.toString().padStart(2, '0')}`,
-                services: selectedServices,
+                endTime: `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`,
+                duration: totalDuration,
+                services: selectedServices.map(s => ({
+                    id: s.id,
+                    name: s.name,
+                    price: s.price,
+                    duration: s.duration || 30
+                })),
+                serviceName: selectedServices.map(s => s.name).join(', '),
                 total: selectedServices.reduce((sum, s) => sum + s.price, 0),
                 userId: currentUser.uid,
+                collaboratorId: selectedCollaboratorId || (collaborators.length > 0 ? collaborators[0].id : null),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'scheduled'
+                status: 'scheduled',
+                reminder24h: true
             };
             
             showLoading('Salvando agendamento...');
             
             db.collection('appointments').add(appointmentData)
                 .then((docRef) => {
-                    // Enviar mensagem automática
-                    sendAppointmentConfirmation(appointmentData);
-                    
-                    // Mostrar popup de confirmação
-                    setTimeout(() => {
-                        showConfirmationPopup();
-                    }, 500);
+                    Swal.close();
                     
                     // Recarregar agenda
                     loadAppointments();
                     closeAppointmentSave();
-                    showSuccess('Agendamento salvo com sucesso!');
                     
                     // Limpar seleção
+                    const savedClient = { ...selectedClient };
+                    const savedData = { ...appointmentData };
                     selectedClient = null;
                     selectedServices = [];
                     selectedDate = null;
                     selectedTime = null;
+                    
+                    // Mostrar popup de confirmação OBRIGATÓRIO
+                    showReminderPopup(savedClient, savedData);
                 })
                 .catch((error) => {
                     showError('Erro ao salvar agendamento: ' + error.message);
                 });
         }
-
-        function sendAppointmentConfirmation(appointmentData) {
+        
+        // POPUP OBRIGATÓRIO - Notificação 24h antes
+        function showReminderPopup(client, appointmentData) {
+            const date = new Date(appointmentData.date);
+            const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+            const servicesText = appointmentData.serviceName || 'Serviço';
+            
+            Swal.fire({
+                title: 'Notificação de Confirmação',
+                html: `
+                    <p>Deseja enviar uma notificação de confirmação ao cliente <strong>${client.name}</strong> 24 horas antes do horário marcado?</p>
+                    <p class="text-muted small">Agendamento: ${dateString} às ${appointmentData.startTime}</p>
+                    <p class="text-muted small">Serviço: ${servicesText}</p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#26196b',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, enviar notificação',
+                cancelButtonText: 'Não',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showSuccess('Notificação programada para 24 horas antes!');
+                }
+                
+                // Abrir WhatsApp com mensagem de confirmação
+                if (client.phone) {
+                    openWhatsAppConfirmation(client, appointmentData);
+                } else {
+                    showSuccess('Agendamento salvo com sucesso!');
+                }
+            });
+        }
+        
+        // Abrir WhatsApp com mensagem de confirmação
+        function openWhatsAppConfirmation(client, appointmentData) {
             const date = new Date(appointmentData.date);
             const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const servicesText = appointmentData.serviceName || 'Serviço';
+            const totalValue = formatCurrency(appointmentData.total);
             
-            const message = `Agendamento realizado com sucesso para ${dateString} às ${appointmentData.startTime}.`;
+            const message = `Olá ${client.name}! 🎉\n\n` +
+                `Seu agendamento foi realizado com sucesso!\n\n` +
+                `📅 *Data:* ${dateString}\n` +
+                `⏰ *Horário:* ${appointmentData.startTime}\n` +
+                `💇 *Serviço:* ${servicesText}\n` +
+                `💰 *Valor:* ${totalValue}\n\n` +
+                `Agradecemos a preferência!\n` +
+                `Studio DeVitto`;
             
-            // Aqui você integraria com um serviço de envio de SMS ou e-mail
-            console.log('Mensagem para o cliente:', message);
+            const phone = client.phone.replace(/\D/g, '');
+            const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             
-            // Para demonstração, apenas mostramos no console
-            if (appointmentData.clientPhone) {
-                console.log(`Enviar para: ${appointmentData.clientPhone}`);
-            }
+            Swal.fire({
+                title: 'Enviar confirmação via WhatsApp?',
+                text: 'Deseja abrir o WhatsApp para enviar a confirmação ao cliente?',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#25d366',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fab fa-whatsapp"></i> Abrir WhatsApp',
+                cancelButtonText: 'Não enviar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(whatsappUrl, '_blank');
+                }
+                showSuccess('Agendamento salvo com sucesso!');
+            });
+        }
+
+        function sendAppointmentConfirmation(appointmentData) {
+            // Função mantida para compatibilidade
+            console.log('Agendamento salvo:', appointmentData);
         }
 
         function showConfirmationPopup() {
-            document.getElementById('confirmationPopup').classList.add('active');
+            // Função substituída por showReminderPopup
         }
 
         function cancelConfirmation() {
@@ -5529,7 +5824,10 @@ html, body {
                     updatePackageClientSelect();
                     document.getElementById('totalClients').textContent = clients.length;
                     
-                    // NOVO: Atualizar aniversários
+                    // CORREÇÃO: Atualizar lista de clientes em Registros
+                    updateClientRecordsList();
+                    
+                    // Atualizar aniversários
                     loadUpcomingBirthdays();
                 })
                 .catch((error) => {
@@ -7606,18 +7904,37 @@ html, body {
                 sectionEl.classList.add('active');
                 currentSection = section;
                 
-                // Mostrar/ocultar botão flutuante home
-                if (isMobileView && section !== 'dashboard') {
-                    document.getElementById('floatingHomeBtn').style.display = 'flex';
-                } else {
-                    document.getElementById('floatingHomeBtn').style.display = 'none';
+                // CORREÇÃO: Mostrar botão Home em TODAS as seções no mobile, incluindo dashboard
+                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+                if (floatingHomeBtn) {
+                    if (isMobileView) {
+                        floatingHomeBtn.style.display = 'flex';
+                    } else {
+                        floatingHomeBtn.style.display = 'none';
+                    }
                 }
                 
                 // Mostrar/ocultar botão voltar mobile
-                if (isMobileView && section !== 'dashboard') {
-                    document.getElementById('mobileBackBtn').style.display = 'block';
-                } else {
-                    document.getElementById('mobileBackBtn').style.display = 'none';
+                const mobileBackBtn = document.getElementById('mobileBackBtn');
+                if (mobileBackBtn) {
+                    if (isMobileView && section !== 'dashboard') {
+                        mobileBackBtn.style.display = 'block';
+                    } else {
+                        mobileBackBtn.style.display = 'none';
+                    }
+                }
+                
+                // CORREÇÃO: Atualizar colaboradores quando entrar na agenda
+                if (section === 'agenda') {
+                    setTimeout(() => {
+                        updateAgendaProfessionals();
+                        renderTimeColumn();
+                    }, 100);
+                }
+                
+                // CORREÇÃO: Atualizar lista de clientes quando entrar em Registros
+                if (section === 'client-records') {
+                    updateClientRecordsList();
                 }
             }
         }
@@ -7631,8 +7948,11 @@ html, body {
             // Mostrar cards mobile
             document.getElementById('mobileCards').classList.add('active');
             
-            // Ocultar botão flutuante home
-            document.getElementById('floatingHomeBtn').style.display = 'none';
+            // CORREÇÃO: Ocultar botão flutuante home na tela de cards
+            const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+            if (floatingHomeBtn) {
+                floatingHomeBtn.style.display = 'none';
+            }
         }
 
         function checkMobileDevice() {
@@ -7642,19 +7962,68 @@ html, body {
                 // Mostrar cards mobile inicialmente
                 showMobileCards();
                 
-                // Ocultar botão flutuante home inicialmente
-                document.getElementById('floatingHomeBtn').style.display = 'none';
+                // Ocultar botão flutuante home inicialmente (mostrará quando entrar em seção)
+                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+                if (floatingHomeBtn) {
+                    floatingHomeBtn.style.display = 'none';
+                }
                 
                 // Mostrar botão flutuante mobile
-                document.getElementById('floatingMobileBtn').style.display = 'flex';
+                const floatingMobileBtn = document.getElementById('floatingMobileBtn');
+                if (floatingMobileBtn) {
+                    floatingMobileBtn.style.display = 'flex';
+                }
             } else {
                 // Mostrar dashboard inicialmente
                 showSection('dashboard');
                 
-                // Ocultar botão flutuante mobile
-                document.getElementById('floatingMobileBtn').style.display = 'none';
-                document.getElementById('floatingHomeBtn').style.display = 'none';
+                // Ocultar botões flutuantes mobile
+                const floatingMobileBtn = document.getElementById('floatingMobileBtn');
+                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+                if (floatingMobileBtn) floatingMobileBtn.style.display = 'none';
+                if (floatingHomeBtn) floatingHomeBtn.style.display = 'none';
             }
+        }
+        
+        // NOVA FUNÇÃO: Atualizar lista de clientes em Registros
+        function updateClientRecordsList() {
+            const container = document.getElementById('clientCardsList');
+            if (!container) return;
+            
+            if (clients.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">Nenhum cliente cadastrado.</p>';
+                return;
+            }
+            
+            let html = '';
+            clients.forEach(client => {
+                const recentServices = allServices
+                    .filter(service => service.clientId === client.id)
+                    .sort((a, b) => {
+                        const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                        const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                        return dateB - dateA;
+                    })
+                    .slice(0, 3);
+                
+                html += `
+                    <div class="client-card card mb-2" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                        <div class="card-body py-2">
+                            <div class="d-flex align-items-center">
+                                <div class="client-avatar me-3" style="width: 40px; height: 40px; font-size: 16px;">
+                                    ${client.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">${client.name}</h6>
+                                    <p class="text-muted small mb-0">${client.phone || 'Sem telefone'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
         }
 
         function formatCurrency(value) {
@@ -8269,66 +8638,155 @@ Feliz aniversário! Desejamos um dia maravilhoso repleto de alegrias! 🎉
                 });
         }
 
-        // Funções para relatórios
+        // Funções para relatórios - VERSÃO MELHORADA
         function generateReport() {
             const reportType = document.getElementById('reportType').value;
             const reportDate = document.getElementById('reportDate').value;
             const collaboratorId = document.getElementById('reportCollaborator').value;
             
+            // Validação
+            if (!reportType) {
+                showError('Selecione um tipo de relatório');
+                return;
+            }
+            
+            if ((reportType === 'daily' || reportType === 'weekly' || reportType === 'monthly') && !reportDate) {
+                showError('Selecione uma data para o relatório');
+                return;
+            }
+            
+            if (reportType === 'collaborator' && collaboratorId === 'all') {
+                showError('Selecione um colaborador para o relatório por colaborador');
+                return;
+            }
+            
+            showLoading('Gerando relatório...');
+            
             let filteredServices = [];
             let filteredProducts = [];
+            let reportPeriod = '';
             
-            if (reportType === 'daily' && reportDate) {
-                const selectedDate = new Date(reportDate).toISOString().split('T')[0];
-                filteredServices = allServices.filter(service => service.date === selectedDate);
-                filteredProducts = allProductSales.filter(sale => sale.date === selectedDate);
-            } else if (reportType === 'weekly') {
-                const today = new Date(reportDate || new Date());
-                const startOfWeek = new Date(today);
-                const dayOfWeek = today.getDay();
-                const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-                startOfWeek.setDate(today.getDate() + diffToMonday);
-                startOfWeek.setHours(0, 0, 0, 0);
+            try {
+                if (reportType === 'daily' && reportDate) {
+                    const selectedDate = new Date(reportDate);
+                    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+                    reportPeriod = `Data: ${formatDate(selectedDate)}`;
+                    
+                    filteredServices = allServices.filter(service => {
+                        const serviceDate = service.date || (service.timestamp && service.timestamp.toDate ? 
+                            service.timestamp.toDate().toISOString().split('T')[0] : '');
+                        return serviceDate === selectedDateStr;
+                    });
+                    filteredProducts = allProductSales.filter(sale => {
+                        const saleDate = sale.date || (sale.timestamp && sale.timestamp.toDate ? 
+                            sale.timestamp.toDate().toISOString().split('T')[0] : '');
+                        return saleDate === selectedDateStr;
+                    });
+                } else if (reportType === 'weekly') {
+                    const today = new Date(reportDate || new Date());
+                    const startOfWeek = new Date(today);
+                    const dayOfWeek = today.getDay();
+                    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                    startOfWeek.setDate(today.getDate() + diffToMonday);
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    endOfWeek.setHours(23, 59, 59, 999);
+                    
+                    reportPeriod = `Semana: ${formatDate(startOfWeek)} a ${formatDate(endOfWeek)}`;
+                    
+                    filteredServices = allServices.filter(service => {
+                        const serviceDate = service.timestamp && service.timestamp.toDate ? 
+                            service.timestamp.toDate() : new Date(service.timestamp || service.date);
+                        return serviceDate >= startOfWeek && serviceDate <= endOfWeek;
+                    });
+                    
+                    filteredProducts = allProductSales.filter(sale => {
+                        const saleDate = sale.timestamp && sale.timestamp.toDate ? 
+                            sale.timestamp.toDate() : new Date(sale.timestamp || sale.date);
+                        return saleDate >= startOfWeek && saleDate <= endOfWeek;
+                    });
+                } else if (reportType === 'monthly') {
+                    const selectedDate = new Date(reportDate || new Date());
+                    const month = selectedDate.getMonth();
+                    const year = selectedDate.getFullYear();
+                    const monthName = selectedDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+                    reportPeriod = `Mês: ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`;
+                    
+                    filteredServices = allServices.filter(service => {
+                        const serviceDate = service.timestamp && service.timestamp.toDate ? 
+                            service.timestamp.toDate() : new Date(service.timestamp || service.date);
+                        return serviceDate.getMonth() === month && serviceDate.getFullYear() === year;
+                    });
+                    
+                    filteredProducts = allProductSales.filter(sale => {
+                        const saleDate = sale.timestamp && sale.timestamp.toDate ? 
+                            sale.timestamp.toDate() : new Date(sale.timestamp || sale.date);
+                        return saleDate.getMonth() === month && saleDate.getFullYear() === year;
+                    });
+                } else if (reportType === 'annual') {
+                    const selectedDate = new Date(reportDate || new Date());
+                    const year = selectedDate.getFullYear();
+                    reportPeriod = `Ano: ${year}`;
+                    
+                    filteredServices = allServices.filter(service => {
+                        const serviceDate = service.timestamp && service.timestamp.toDate ? 
+                            service.timestamp.toDate() : new Date(service.timestamp || service.date);
+                        return serviceDate.getFullYear() === year;
+                    });
+                    
+                    filteredProducts = allProductSales.filter(sale => {
+                        const saleDate = sale.timestamp && sale.timestamp.toDate ? 
+                            sale.timestamp.toDate() : new Date(sale.timestamp || sale.date);
+                        return saleDate.getFullYear() === year;
+                    });
+                } else if (reportType === 'collaborator' && collaboratorId !== 'all') {
+                    const collaborator = collaborators.find(c => c.id === collaboratorId);
+                    reportPeriod = `Colaborador: ${collaborator ? collaborator.name : 'Não encontrado'}`;
+                    
+                    filteredServices = allServices.filter(service => service.collaboratorId === collaboratorId);
+                    filteredProducts = allProductSales.filter(sale => sale.collaboratorId === collaboratorId);
+                } else if (reportType === 'inventory') {
+                    reportPeriod = 'Relatório de Estoque';
+                    // Para relatório de estoque, usamos os produtos em vez de serviços
+                    generateInventoryReport();
+                    return;
+                } else if (reportType === 'financial') {
+                    reportPeriod = 'Relatório Financeiro';
+                    generateFinancialReport();
+                    return;
+                } else {
+                    filteredServices = [...allServices];
+                    filteredProducts = [...allProductSales];
+                    reportPeriod = 'Todos os registros';
+                }
                 
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                endOfWeek.setHours(23, 59, 59, 999);
+                // Aplicar filtro de colaborador adicional se não for relatório por colaborador
+                if (reportType !== 'collaborator' && collaboratorId !== 'all') {
+                    filteredServices = filteredServices.filter(service => service.collaboratorId === collaboratorId);
+                    const collaborator = collaborators.find(c => c.id === collaboratorId);
+                    reportPeriod += ` | Colaborador: ${collaborator ? collaborator.name : 'N/A'}`;
+                }
                 
-                filteredServices = allServices.filter(service => {
-                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
-                    return serviceDate >= startOfWeek && serviceDate <= endOfWeek;
-                });
+                Swal.close();
                 
-                filteredProducts = allProductSales.filter(sale => {
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
-                    return saleDate >= startOfWeek && saleDate <= endOfWeek;
-                });
-            } else if (reportType === 'monthly') {
-                const selectedDate = new Date(reportDate || new Date());
-                const month = selectedDate.getMonth();
-                const year = selectedDate.getFullYear();
+                // Verificar se há dados
+                if (filteredServices.length === 0 && filteredProducts.length === 0) {
+                    showError('Nenhum registro encontrado para o período selecionado');
+                    return;
+                }
                 
-                filteredServices = allServices.filter(service => {
-                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
-                    return serviceDate.getMonth() === month && serviceDate.getFullYear() === year;
-                });
+                // Gerar PDF
+                generatePDFReport(filteredServices, filteredProducts, reportType, reportPeriod);
                 
-                filteredProducts = allProductSales.filter(sale => {
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
-                    return saleDate.getMonth() === month && saleDate.getFullYear() === year;
-                });
-            } else if (reportType === 'collaborator' && collaboratorId !== 'all') {
-                filteredServices = allServices.filter(service => service.collaboratorId === collaboratorId);
-                filteredProducts = allProductSales.filter(sale => sale.collaboratorId === collaboratorId);
-            } else {
-                filteredServices = allServices;
-                filteredProducts = allProductSales;
+            } catch (error) {
+                console.error('Erro ao gerar relatório:', error);
+                showError('Erro ao gerar relatório: ' + error.message);
             }
-            
-            if (collaboratorId !== 'all') {
-                filteredServices = filteredServices.filter(service => service.collaboratorId === collaboratorId);
-            }
-            
+        }
+        
+        function generatePDFReport(filteredServices, filteredProducts, reportType, reportPeriod) {
             // Criar PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -8341,23 +8799,39 @@ Feliz aniversário! Desejamos um dia maravilhoso repleto de alegrias! 🎉
             doc.setFontSize(12);
             doc.setTextColor(128, 128, 128);
             doc.text(`Relatório ${getReportTypeName(reportType)}`, 105, 25, { align: 'center' });
-            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-PT')}`, 105, 30, { align: 'center' });
+            doc.text(reportPeriod, 105, 30, { align: 'center' });
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-PT')} às ${new Date().toLocaleTimeString('pt-PT')}`, 105, 35, { align: 'center' });
             
             // Resumo
             doc.setFontSize(14);
             doc.setTextColor(0, 0, 0);
-            doc.text('Resumo', 14, 45);
+            doc.text('Resumo', 14, 50);
             
             doc.setFontSize(10);
-            const totalServicesValue = filteredServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
-            const totalProductsValue = filteredProducts.reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+            const totalServicesValue = filteredServices.reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
+            const totalProductsValue = filteredProducts.reduce((sum, sale) => sum + parseFloat(sale.totalValue || 0), 0);
             const totalValue = totalServicesValue + totalProductsValue;
             
-            doc.text(`Serviços realizados: ${filteredServices.length}`, 14, 55);
-            doc.text(`Vendas de produtos: ${filteredProducts.length}`, 14, 60);
-            doc.text(`Valor total de serviços: ${formatCurrency(totalServicesValue)}`, 14, 65);
-            doc.text(`Valor total de produtos: ${formatCurrency(totalProductsValue)}`, 14, 70);
-            doc.text(`Valor total: ${formatCurrency(totalValue)}`, 14, 75);
+            doc.text(`Serviços realizados: ${filteredServices.length}`, 14, 60);
+            doc.text(`Vendas de produtos: ${filteredProducts.length}`, 14, 65);
+            doc.text(`Valor total de serviços: ${formatCurrency(totalServicesValue)}`, 14, 70);
+            doc.text(`Valor total de produtos: ${formatCurrency(totalProductsValue)}`, 14, 75);
+            doc.text(`Valor total geral: ${formatCurrency(totalValue)}`, 14, 80);
+            
+            // Calcular comissões
+            let totalCommissions = 0;
+            filteredServices.forEach(service => {
+                const collaborator = collaborators.find(c => c.id === service.collaboratorId);
+                if (collaborator) {
+                    const percent = service.type === 'manual' ? 
+                        parseFloat(collaborator.manualPercent || 0) : 
+                        parseFloat(collaborator.productPercent || 0);
+                    totalCommissions += parseFloat(service.value || 0) * (percent / 100);
+                }
+            });
+            
+            doc.text(`Total de comissões: ${formatCurrency(totalCommissions)}`, 14, 85);
+            doc.text(`Lucro líquido (serviços): ${formatCurrency(totalServicesValue - totalCommissions)}`, 14, 90);
             
             // Serviços
             if (filteredServices.length > 0) {
@@ -8421,12 +8895,205 @@ Feliz aniversário! Desejamos um dia maravilhoso repleto de alegrias! 🎉
             doc.save(`relatorio-${reportType}-${new Date().toISOString().slice(0, 10)}.pdf`);
             showSuccess('Relatório gerado com sucesso!');
         }
+        
+        // Relatório de Estoque
+        function generateInventoryReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(20);
+            doc.setTextColor(38, 25, 107);
+            doc.text(businessSettings.name || 'Studio DeVitto', 105, 15, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Relatório de Estoque', 105, 25, { align: 'center' });
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-PT')} às ${new Date().toLocaleTimeString('pt-PT')}`, 105, 30, { align: 'center' });
+            
+            // Resumo
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Resumo do Estoque', 14, 45);
+            
+            const totalProducts = products.length;
+            const lowStockProducts = products.filter(p => p.quantity <= p.minQuantity);
+            const totalInventoryValue = products.reduce((sum, p) => sum + (p.quantity * parseFloat(p.salePrice || 0)), 0);
+            const totalInvestment = products.reduce((sum, p) => sum + (p.quantity * parseFloat(p.purchasePrice || 0)), 0);
+            
+            doc.setFontSize(10);
+            doc.text(`Total de produtos: ${totalProducts}`, 14, 55);
+            doc.text(`Produtos com estoque baixo: ${lowStockProducts.length}`, 14, 60);
+            doc.text(`Valor total em estoque (venda): ${formatCurrency(totalInventoryValue)}`, 14, 65);
+            doc.text(`Investimento total (compra): ${formatCurrency(totalInvestment)}`, 14, 70);
+            doc.text(`Lucro potencial: ${formatCurrency(totalInventoryValue - totalInvestment)}`, 14, 75);
+            
+            // Lista de produtos
+            if (products.length > 0) {
+                const productData = products.map(p => [
+                    p.name,
+                    p.quantity,
+                    p.minQuantity,
+                    formatCurrency(p.purchasePrice),
+                    formatCurrency(p.salePrice),
+                    p.quantity <= p.minQuantity ? 'BAIXO' : 'OK'
+                ]);
+                
+                doc.autoTable({
+                    startY: 85,
+                    head: [['Produto', 'Qtd', 'Mínimo', 'Compra', 'Venda', 'Status']],
+                    body: productData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [38, 25, 107] }
+                });
+            }
+            
+            // Produtos com estoque baixo
+            if (lowStockProducts.length > 0) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.setTextColor(220, 53, 69);
+                doc.text('ALERTA: Produtos com Estoque Baixo', 14, 20);
+                
+                const lowStockData = lowStockProducts.map(p => [
+                    p.name,
+                    p.quantity,
+                    p.minQuantity,
+                    `Faltam ${p.minQuantity - p.quantity + 1} unidades`
+                ]);
+                
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Produto', 'Atual', 'Mínimo', 'Observação']],
+                    body: lowStockData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [220, 53, 69] }
+                });
+            }
+            
+            doc.save(`relatorio-estoque-${new Date().toISOString().slice(0, 10)}.pdf`);
+            Swal.close();
+            showSuccess('Relatório de estoque gerado com sucesso!');
+        }
+        
+        // Relatório Financeiro
+        function generateFinancialReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const monthName = today.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+            
+            doc.setFontSize(20);
+            doc.setTextColor(38, 25, 107);
+            doc.text(businessSettings.name || 'Studio DeVitto', 105, 15, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Relatório Financeiro', 105, 25, { align: 'center' });
+            doc.text(`Mês: ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`, 105, 30, { align: 'center' });
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-PT')} às ${new Date().toLocaleTimeString('pt-PT')}`, 105, 35, { align: 'center' });
+            
+            // Calcular dados financeiros
+            const monthServices = allServices.filter(s => {
+                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+            
+            const monthProducts = allProductSales.filter(s => {
+                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+            
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.dueDate);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+            
+            const servicesRevenue = monthServices.reduce((sum, s) => sum + parseFloat(s.value || 0), 0);
+            const productsRevenue = monthProducts.reduce((sum, s) => sum + parseFloat(s.totalValue || 0), 0);
+            const totalRevenue = servicesRevenue + productsRevenue;
+            
+            const paidExpenses = monthExpenses.filter(e => e.paid).reduce((sum, e) => sum + parseFloat(e.value || 0), 0);
+            const pendingExpenses = monthExpenses.filter(e => !e.paid).reduce((sum, e) => sum + parseFloat(e.value || 0), 0);
+            
+            // Calcular comissões
+            let totalCommissions = 0;
+            monthServices.forEach(service => {
+                const collaborator = collaborators.find(c => c.id === service.collaboratorId);
+                if (collaborator) {
+                    const percent = service.type === 'manual' ? 
+                        parseFloat(collaborator.manualPercent || 0) : 
+                        parseFloat(collaborator.productPercent || 0);
+                    totalCommissions += parseFloat(service.value || 0) * (percent / 100);
+                }
+            });
+            
+            const netProfit = totalRevenue - paidExpenses - totalCommissions;
+            
+            // Resumo
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Resumo Financeiro', 14, 50);
+            
+            doc.setFontSize(10);
+            doc.text(`Receita de Serviços: ${formatCurrency(servicesRevenue)}`, 14, 60);
+            doc.text(`Receita de Produtos: ${formatCurrency(productsRevenue)}`, 14, 65);
+            doc.text(`Receita Total: ${formatCurrency(totalRevenue)}`, 14, 70);
+            doc.text(`Despesas Pagas: ${formatCurrency(paidExpenses)}`, 14, 80);
+            doc.text(`Despesas Pendentes: ${formatCurrency(pendingExpenses)}`, 14, 85);
+            doc.text(`Comissões de Colaboradores: ${formatCurrency(totalCommissions)}`, 14, 90);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(netProfit >= 0 ? 40 : 220, netProfit >= 0 ? 167 : 53, netProfit >= 0 ? 69 : 69);
+            doc.text(`Lucro Líquido: ${formatCurrency(netProfit)}`, 14, 100);
+            
+            // Despesas por categoria
+            if (monthExpenses.length > 0) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Despesas por Categoria', 14, 20);
+                
+                const categories = {};
+                monthExpenses.forEach(e => {
+                    const cat = getExpenseCategoryName(e.category);
+                    if (!categories[cat]) categories[cat] = { paid: 0, pending: 0 };
+                    if (e.paid) {
+                        categories[cat].paid += parseFloat(e.value || 0);
+                    } else {
+                        categories[cat].pending += parseFloat(e.value || 0);
+                    }
+                });
+                
+                const expenseData = Object.entries(categories).map(([cat, vals]) => [
+                    cat,
+                    formatCurrency(vals.paid),
+                    formatCurrency(vals.pending),
+                    formatCurrency(vals.paid + vals.pending)
+                ]);
+                
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Categoria', 'Pago', 'Pendente', 'Total']],
+                    body: expenseData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [220, 53, 69] }
+                });
+            }
+            
+            doc.save(`relatorio-financeiro-${new Date().toISOString().slice(0, 10)}.pdf`);
+            Swal.close();
+            showSuccess('Relatório financeiro gerado com sucesso!');
+        }
 
         function getReportTypeName(type) {
             const names = {
                 'daily': 'Diário',
                 'weekly': 'Semanal',
                 'monthly': 'Mensal',
+                'annual': 'Anual',
                 'yearly': 'Anual',
                 'collaborator': 'Por Colaborador',
                 'inventory': 'Estoque',
