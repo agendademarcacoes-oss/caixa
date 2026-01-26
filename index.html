@@ -2027,7 +2027,10 @@ html, body {
                 <!-- Sidebar -->
 <div class="col-md-3 col-lg-2 sidebar p-0">
     <nav class="nav flex-column p-3">
-        <a class="nav-link active" href="#" data-section="dashboard">
+        <a class="nav-link active" href="#" data-section="agenda">
+            <i class="fas fa-calendar-alt"></i> Agenda
+        </a>
+        <a class="nav-link" href="#" data-section="dashboard">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
         <a class="nav-link" href="#" data-section="cashier">
@@ -2047,9 +2050,6 @@ html, body {
         </a>
         <a class="nav-link" href="#" data-section="packages">
             <i class="fas fa-box"></i> Pacotes
-        </a>
-        <a class="nav-link" href="#" data-section="agenda">
-            <i class="fas fa-calendar-alt"></i> Agenda
         </a>
         <a class="nav-link" href="#" data-section="financial-control">
             <i class="fas fa-chart-line"></i> Controle Financeiro
@@ -2073,6 +2073,13 @@ html, body {
                         <!-- Menu de Cards para Mobile -->
                         <div id="mobileCards" class="mobile-cards-container active">
                             <div class="row">
+                                <div class="col-6">
+                                    <div class="mobile-card" data-section="agenda" style="border-left: 4px solid #ffd700;">
+                                        <i class="fas fa-calendar-alt" style="color: #ffd700;"></i>
+                                        <h5>Agenda</h5>
+                                        <p>Agendamentos</p>
+                                    </div>
+                                </div>
                                 <div class="col-6">
                                     <div class="mobile-card" data-section="dashboard">
                                         <i class="fas fa-tachometer-alt"></i>
@@ -2120,13 +2127,6 @@ html, body {
                                         <i class="fas fa-box"></i>
                                         <h5>Pacotes</h5>
                                         <p>Serviços</p>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mobile-card" data-section="agenda">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <h5>Agenda</h5>
-                                        <p>Agendamentos</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -4158,14 +4158,47 @@ html, body {
                 return;
             }
             
+            // CORREÇÃO: Layout baseado no número de colaboradores
+            const numCollaborators = activeCollaborators.length;
+            
+            // Configurar container baseado no número de colaboradores
+            if (numCollaborators <= 3) {
+                // 1-3 colaboradores: centralizar e distribuir igualmente
+                container.style.display = 'flex';
+                container.style.justifyContent = 'center';
+                container.style.overflowX = 'visible';
+            } else {
+                // 4+ colaboradores: scroll horizontal
+                container.style.display = 'flex';
+                container.style.justifyContent = 'flex-start';
+                container.style.overflowX = 'auto';
+            }
+            
             activeCollaborators.forEach((collaborator, index) => {
                 const div = document.createElement('div');
                 div.className = 'agenda-professional';
+                
+                // Calcular largura baseada no número de colaboradores
+                if (numCollaborators === 1) {
+                    div.style.width = '100%';
+                    div.style.maxWidth = '200px';
+                } else if (numCollaborators === 2) {
+                    div.style.width = '50%';
+                    div.style.maxWidth = '150px';
+                } else if (numCollaborators === 3) {
+                    div.style.width = '33.33%';
+                    div.style.maxWidth = '120px';
+                } else {
+                    div.style.width = 'auto';
+                    div.style.minWidth = '100px';
+                }
+                
                 div.style.textAlign = 'center';
                 div.style.display = 'flex';
                 div.style.flexDirection = 'column';
                 div.style.alignItems = 'center';
                 div.style.justifyContent = 'center';
+                div.style.padding = '5px';
                 
                 // Criar foto ou placeholder
                 const photoUrl = collaborator.photoUrl || '';
@@ -4178,7 +4211,7 @@ html, body {
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
                                  alt="${collaborator.name}"
                                  data-id="${collaborator.id}"
-                                 style="margin: 0 auto;">
+                                 style="margin: 0 auto; width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #26196b;">
                              <div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
                                   style="display: none; width: 50px; height: 50px; border-radius: 50%; background: #26196b; color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto;">
@@ -4191,7 +4224,7 @@ html, body {
                              </div>`
                         }
                     </div>
-                    <div class="agenda-professional-name" style="text-align: center;">${collaborator.name}</div>
+                    <div class="agenda-professional-name" style="text-align: center; font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">${collaborator.name}</div>
                 `;
                 container.appendChild(div);
                 
@@ -4221,6 +4254,7 @@ html, body {
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
+            const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
             
             for (let hour = 0; hour < 24; hour++) {
                 const slot = document.createElement('div');
@@ -4228,28 +4262,36 @@ html, body {
                 slot.style.position = 'relative';
                 slot.textContent = `${hour.toString().padStart(2, '0')}:00`;
                 
-                // Adicionar linha vermelha do horário atual
+                // CORREÇÃO: Linha vermelha do horário atual com hora visível
                 if (hour === currentHour) {
                     const linePosition = (currentMinute / 60) * 100;
-                    slot.innerHTML += `
-                        <div class="current-time-line" style="
+                    slot.innerHTML = `
+                        <span style="position: relative; z-index: 5;">${hour.toString().padStart(2, '0')}:00</span>
+                        <div class="current-time-indicator" style="
                             position: absolute;
-                            left: 0;
-                            right: -200%;
+                            left: -10px;
+                            right: 0;
                             top: ${linePosition}%;
-                            height: 2px;
-                            background-color: #dc3545;
-                            z-index: 10;
+                            transform: translateY(-50%);
+                            display: flex;
+                            align-items: center;
+                            z-index: 100;
                             pointer-events: none;
                         ">
                             <div style="
-                                position: absolute;
-                                left: -5px;
-                                top: -4px;
-                                width: 10px;
-                                height: 10px;
                                 background-color: #dc3545;
-                                border-radius: 50%;
+                                color: white;
+                                font-size: 10px;
+                                font-weight: bold;
+                                padding: 2px 5px;
+                                border-radius: 3px;
+                                white-space: nowrap;
+                            ">${currentTimeString}</div>
+                            <div style="
+                                flex: 1;
+                                height: 2px;
+                                background-color: #dc3545;
+                                margin-left: 3px;
                             "></div>
                         </div>
                     `;
@@ -4258,10 +4300,60 @@ html, body {
                 container.appendChild(slot);
             }
             
+            // CORREÇÃO: Adicionar linha vermelha que atravessa toda a agenda
+            addCurrentTimeLine();
+            
             // Atualizar linha do horário atual a cada minuto
             if (!window.currentTimeInterval) {
-                window.currentTimeInterval = setInterval(renderTimeColumn, 60000);
+                window.currentTimeInterval = setInterval(() => {
+                    renderTimeColumn();
+                }, 60000);
             }
+        }
+        
+        // NOVA FUNÇÃO: Adicionar linha vermelha que atravessa toda a agenda
+        function addCurrentTimeLine() {
+            const slotsContainer = document.getElementById('agendaSlotsContainer');
+            if (!slotsContainer) return;
+            
+            // Remover linha existente
+            const existingLine = document.getElementById('currentTimeLineMain');
+            if (existingLine) existingLine.remove();
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            // Calcular posição (cada hora = 60px)
+            const topPosition = (currentHour * 60) + (currentMinute);
+            
+            const timeLine = document.createElement('div');
+            timeLine.id = 'currentTimeLineMain';
+            timeLine.style.cssText = `
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: ${topPosition}px;
+                height: 2px;
+                background-color: #dc3545;
+                z-index: 50;
+                pointer-events: none;
+            `;
+            
+            // Adicionar bolinha no início
+            const dot = document.createElement('div');
+            dot.style.cssText = `
+                position: absolute;
+                left: -5px;
+                top: -4px;
+                width: 10px;
+                height: 10px;
+                background-color: #dc3545;
+                border-radius: 50%;
+            `;
+            timeLine.appendChild(dot);
+            
+            slotsContainer.appendChild(timeLine);
         }
 
         function renderAgendaGrid() {
@@ -5137,7 +5229,7 @@ html, body {
                     loadAppointments();
                     closeAppointmentSave();
                     
-                    // Limpar seleção
+                    // Limpar seleção e salvar dados para popup
                     const savedClient = { ...selectedClient };
                     const savedData = { ...appointmentData };
                     selectedClient = null;
@@ -5145,12 +5237,66 @@ html, body {
                     selectedDate = null;
                     selectedTime = null;
                     
-                    // Mostrar popup de confirmação OBRIGATÓRIO
-                    showReminderPopup(savedClient, savedData);
+                    // CORREÇÃO: Mostrar popup de confirmação com detalhes e opção WhatsApp
+                    showAppointmentConfirmationPopup(savedClient, savedData);
                 })
                 .catch((error) => {
+                    Swal.close();
                     showError('Erro ao salvar agendamento: ' + error.message);
                 });
+        }
+        
+        // NOVA FUNÇÃO: Popup de confirmação de agendamento com WhatsApp
+        function showAppointmentConfirmationPopup(client, appointmentData) {
+            const date = new Date(appointmentData.date);
+            const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const servicesText = appointmentData.serviceName || 'Serviço';
+            const totalValue = formatCurrency(appointmentData.total);
+            
+            Swal.fire({
+                title: '✅ Agendamento Salvo!',
+                html: `
+                    <div style="text-align: left; padding: 15px; background: #f8f9fa; border-radius: 10px; margin: 10px 0;">
+                        <p><strong>👤 Cliente:</strong> ${client.name}</p>
+                        <p><strong>📅 Data:</strong> ${dateString}</p>
+                        <p><strong>⏰ Horário:</strong> ${appointmentData.startTime} - ${appointmentData.endTime}</p>
+                        <p><strong>💇 Serviço:</strong> ${servicesText}</p>
+                        <p><strong>💰 Valor:</strong> ${totalValue}</p>
+                    </div>
+                    <p class="mt-3">Deseja enviar confirmação ao cliente via WhatsApp?</p>
+                `,
+                icon: 'success',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonColor: '#25d366',
+                denyButtonColor: '#26196b',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fab fa-whatsapp"></i> Enviar WhatsApp',
+                denyButtonText: 'Lembrete 24h',
+                cancelButtonText: 'Fechar',
+                reverseButtons: false
+            }).then((result) => {
+                if (result.isConfirmed && client.phone) {
+                    // Abrir WhatsApp
+                    const message = `Olá ${client.name}! 🎉\n\n` +
+                        `Seu agendamento foi confirmado!\n\n` +
+                        `📅 *Data:* ${dateString}\n` +
+                        `⏰ *Horário:* ${appointmentData.startTime}\n` +
+                        `💇 *Serviço:* ${servicesText}\n` +
+                        `💰 *Valor:* ${totalValue}\n\n` +
+                        `Agradecemos a preferência!\n` +
+                        `Studio DeVitto 💜`;
+                    
+                    const phone = client.phone.replace(/\D/g, '');
+                    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                } else if (result.isConfirmed && !client.phone) {
+                    showError('Cliente não possui telefone cadastrado.');
+                } else if (result.isDenied) {
+                    showSuccess('Lembrete programado para 24h antes do agendamento!');
+                }
+            });
+        }
         }
         
         // POPUP OBRIGATÓRIO - Notificação 24h antes
@@ -6908,25 +7054,34 @@ html, body {
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
             
+            // CORREÇÃO: Função auxiliar para converter valor com segurança (evita NaN)
+            const safeParseFloat = (value) => {
+                const parsed = parseFloat(value);
+                return isNaN(parsed) ? 0 : parsed;
+            };
+            
             // 1. CALCULAR RECEITA DE SERVIÇOS (apenas serviços prestados)
             const monthServicesRevenue = allServices
                 .filter(service => {
+                    if (!service.timestamp) return false;
                     const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
                     return serviceDate.getMonth() === currentMonth && serviceDate.getFullYear() === currentYear;
                 })
-                .reduce((sum, service) => sum + parseFloat(service.value), 0);
+                .reduce((sum, service) => sum + safeParseFloat(service.value), 0);
             
             // 2. CALCULAR RECEITA DE PRODUTOS (apenas produtos vendidos)
             const monthProductsRevenue = allProductSales
                 .filter(sale => {
+                    if (!sale.timestamp) return false;
                     const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
                     return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
                 })
-                .reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+                .reduce((sum, sale) => sum + safeParseFloat(sale.totalValue), 0);
             
             // 3. CALCULAR CUSTO DOS PRODUTOS VENDIDOS
             const monthProductsCost = allProductSales
                 .filter(sale => {
+                    if (!sale.timestamp) return false;
                     const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
                     return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
                 })
@@ -6934,7 +7089,7 @@ html, body {
                     const product = products.find(p => p.id === sale.productId);
                     if (product) {
                         // Custo = quantidade vendida * preço de compra
-                        return sum + (sale.quantity * parseFloat(product.purchasePrice));
+                        return sum + (safeParseFloat(sale.quantity) * safeParseFloat(product.purchasePrice));
                     }
                     return sum;
                 }, 0);
@@ -6942,40 +7097,45 @@ html, body {
             // 4. CALCULAR DESPESAS PAGAS (somente afetam o caixa de serviços)
             const monthServicesExpenses = expenses
                 .filter(expense => {
+                    if (!expense.dueDate) return false;
                     const expenseDate = new Date(expense.dueDate);
                     return expenseDate.getMonth() === currentMonth && 
                            expenseDate.getFullYear() === currentYear && 
                            expense.paid;
                 })
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + safeParseFloat(expense.value), 0);
             
             // 5. CALCULAR DESPESAS PENDENTES (não afetam o caixa final, apenas são mostradas como compromisso)
             const monthServicesPendingExpenses = expenses
                 .filter(expense => {
+                    if (!expense.dueDate) return false;
                     const expenseDate = new Date(expense.dueDate);
                     return expenseDate.getMonth() === currentMonth && 
                            expenseDate.getFullYear() === currentYear && 
                            !expense.paid;
                 })
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + safeParseFloat(expense.value), 0);
             
             // 6. CALCULAR FOLHA DE PAGAMENTO (afeta apenas o caixa de serviços)
             const monthServicesSalaries = salaryPayments
                 .filter(salary => {
-                    const [year, month] = salary.month.split('-').map(Number);
+                    if (!salary.month) return false;
+                    const parts = salary.month.split('-');
+                    if (parts.length !== 2) return false;
+                    const [year, month] = parts.map(Number);
                     return month === currentMonth + 1 && year === currentYear;
                 })
                 .reduce((sum, salary) => {
-                    const base = parseFloat(salary.baseValue) || 0;
-                    const bonus = parseFloat(salary.bonus) || 0;
-                    const deductions = parseFloat(salary.deductions) || 0;
+                    const base = safeParseFloat(salary.baseValue);
+                    const bonus = safeParseFloat(salary.bonus);
+                    const deductions = safeParseFloat(salary.deductions);
                     return sum + base + bonus - deductions;
                 }, 0);
             
             // 7. CALCULAR DESPESAS RECORRENTES (independente de pagamento)
             const recurringExpensesTotal = expenses
                 .filter(expense => expense.recurring)
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + safeParseFloat(expense.value), 0);
             
             // 8. CALCULAR LUCRO DOS PRODUTOS (Receita - Custo)
             const monthProductsProfit = monthProductsRevenue - monthProductsCost;
@@ -7974,8 +8134,8 @@ html, body {
                     floatingMobileBtn.style.display = 'flex';
                 }
             } else {
-                // Mostrar dashboard inicialmente
-                showSection('dashboard');
+                // Em desktop, mostrar agenda como primeira tela
+                showSection('agenda');
                 
                 // Ocultar botões flutuantes mobile
                 const floatingMobileBtn = document.getElementById('floatingMobileBtn');
@@ -8379,26 +8539,31 @@ html, body {
             const client = clients.find(c => c.id === clientId);
             if (!client) return;
             
+            const defaultMessage = `Olá ${client.name}! 🎂🎉\n\nA equipe do Studio DeVitto deseja um Feliz Aniversário!\n\nQue seu dia seja repleto de alegrias e realizações!\n\nUm grande abraço! 💜`;
+            
             Swal.fire({
                 title: 'Enviar mensagem de aniversário',
                 html: `
                     <p>Enviar mensagem para <strong>${client.name}</strong>?</p>
-                    <textarea id="birthdayMessage" class="form-control" rows="4" placeholder="Digite sua mensagem de parabéns...">
-Feliz aniversário! Desejamos um dia maravilhoso repleto de alegrias! 🎉
-                    </textarea>
+                    <textarea id="birthdayMessage" class="form-control" rows="6" placeholder="Digite sua mensagem de parabéns...">${defaultMessage}</textarea>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Enviar',
+                confirmButtonColor: '#25d366',
+                confirmButtonText: '<i class="fab fa-whatsapp"></i> Enviar via WhatsApp',
                 cancelButtonText: 'Cancelar',
                 preConfirm: () => {
                     return document.getElementById('birthdayMessage').value;
                 }
             }).then((result) => {
-                if (result.isConfirmed) {
-                    // Aqui você integraria com um serviço de envio de SMS ou e-mail
-                    showSuccess(`Mensagem de aniversário enviada para ${client.name}!`);
-                    console.log('Mensagem:', result.value);
-                    console.log('Para:', client.phone || client.email);
+                if (result.isConfirmed && client.phone) {
+                    // Abrir WhatsApp com a mensagem
+                    const phone = client.phone.replace(/\D/g, '');
+                    const message = encodeURIComponent(result.value);
+                    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+                    window.open(whatsappUrl, '_blank');
+                    showSuccess(`Mensagem de aniversário aberta para ${client.name}!`);
+                } else if (result.isConfirmed && !client.phone) {
+                    showError('Cliente não possui telefone cadastrado.');
                 }
             });
         }
@@ -9430,46 +9595,67 @@ Feliz aniversário! Desejamos um dia maravilhoso repleto de alegrias! 🎉
             // Upload da foto se houver
             const photoFile = document.getElementById('collaboratorPhotoUpload').files[0];
             
-            let photoUploadPromise = Promise.resolve(null);
-            
             if (photoFile) {
-                photoUploadPromise = new Promise((resolve, reject) => {
-                    const storageRef = storage.ref();
-                    const photoRef = storageRef.child(`collaborators/${currentUser.uid}/${collaboratorId || Date.now()}_${photoFile.name}`);
-                    
-                    photoRef.put(photoFile)
-                        .then(snapshot => snapshot.ref.getDownloadURL())
-                        .then(url => {
-                            collaboratorData.photoUrl = url;
-                            resolve(url);
-                        })
-                        .catch(error => {
-                            console.error('Erro no upload da foto:', error);
-                            resolve(null); // Continua sem foto
+                // CORREÇÃO: Upload de foto com feedback visual
+                showLoading('Fazendo upload da foto...');
+                
+                const storageRef = storage.ref();
+                const uniqueFileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                const photoRef = storageRef.child(`collaborators/${currentUser.uid}/${uniqueFileName}`);
+                
+                const uploadTask = photoRef.put(photoFile);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Progresso do upload
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload: ' + progress.toFixed(0) + '%');
+                    },
+                    (error) => {
+                        // Erro no upload
+                        console.error('Erro no upload da foto:', error);
+                        Swal.close();
+                        showError('Erro no upload da foto: ' + error.message);
+                    },
+                    () => {
+                        // Upload concluído
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            collaboratorData.photoUrl = downloadURL;
+                            saveCollaboratorData(collaboratorId, collaboratorData);
+                        }).catch((error) => {
+                            console.error('Erro ao obter URL da foto:', error);
+                            // Salvar sem foto
+                            saveCollaboratorData(collaboratorId, collaboratorData);
                         });
-                });
+                    }
+                );
+            } else {
+                // Sem foto nova, salvar direto
+                saveCollaboratorData(collaboratorId, collaboratorData);
+            }
+        }
+        
+        // NOVA FUNÇÃO: Salvar dados do colaborador no Firestore
+        function saveCollaboratorData(collaboratorId, collaboratorData) {
+            showLoading('Salvando colaborador...');
+            
+            let promise;
+            
+            if (collaboratorId) {
+                promise = db.collection('collaborators').doc(collaboratorId).update(collaboratorData);
+            } else {
+                collaboratorData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                promise = db.collection('collaborators').add(collaboratorData);
             }
             
-            photoUploadPromise.then(() => {
-                let promise;
-                
-                if (collaboratorId) {
-                    promise = db.collection('collaborators').doc(collaboratorId).update(collaboratorData);
-                } else {
-                    collaboratorData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    promise = db.collection('collaborators').add(collaboratorData);
-                }
-                
-                showLoading('Salvando colaborador...');
-                
-                return promise;
-            })
-            .then(() => {
+            promise.then(() => {
+                Swal.close();
                 bootstrap.Modal.getInstance(document.getElementById('collaboratorModal')).hide();
                 loadCollaborators();
                 showSuccess(collaboratorId ? 'Colaborador atualizado com sucesso!' : 'Colaborador adicionado com sucesso!');
             })
             .catch(error => {
+                Swal.close();
                 console.error('Erro ao salvar colaborador:', error);
                 showError('Erro ao salvar colaborador: ' + error.message);
             });
