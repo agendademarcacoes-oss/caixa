@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1928,6 +1929,157 @@ html, body {
         .sidebar .nav-link[data-section="agenda"] {
             display: flex !important;
         }
+        
+        /* ESTILOS MODERNOS PARA ANIVERSÁRIOS */
+.birthday-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.birthday-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.birthday-today-card {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    border: 2px solid #ffd700;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+.birthday-upcoming-card {
+    border-left: 4px solid #26196b;
+}
+
+.birthday-avatar {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.birthday-avatar .avatar-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.birthday-today-avatar .avatar-inner {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+}
+
+.birthday-sparkle {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ffd700;
+    color: #000;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    animation: sparkle 1.5s infinite alternate;
+}
+
+@keyframes sparkle {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.birthday-details {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.birthday-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.birthdays-header {
+    background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.birthdays-header h4 {
+    color: white;
+    margin: 0;
+}
+
+.client-avatar-large {
+    background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%);
+    box-shadow: 0 4px 15px rgba(38, 25, 107, 0.3);
+}
+
+/* Badges modernos */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Botões modernos */
+.btn-success {
+    background: linear-gradient(135deg, #25D366 0%, #1da851 100%);
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border: none;
+    color: #000;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .birthday-card {
+        padding: 15px;
+    }
+    
+    .birthday-avatar {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .birthday-avatar .avatar-inner {
+        font-size: 20px;
+    }
+    
+    .birthday-details {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
     </style>
 </head>
 <body>
@@ -8268,145 +8420,319 @@ html, body {
             showSuccess('Horários de funcionamento salvos com sucesso!');
         }
 
-        // Funções para aniversários
         function loadUpcomingBirthdays() {
-            const container = document.getElementById('upcomingBirthdaysList');
-            const birthdaysContainer = document.getElementById('birthdaysList');
+    const container = document.getElementById('upcomingBirthdaysList');
+    const birthdaysContainer = document.getElementById('birthdaysList');
+    
+    if (clients.length === 0) {
+        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-birthday-cake fa-3x text-muted mb-3"></i><p class="text-muted">Nenhum aniversário próximo.</p></div>';
+        if (birthdaysContainer) {
+            birthdaysContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-birthday-cake fa-4x text-muted mb-4"></i><h5 class="text-muted">Nenhum aniversário próximo encontrado.</h5></div>';
+        }
+        return;
+    }
+    
+    const today = new Date();
+    const todayMonth = today.getMonth();
+    const todayDay = today.getDate();
+    
+    const upcomingBirthdays = clients
+        .filter(client => {
+            if (!client.birthdate) return false;
             
-            if (clients.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum aniversário próximo.</p>';
-                if (birthdaysContainer) {
-                    birthdaysContainer.innerHTML = '<p class="text-muted">Nenhum aniversário próximo encontrado.</p>';
-                }
-                return;
+            const birthdate = new Date(client.birthdate);
+            const birthMonth = birthdate.getMonth();
+            const birthDay = birthdate.getDate();
+            
+            // Verifica se é HOJE
+            if (birthMonth === todayMonth && birthDay === todayDay) {
+                return true;
             }
             
-            const today = new Date();
-            const nextWeek = new Date();
-            nextWeek.setDate(today.getDate() + 7);
+            // Verifica se é nos próximos 7 dias
+            const currentYear = today.getFullYear();
+            const nextBirthday = new Date(currentYear, birthMonth, birthDay);
             
-            const upcomingBirthdays = clients
-                .filter(client => {
-                    if (!client.birthdate) return false;
-                    const birthdate = new Date(client.birthdate);
-                    const currentYear = today.getFullYear();
-                    
-                    // Ajustar para o aniversário deste ano
-                    const thisYearBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
-                    
-                    // Se o aniversário já passou este ano, usar próximo ano
-                    const nextBirthday = thisYearBirthday < today ? 
-                        new Date(currentYear + 1, birthdate.getMonth(), birthdate.getDate()) : 
-                        thisYearBirthday;
-                    
-                    return nextBirthday >= today && nextBirthday <= nextWeek;
-                })
-                .sort((a, b) => {
-                    const dateA = new Date(a.birthdate);
-                    const dateB = new Date(b.birthdate);
-                    const currentYear = today.getFullYear();
-                    
-                    const nextA = new Date(currentYear, dateA.getMonth(), dateA.getDate());
-                    const nextB = new Date(currentYear, dateB.getMonth(), dateB.getDate());
-                    
-                    return nextA - nextB;
-                });
-            
-            // Atualizar contador no dashboard
-            document.getElementById('upcomingBirthdays').textContent = upcomingBirthdays.length;
-            
-            if (upcomingBirthdays.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum aniversário próximo.</p>';
-                if (birthdaysContainer) {
-                    birthdaysContainer.innerHTML = '<p class="text-muted">Nenhum aniversário próximo encontrado.</p>';
-                }
-                return;
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(currentYear + 1);
             }
             
-            let html = '';
-            upcomingBirthdays.forEach(client => {
-                const birthdate = new Date(client.birthdate);
-                const today = new Date();
-                const currentYear = today.getFullYear();
-                const nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
-                
-                if (nextBirthday < today) {
-                    nextBirthday.setFullYear(currentYear + 1);
-                }
-                
-                const daysDiff = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-                let statusClass = '';
-                
-                if (daysDiff === 0) {
-                    statusClass = 'birthday-today';
-                } else if (daysDiff <= 3) {
-                    statusClass = 'text-danger';
-                } else {
-                    statusClass = 'text-warning';
-                }
-                
-                const age = currentYear - birthdate.getFullYear();
-                
-                html += `
-                    <div class="birthday-item ${statusClass}">
-                        <div>
-                            <strong>${client.name}</strong>
-                            <div class="small">
-                                ${formatDate(client.birthdate)} (${age} anos) - 
-                                ${daysDiff === 0 ? 'Hoje!' : `em ${daysDiff} dia(s)`}
-                            </div>
-                        </div>
-                        <div>
-                            ${daysDiff === 0 ? '<span class="badge birthday-today-badge">HOJE!</span>' : ''}
-                            <button class="btn btn-sm btn-outline-primary" onclick="contactClient('${client.id}')">
-                                <i class="fas fa-birthday-cake"></i>
-                            </button>
+            const daysDiff = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+            return daysDiff <= 7 && daysDiff > 0;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(a.birthdate);
+            const dateB = new Date(b.birthdate);
+            const currentYear = today.getFullYear();
+            
+            const birthMonthA = dateA.getMonth();
+            const birthDayA = dateA.getDate();
+            const birthMonthB = dateB.getMonth();
+            const birthDayB = dateB.getDate();
+            
+            // Hoje primeiro
+            const isAToday = birthMonthA === todayMonth && birthDayA === todayDay;
+            const isBToday = birthMonthB === todayMonth && birthDayB === todayDay;
+            
+            if (isAToday && !isBToday) return -1;
+            if (isBToday && !isAToday) return 1;
+            
+            // Depois ordena por data mais próxima
+            const nextA = new Date(currentYear, birthMonthA, birthDayA);
+            const nextB = new Date(currentYear, birthMonthB, birthDayB);
+            
+            if (nextA < today) nextA.setFullYear(currentYear + 1);
+            if (nextB < today) nextB.setFullYear(currentYear + 1);
+            
+            return nextA - nextB;
+        });
+    
+    // Atualizar contador no dashboard
+    document.getElementById('upcomingBirthdays').textContent = upcomingBirthdays.length;
+    
+    if (upcomingBirthdays.length === 0) {
+        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-birthday-cake fa-3x text-muted mb-3"></i><p class="text-muted">Nenhum aniversário próximo.</p></div>';
+        if (birthdaysContainer) {
+            birthdaysContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-birthday-cake fa-4x text-muted mb-4"></i><h5 class="text-muted">Nenhum aniversário próximo encontrado.</h5></div>';
+        }
+        return;
+    }
+    
+    let html = '';
+    upcomingBirthdays.forEach(client => {
+        const birthdate = new Date(client.birthdate);
+        const birthMonth = birthdate.getMonth();
+        const birthDay = birthdate.getDate();
+        const currentYear = today.getFullYear();
+        
+        // Verifica se é HOJE
+        const isToday = (birthMonth === todayMonth && birthDay === todayDay);
+        
+        let daysDiff;
+        let nextBirthday;
+        
+        if (isToday) {
+            daysDiff = 0;
+            nextBirthday = today;
+        } else {
+            nextBirthday = new Date(currentYear, birthMonth, birthDay);
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(currentYear + 1);
+            }
+            daysDiff = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+        }
+        
+        const age = currentYear - birthdate.getFullYear();
+        
+        // Layout moderno e elegante
+        html += `
+            <div class="birthday-card ${isToday ? 'birthday-today-card' : 'birthday-upcoming-card'} mb-3">
+                <div class="d-flex align-items-center p-3">
+                    <div class="birthday-avatar ${isToday ? 'birthday-today-avatar' : ''} me-3">
+                        <div class="avatar-inner">
+                            ${client.name.charAt(0).toUpperCase()}
+                            ${isToday ? '<div class="birthday-sparkle"><i class="fas fa-sparkle"></i></div>' : ''}
                         </div>
                     </div>
-                `;
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1 fw-bold ${isToday ? 'text-primary' : ''}">${client.name}</h6>
+                                <div class="birthday-details">
+                                    <span class="badge bg-light text-dark me-2">
+                                        <i class="fas fa-cake-candles me-1"></i>${formatDate(client.birthdate)}
+                                    </span>
+                                    <span class="badge bg-light text-dark me-2">
+                                        <i class="fas fa-candle me-1"></i>${age} anos
+                                    </span>
+                                    ${isToday ? 
+                                        '<span class="badge bg-danger text-white"><i class="fas fa-star me-1"></i>HOJE!</span>' : 
+                                        `<span class="badge ${daysDiff <= 3 ? 'bg-warning' : 'bg-info'} text-white">
+                                            <i class="fas fa-calendar-day me-1"></i>${daysDiff === 1 ? 'Amanhã' : `Em ${daysDiff} dias`}
+                                        </span>`
+                                    }
+                                </div>
+                            </div>
+                            <div class="birthday-actions">
+                                ${client.phone ? `
+                                    <button class="btn btn-sm ${isToday ? 'btn-success' : 'btn-outline-primary'} me-2" 
+                                            onclick="sendBirthdayWish('${client.id}', '${client.name}', '${client.phone}', ${isToday})"
+                                            title="${isToday ? 'Enviar parabéns!' : 'Lembrar do aniversário'}">
+                                        <i class="fab fa-whatsapp"></i>
+                                        ${isToday ? 'Parabéns!' : 'Lembrar'}
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm ${isToday ? 'btn-warning' : 'btn-outline-secondary'}" 
+                                        onclick="showClientDetails('${client.id}')"
+                                        title="Ver detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${isToday ? `
+                            <div class="mt-2">
+                                <div class="alert alert-success py-2 mb-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-gift me-2"></i>
+                                        <div>
+                                            <strong>🎉 Hoje é o grande dia!</strong> 
+                                            <small class="d-block">Não se esqueça de parabenizar ${client.name}!</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Atualizar também a página de aniversários
+    if (birthdaysContainer) {
+        birthdaysContainer.innerHTML = `
+            <div class="birthdays-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-birthday-cake text-primary me-2"></i>Aniversariantes</h4>
+                    <span class="badge bg-primary">${upcomingBirthdays.length} aniversário(s)</span>
+                </div>
+                <p class="text-muted mb-0">Gerencie os aniversários dos seus clientes</p>
+            </div>
+            ${html}
+        `;
+    }
+}
+
+// NOVA FUNÇÃO PARA ENVIAR PARABÉNS VIA WHATSAPP (MODERNA)
+function sendBirthdayWish(clientId, clientName, clientPhone, isToday) {
+    // Formata o telefone (remove tudo que não é número)
+    const phone = clientPhone.replace(/\D/g, '');
+    
+    // Mensagem personalizada baseada se é hoje ou futuro
+    let message;
+    if (isToday) {
+        message = `🎂 *FELIZ ANIVERSÁRIO, ${clientName.toUpperCase()}!* 🎉
+
+Que este dia seja tão incrível quanto você! 🎈
+
+Desejamos muita saúde, alegria, prosperidade e muitos momentos felizes! 
+
+Que todos os seus sonhos se realizem e que este novo ano de vida seja repleto de conquistas e realizações! ✨
+
+Um forte abraço da equipe ${businessSettings.name || 'Studio DeVitto'}! ❤️
+
+*P.S.: Temos uma surpresa especial para você na sua próxima visita!* 🎁`;
+    } else {
+        // Mensagem para lembrar do aniversário futuro
+        message = `Olá! 👋
+
+Só passando para lembrar que em breve é o aniversário do(a) ${clientName}! 🎂
+
+Que tal preparar uma surpresa ou já ir pensando nos parabéns? 
+
+Equipe ${businessSettings.name || 'Studio DeVitto'}`;
+    }
+    
+    // URL do WhatsApp
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    
+    // Modal elegante para confirmação
+    Swal.fire({
+        title: isToday ? '🎉 Enviar Parabéns!' : '📅 Lembrar do Aniversário',
+        html: `
+            <div class="text-center">
+                <div class="mb-3">
+                    <i class="fab fa-whatsapp fa-3x text-success"></i>
+                </div>
+                <p>${isToday ? 
+                    `Deseja enviar uma mensagem de <strong>Feliz Aniversário</strong> para <strong>${clientName}</strong>?` : 
+                    `Deseja lembrar ${clientName} sobre o aniversário que será em breve?`
+                }</p>
+                <div class="message-preview p-3 bg-light rounded text-start mt-3">
+                    <small class="text-muted">Pré-visualização da mensagem:</small>
+                    <p class="mt-2 mb-0 small">${message.substring(0, 150)}...</p>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: isToday ? '<i class="fab fa-whatsapp"></i> Enviar Parabéns!' : '<i class="fab fa-whatsapp"></i> Enviar Lembrete',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#25D366',
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false,
+        width: '500px'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Abre o WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            // Mostra confirmação
+            Swal.fire({
+                title: '✅ Pronto!',
+                text: `${isToday ? 'Parabéns enviados!' : 'Lembrete enviado!'} O WhatsApp foi aberto.`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
             });
             
-            container.innerHTML = html;
-            
-            // Atualizar também a página de aniversários
-            if (birthdaysContainer) {
-                birthdaysContainer.innerHTML = html;
+            // Registra o envio (opcional - para histórico)
+            if (currentUser) {
+                const logData = {
+                    clientId: clientId,
+                    clientName: clientName,
+                    type: isToday ? 'birthday_wish' : 'birthday_reminder',
+                    sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                db.collection('birthdayLogs').add(logData)
+                    .catch(error => console.error('Erro ao registrar envio:', error));
             }
         }
+    });
+}
 
-        function contactClient(clientId) {
-            const client = clients.find(c => c.id === clientId);
-            if (!client) return;
-            
-            const defaultMessage = `Olá ${client.name}! 🎂🎉\n\nA equipe do Studio DeVitto deseja um Feliz Aniversário!\n\nQue seu dia seja repleto de alegrias e realizações!\n\nUm grande abraço! 💜`;
-            
-            Swal.fire({
-                title: 'Enviar mensagem de aniversário',
-                html: `
-                    <p>Enviar mensagem para <strong>${client.name}</strong>?</p>
-                    <textarea id="birthdayMessage" class="form-control" rows="6" placeholder="Digite sua mensagem de parabéns...">${defaultMessage}</textarea>
-                `,
-                showCancelButton: true,
-                confirmButtonColor: '#25d366',
-                confirmButtonText: '<i class="fab fa-whatsapp"></i> Enviar via WhatsApp',
-                cancelButtonText: 'Cancelar',
-                preConfirm: () => {
-                    return document.getElementById('birthdayMessage').value;
-                }
-            }).then((result) => {
-                if (result.isConfirmed && client.phone) {
-                    // Abrir WhatsApp com a mensagem
-                    const phone = client.phone.replace(/\D/g, '');
-                    const message = encodeURIComponent(result.value);
-                    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
-                    window.open(whatsappUrl, '_blank');
-                    showSuccess(`Mensagem de aniversário aberta para ${client.name}!`);
-                } else if (result.isConfirmed && !client.phone) {
-                    showError('Cliente não possui telefone cadastrado.');
-                }
-            });
-        }
-
+// Função auxiliar para mostrar detalhes do cliente
+function showClientDetails(clientId) {
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+    
+    Swal.fire({
+        title: `👤 ${client.name}`,
+        html: `
+            <div class="text-start">
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <div class="client-avatar-large bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px; font-size: 32px;">
+                            ${client.name.charAt(0).toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <p><strong><i class="fas fa-phone me-2"></i>Telefone:</strong><br>${client.phone || 'Não informado'}</p>
+                        <p><strong><i class="fas fa-envelope me-2"></i>E-mail:</strong><br>${client.email || 'Não informado'}</p>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <p><strong><i class="fas fa-cake-candles me-2"></i>Aniversário:</strong> ${formatDate(client.birthdate)}</p>
+                    ${client.phone ? `
+                        <button class="btn btn-success w-100 mt-2" onclick="sendBirthdayWish('${client.id}', '${client.name}', '${client.phone}', true)">
+                            <i class="fab fa-whatsapp me-2"></i>Enviar Parabéns Agora
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: '600px'
+    });
+}
         // Funções para registros de clientes
         function searchClientRecords() {
             const searchTerm = document.getElementById('clientRecordsSearch').value.toLowerCase();
