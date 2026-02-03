@@ -785,21 +785,40 @@ html, body {
             border-color: var(--primary-color);
         }
         
+        /* PROFISSIONAIS - Layout melhorado */
         .agenda-professionals {
             display: flex;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            background: white;
+            padding: 15px 10px;
+            border-bottom: 2px solid #eee;
+            background: linear-gradient(to bottom, #f8f9fa, white);
             overflow-x: auto;
             scrollbar-width: thin;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        /* Quando há muitos profissionais, alinhar à esquerda com scroll */
+        .agenda-professionals.scrollable {
+            justify-content: flex-start;
         }
         
         .agenda-professional {
             flex: 0 0 auto;
-            width: 80px;
+            min-width: 80px;
+            max-width: 100px;
             text-align: center;
-            padding: 0 10px;
+            padding: 5px 10px;
             cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .agenda-professional:hover {
+            background: rgba(38, 25, 107, 0.05);
+        }
+        
+        .agenda-professional.selected {
+            background: rgba(38, 25, 107, 0.1);
         }
         
         .agenda-professional-photo {
@@ -808,18 +827,27 @@ html, body {
             border-radius: 50%;
             object-fit: cover;
             margin: 0 auto 5px;
-            border: 2px solid transparent;
-            transition: border-color 0.3s;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .agenda-professional-photo:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        
+        .agenda-professional.selected .agenda-professional-photo {
             border-color: var(--primary-color);
         }
         
         .agenda-professional-name {
             font-size: 12px;
             color: #333;
-            font-weight: 500;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .agenda-content {
@@ -829,10 +857,16 @@ html, body {
             position: relative;
         }
         
+        /* LAYOUT AGENDA CORRIGIDO - Coluna de horários 5% */
         .agenda-time-column {
-            width: 60px;
+            width: 5%;
+            min-width: 50px;
+            max-width: 60px;
             flex-shrink: 0;
             background: #f8f9fa;
+            position: sticky;
+            left: 0;
+            z-index: 5;
         }
         
         .agenda-time-slot {
@@ -840,15 +874,17 @@ html, body {
             border-bottom: 1px solid #eee;
             display: flex;
             align-items: flex-start;
-            justify-content: flex-end;
-            padding: 5px 8px;
-            font-size: 12px;
+            justify-content: center;
+            padding: 5px 4px;
+            font-size: 11px;
             color: #6c757d;
+            font-weight: 500;
         }
         
         .agenda-slots-container {
             flex: 1;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: auto;
             position: relative;
         }
         
@@ -857,10 +893,19 @@ html, body {
             min-width: 100%;
         }
         
+        /* Colaboradores - máximo 3 visíveis, scroll para 4+ */
         .agenda-day-column {
             flex: 1;
-            min-width: 120px;
+            min-width: 200px;
+            max-width: 33.33%;
             border-right: 1px solid #eee;
+        }
+        
+        /* Quando há 4 ou mais colaboradores, permitir scroll horizontal */
+        .agenda-grid.scrollable .agenda-day-column {
+            flex: 0 0 auto;
+            min-width: 250px;
+            max-width: none;
         }
         
         .agenda-day-header {
@@ -889,15 +934,35 @@ html, body {
             border-bottom: 1px solid #eee;
             position: relative;
             cursor: pointer;
+            transition: background-color 0.15s ease;
         }
         
         .agenda-slot:hover {
-            background: #f8f9fa;
+            background: rgba(38, 25, 107, 0.05);
         }
         
+        /* MELHORIA - Slots de 15 minutos mais claros e interativos */
         .agenda-slot-quarter {
             height: 15px;
-            border-bottom: 1px dotted #eee;
+            border-bottom: 1px dotted #e0e0e0;
+            transition: background-color 0.1s ease;
+            position: relative;
+        }
+        
+        .agenda-slot-quarter:hover {
+            background: rgba(38, 25, 107, 0.1);
+        }
+        
+        .agenda-slot-quarter:hover::after {
+            content: '+';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0.7;
         }
         
         .agenda-appointment {
@@ -918,13 +983,21 @@ html, body {
             opacity: 0.9;
         }
         
+        /* MELHORIA - Overlay de seleção mais visível e intuitivo */
         .agenda-selection-overlay {
             position: absolute;
-            background: rgba(106, 90, 205, 0.3);
-            border: 2px solid rgba(106, 90, 205, 0.7);
-            border-radius: 4px;
+            background: linear-gradient(135deg, rgba(38, 25, 107, 0.3), rgba(74, 58, 156, 0.3));
+            border: 3px solid var(--primary-color);
+            border-radius: 8px;
             pointer-events: none;
-            z-index: 3;
+            z-index: 50;
+            box-shadow: 0 4px 15px rgba(38, 25, 107, 0.3);
+            animation: pulse-selection 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-selection {
+            0% { box-shadow: 0 4px 15px rgba(38, 25, 107, 0.3); }
+            100% { box-shadow: 0 4px 25px rgba(38, 25, 107, 0.5); }
         }
         
         /* Modal de seleção de data */
@@ -4114,17 +4187,41 @@ html, body {
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             
-            // Navegação
-            document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link').forEach(link => {
+            // Navegação - MENU DESKTOP CORRIGIDO
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const section = this.getAttribute('data-section');
-                    showSection(section);
                     
-                    document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link').forEach(item => {
+                    // Remover classe ativa de TODOS os links do sidebar
+                    document.querySelectorAll('.sidebar .nav-link').forEach(item => {
                         item.classList.remove('active');
                     });
+                    
+                    // Adicionar classe ativa apenas ao link clicado
                     this.classList.add('active');
+                    
+                    // Mostrar a seção correspondente
+                    showSection(section);
+                });
+            });
+            
+            // Navegação - MENU MOBILE SEPARADO
+            document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    // Remover classe ativa de TODOS os links do mobile menu
+                    document.querySelectorAll('.mobile-menu .nav-link').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Adicionar classe ativa apenas ao link clicado
+                    this.classList.add('active');
+                    
+                    // Mostrar a seção correspondente
+                    showSection(section);
                 });
             });
 
@@ -4306,17 +4403,29 @@ html, body {
             // Se não há colaboradores, mostrar placeholder
             if (activeCollaborators.length === 0) {
                 container.innerHTML = '<div class="text-muted text-center p-3">Nenhum colaborador ativo</div>';
+                container.classList.remove('scrollable');
                 return;
+            }
+            
+            // Adicionar classe scrollable se 4+ colaboradores
+            if (activeCollaborators.length > 3) {
+                container.classList.add('scrollable');
+            } else {
+                container.classList.remove('scrollable');
             }
             
             activeCollaborators.forEach((collaborator, index) => {
                 const div = document.createElement('div');
                 div.className = 'agenda-professional';
-                div.style.textAlign = 'center';
-                div.style.display = 'flex';
-                div.style.flexDirection = 'column';
-                div.style.alignItems = 'center';
-                div.style.justifyContent = 'center';
+                div.setAttribute('data-collaborator-id', collaborator.id);
+                
+                // Marcar primeiro como selecionado por padrão
+                if (index === 0 && !selectedCollaboratorId) {
+                    selectedCollaboratorId = collaborator.id;
+                    div.classList.add('selected');
+                } else if (selectedCollaboratorId === collaborator.id) {
+                    div.classList.add('selected');
+                }
                 
                 // Criar foto ou placeholder
                 const photoUrl = collaborator.photoUrl || '';
@@ -4332,32 +4441,37 @@ html, body {
                                  style="margin: 0 auto;">
                              <div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
-                                  style="display: none; width: 50px; height: 50px; border-radius: 50%; background: #26196b; color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto;">
+                                  style="display: none; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                  ${initials}
                              </div>` :
                             `<div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
-                                  style="width: 50px; height: 50px; border-radius: 50%; background: #26196b; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto;">
+                                  style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                  ${initials}
                              </div>`
                         }
                     </div>
-                    <div class="agenda-professional-name" style="text-align: center;">${collaborator.name}</div>
+                    <div class="agenda-professional-name">${collaborator.name}</div>
                 `;
-                container.appendChild(div);
                 
-                // Marcar primeiro colaborador como selecionado
-                if (index === 0 && !selectedCollaboratorId) {
+                // Evento de clique no card do profissional
+                div.addEventListener('click', function() {
+                    // Remover seleção de todos
+                    document.querySelectorAll('.agenda-professional').forEach(p => p.classList.remove('selected'));
+                    // Adicionar seleção ao clicado
+                    this.classList.add('selected');
                     selectedCollaboratorId = collaborator.id;
-                }
+                });
+                
+                container.appendChild(div);
             });
             
-            // Adicionar evento de clique nas fotos/placeholders
+            // Adicionar evento de clique nas fotos/placeholders para ver perfil
             container.querySelectorAll('.agenda-professional-photo, .agenda-professional-placeholder').forEach(photo => {
-                photo.addEventListener('click', function() {
+                photo.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
                     const collaboratorId = this.getAttribute('data-id');
                     if (collaboratorId) {
-                        selectedCollaboratorId = collaboratorId;
                         showCollaboratorProfile(collaboratorId);
                     }
                 });
@@ -4372,6 +4486,7 @@ html, body {
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
+            const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
             
             for (let hour = 0; hour < 24; hour++) {
                 const slot = document.createElement('div');
@@ -4379,31 +4494,59 @@ html, body {
                 slot.style.position = 'relative';
                 slot.textContent = `${hour.toString().padStart(2, '0')}:00`;
                 
-                // Adicionar linha vermelha do horário atual
+                // Adicionar linha vermelha do horário atual - CORRIGIDA para atravessar toda a tela
                 if (hour === currentHour) {
                     const linePosition = (currentMinute / 60) * 100;
-                    slot.innerHTML += `
-                        <div class="current-time-line" style="
+                    
+                    // Limpar linha anterior se existir
+                    const existingLine = document.querySelector('.current-time-line-global');
+                    if (existingLine) existingLine.remove();
+                    
+                    slot.innerHTML = `
+                        <div style="
                             position: absolute;
-                            left: 0;
-                            right: -200%;
+                            left: -5px;
                             top: ${linePosition}%;
-                            height: 2px;
-                            background-color: #dc3545;
-                            z-index: 10;
+                            display: flex;
+                            align-items: center;
+                            z-index: 100;
                             pointer-events: none;
                         ">
                             <div style="
-                                position: absolute;
-                                left: -5px;
-                                top: -4px;
-                                width: 10px;
-                                height: 10px;
                                 background-color: #dc3545;
-                                border-radius: 50%;
-                            "></div>
+                                color: white;
+                                padding: 2px 6px;
+                                border-radius: 4px;
+                                font-size: 10px;
+                                font-weight: bold;
+                                white-space: nowrap;
+                            ">${currentTimeStr}</div>
                         </div>
                     `;
+                    
+                    // Adicionar linha que atravessa toda a agenda
+                    const agendaContent = document.querySelector('.agenda-content');
+                    if (agendaContent) {
+                        const globalLine = document.createElement('div');
+                        globalLine.className = 'current-time-line-global';
+                        globalLine.style.cssText = `
+                            position: absolute;
+                            left: 0;
+                            right: 0;
+                            top: calc(${(hour * 60 + currentMinute)}px + 0px);
+                            height: 2px;
+                            background: linear-gradient(90deg, #dc3545, #dc3545 70%, transparent 100%);
+                            z-index: 50;
+                            pointer-events: none;
+                        `;
+                        agendaContent.style.position = 'relative';
+                        
+                        // Calcular posição baseada na altura dos slots (60px por hora)
+                        const topPosition = (hour * 60) + (currentMinute);
+                        globalLine.style.top = `${topPosition}px`;
+                        
+                        agendaContent.appendChild(globalLine);
+                    }
                 }
                 
                 container.appendChild(slot);
@@ -4411,7 +4554,12 @@ html, body {
             
             // Atualizar linha do horário atual a cada minuto
             if (!window.currentTimeInterval) {
-                window.currentTimeInterval = setInterval(renderTimeColumn, 60000);
+                window.currentTimeInterval = setInterval(() => {
+                    // Remover linha global antiga
+                    const existingLine = document.querySelector('.current-time-line-global');
+                    if (existingLine) existingLine.remove();
+                    renderTimeColumn();
+                }, 60000);
             }
         }
 
@@ -4422,6 +4570,14 @@ html, body {
             
             const days = getDaysForView();
             
+            // Verificar se precisa scroll horizontal (4+ colaboradores)
+            const activeCollaborators = collaborators.filter(c => c.active);
+            if (activeCollaborators.length > 3) {
+                container.classList.add('scrollable');
+            } else {
+                container.classList.remove('scrollable');
+            }
+            
             days.forEach(day => {
                 const dayColumn = document.createElement('div');
                 dayColumn.className = 'agenda-day-column';
@@ -4430,13 +4586,21 @@ html, body {
                 // Cabeçalho do dia
                 const header = document.createElement('div');
                 header.className = 'agenda-day-header';
+                
+                // Verificar se é hoje para destacar
+                const isToday = day.toDateString() === new Date().toDateString();
+                if (isToday) {
+                    header.style.background = 'linear-gradient(135deg, #26196b 0%, #4a3a9c 100%)';
+                    header.style.color = 'white';
+                }
+                
                 header.innerHTML = `
-                    <div class="agenda-day-name">${day.toLocaleDateString('pt-PT', { weekday: 'short' })}</div>
-                    <div class="agenda-day-number">${day.getDate()}</div>
+                    <div class="agenda-day-name" style="${isToday ? 'color: rgba(255,255,255,0.8);' : ''}">${day.toLocaleDateString('pt-PT', { weekday: 'short' })}</div>
+                    <div class="agenda-day-number" style="${isToday ? 'color: white;' : ''}">${day.getDate()}</div>
                 `;
                 dayColumn.appendChild(header);
                 
-                // Slots de horário
+                // Slots de horário com feedback visual melhorado
                 for (let hour = 0; hour < 24; hour++) {
                     for (let quarter = 0; quarter < 4; quarter++) {
                         const slot = document.createElement('div');
@@ -4444,6 +4608,11 @@ html, body {
                         slot.setAttribute('data-hour', hour);
                         slot.setAttribute('data-quarter', quarter);
                         slot.setAttribute('data-date', day.toISOString().split('T')[0]);
+                        
+                        // Adicionar indicador de hora cheia
+                        if (quarter === 0) {
+                            slot.style.borderTop = '1px solid #ddd';
+                        }
                         
                         slot.addEventListener('mousedown', startTimeSelection);
                         slot.addEventListener('touchstart', startTimeSelection);
@@ -8049,6 +8218,14 @@ html, body {
             // Esconder cards mobile
             document.getElementById('mobileCards').classList.remove('active');
             
+            // CORREÇÃO MENU DESKTOP: Atualizar estado ativo dos links do sidebar
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === section) {
+                    link.classList.add('active');
+                }
+            });
+            
             // Mostrar a seção selecionada
             const sectionEl = document.getElementById(section);
             if (sectionEl) {
@@ -8080,6 +8257,7 @@ html, body {
                     setTimeout(() => {
                         updateAgendaProfessionals();
                         renderTimeColumn();
+                        renderAgendaGrid();
                     }, 100);
                 }
                 
@@ -10030,69 +10208,11 @@ function showClientDetails(clientId) {
         }
 
         // Ajustar layout da agenda em dispositivos móveis
-         window.addEventListener('resize', function() {
+        window.addEventListener('resize', function() {
             if (currentUser && currentSection === 'agenda') {
                 renderAgendaGrid();
             }
         });
-        
-        // ============================================
-        // SOLUÇÃO MÁGICA PARA O MENU - COLE DAQUI PARA BAIXO
-        // ============================================
-        
-        // Espera tudo carregar
-        setTimeout(function() {
-            console.log("🎯 Aplicando correção do menu...");
-            
-            // CORREÇÃO SIMPLES: Apenas um botão azul por vez
-            function corrigirMenu() {
-                // Quando clica em qualquer menu
-                document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(item) {
-                    item.addEventListener('click', function() {
-                        // Tira azul de TODOS
-                        document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(i) {
-                            i.classList.remove('active');
-                        });
-                        // Coloca azul só neste
-                        this.classList.add('active');
-                    });
-                });
-                
-                // Botão Home mobile
-                var homeBtn = document.getElementById('floatingHomeBtn');
-                var menuBtn = document.getElementById('floatingMobileBtn');
-                
-                if (homeBtn) {
-                    homeBtn.addEventListener('click', function() {
-                        // Volta para cards mobile
-                        document.querySelectorAll('.section').forEach(function(sec) {
-                            sec.classList.remove('active');
-                        });
-                        document.getElementById('mobileCards').classList.add('active');
-                        
-                        // Mostra/Esconde botões
-                        if (window.innerWidth <= 768) {
-                            homeBtn.style.display = 'none';
-                            if (menuBtn) menuBtn.style.display = 'flex';
-                        }
-                    });
-                }
-                
-                console.log("✅ Menu corrigido!");
-            }
-            
-            // Executa a correção
-            corrigirMenu();
-            
-        }, 2000); // Espera 2 segundos
-        
-        // ============================================
-        // FIM DA SOLUÇÃO MÁGICA
-        // ============================================
-        
-        
-        
     </script>
 </body>
 </html>
-
