@@ -5720,13 +5720,9 @@ html, body {
         }
 
         function showMainScreen() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainScreen').classList.remove('hidden');
-    
-    // ADICIONE ESTAS DUAS LINHAS ↓
-    console.log("🔄 Carregando menu principal...");
-    setTimeout(fixMenuNavigation, 800);
-}
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+        }
 
         function loadInitialData() {
             if (currentUser) {
@@ -10039,104 +10035,6 @@ function showClientDetails(clientId) {
                 renderAgendaGrid();
             }
         });
-        
-        // ============================================
-// SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
-// ============================================
-
-function fixMenuNavigation() {
-    console.log("Corrigindo navegação do menu...");
-    
-    // 1. Primeiro, vamos mostrar que todas as telas existem
-    const allSections = document.querySelectorAll('.section');
-    console.log(`📁 Total de telas encontradas: ${allSections.length}`);
-    
-    allSections.forEach(section => {
-        console.log(`- ${section.id}: ${section.innerHTML.length > 100 ? 'COM conteúdo' : 'SEM conteúdo'}`);
-    });
-    
-    // 2. Corrige os eventos de clique no menu DESKTOP
-    const desktopMenuLinks = document.querySelectorAll('.sidebar .nav-link');
-    
-    desktopMenuLinks.forEach(link => {
-        // Remove qualquer evento antigo
-        const newLink = link.cloneNode(true);
-        link.parentNode.replaceChild(newLink, link);
-        
-        // Adiciona novo evento
-        newLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const sectionId = this.getAttribute('data-section');
-            console.log(`🎯 Clicou em: ${sectionId}`);
-            
-            // Remove 'active' de todos os links
-            desktopMenuLinks.forEach(item => item.classList.remove('active'));
-            
-            // Adiciona 'active' no link clicado
-            this.classList.add('active');
-            
-            // Esconde todas as seções
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-                section.style.display = 'none';
-            });
-            
-            // Mostra APENAS a seção clicada
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                targetSection.style.display = 'block';
-                console.log(`✅ Mostrando tela: ${sectionId}`);
-            } else {
-                console.log(`❌ Seção ${sectionId} não encontrada!`);
-            }
-            
-            // Se for mobile, esconde os cards
-            if (window.innerWidth <= 768) {
-                document.getElementById('mobileCards').style.display = 'none';
-            }
-        });
-    });
-    
-    // 3. Garante que o Dashboard seja mostrado inicialmente
-    setTimeout(() => {
-        // Esconde todas as seções
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.remove('active');
-            section.style.display = 'none';
-        });
-        
-        // Mostra apenas o Dashboard
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard) {
-            dashboard.classList.add('active');
-            dashboard.style.display = 'block';
-        }
-        
-        // Ativa o link do Dashboard no menu
-        desktopMenuLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-section') === 'dashboard') {
-                link.classList.add('active');
-            }
-        });
-        
-        console.log("✅ Menu corrigido com sucesso!");
-        console.log("🖱️ Agora clique em 'Caixa', 'Estoque', etc. no menu lateral!");
-    }, 500);
-}
-
-// Executa quando a página carrega
-window.addEventListener('load', function() {
-    // Espera o sistema carregar completamente
-    setTimeout(fixMenuNavigation, 1500);
-});
-
-// Também executa quando o usuário faz login
-// Adicione esta linha na função showMainScreen()
-// setTimeout(fixMenuNavigation, 1000);
-        
     </script>
 </body>
 </html>
