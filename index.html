@@ -720,7 +720,7 @@ html, body {
             font-weight: bold;
         }
         
-        /* ESTILOS DA NOVA AGENDA */
+        /* ESTILOS DA NOVA AGENDA - ESTILO FRESHA/GOOGLE CALENDAR */
         .agenda-container {
             background: white;
             border-radius: 12px;
@@ -729,6 +729,7 @@ html, body {
             display: flex;
             flex-direction: column;
             position: relative;
+            overflow: hidden;
         }
         
         .agenda-header {
@@ -739,6 +740,7 @@ html, body {
             background: white;
             border-radius: 12px 12px 0 0;
             z-index: 10;
+            flex-shrink: 0;
         }
         
         .agenda-menu-btn {
@@ -785,32 +787,41 @@ html, body {
             border-color: var(--primary-color);
         }
         
-        /* PROFISSIONAIS - Layout melhorado */
+        /* PROFISSIONAIS - Layout melhorado estilo Fresha */
         .agenda-professionals {
             display: flex;
-            padding: 15px 10px;
+            padding: 15px 10px 15px 60px; /* 60px para alinhar com coluna de horários */
             border-bottom: 2px solid #eee;
             background: linear-gradient(to bottom, #f8f9fa, white);
             overflow-x: auto;
             scrollbar-width: thin;
-            justify-content: center;
-            gap: 15px;
+            justify-content: flex-start;
+            gap: 0;
+            flex-shrink: 0;
         }
         
-        /* Quando há muitos profissionais, alinhar à esquerda com scroll */
-        .agenda-professionals.scrollable {
-            justify-content: flex-start;
+        /* Quando há poucos profissionais, centralizar */
+        .agenda-professionals.centered {
+            justify-content: center;
+            padding-left: 60px;
         }
         
         .agenda-professional {
-            flex: 0 0 auto;
-            min-width: 80px;
-            max-width: 100px;
+            flex: 1;
+            min-width: 120px;
+            max-width: 300px;
             text-align: center;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 12px;
             transition: all 0.3s ease;
+        }
+        
+        /* Quando há 4+ colaboradores, permitir scroll */
+        .agenda-professionals.scrollable .agenda-professional {
+            flex: 0 0 auto;
+            min-width: 150px;
+            max-width: 200px;
         }
         
         .agenda-professional:hover {
@@ -857,28 +868,31 @@ html, body {
             position: relative;
         }
         
-        /* LAYOUT AGENDA CORRIGIDO - Coluna de horários 5% */
+        /* LAYOUT AGENDA ESTILO GOOGLE CALENDAR - Coluna de horários 5% */
         .agenda-time-column {
-            width: 5%;
-            min-width: 50px;
+            width: 60px;
+            min-width: 60px;
             max-width: 60px;
             flex-shrink: 0;
-            background: #f8f9fa;
+            background: #fafafa;
             position: sticky;
             left: 0;
             z-index: 5;
+            border-right: 1px solid #e0e0e0;
         }
         
         .agenda-time-slot {
-            height: 60px;
-            border-bottom: 1px solid #eee;
+            height: 60px; /* Cada hora = 60px (15px por 15 minutos) */
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             align-items: flex-start;
-            justify-content: center;
-            padding: 5px 4px;
+            justify-content: flex-end;
+            padding: 2px 8px 0 0;
             font-size: 11px;
-            color: #6c757d;
+            color: #70757a;
             font-weight: 500;
+            position: relative;
+            box-sizing: border-box;
         }
         
         .agenda-slots-container {
@@ -897,11 +911,29 @@ html, body {
         .agenda-day-column {
             flex: 1;
             min-width: 200px;
-            max-width: 33.33%;
-            border-right: 1px solid #eee;
+            border-right: 1px solid #e0e0e0;
+            position: relative;
         }
         
-        /* Quando há 4 ou mais colaboradores, permitir scroll horizontal */
+        /* 1 colaborador = 100% da largura */
+        .agenda-grid.single-column .agenda-day-column {
+            flex: 1;
+            max-width: none;
+        }
+        
+        /* 2 colaboradores = 50% cada */
+        .agenda-grid.two-columns .agenda-day-column {
+            flex: 1;
+            max-width: 50%;
+        }
+        
+        /* 3 colaboradores = 33.33% cada */
+        .agenda-grid.three-columns .agenda-day-column {
+            flex: 1;
+            max-width: 33.33%;
+        }
+        
+        /* 4+ colaboradores = scroll horizontal */
         .agenda-grid.scrollable .agenda-day-column {
             flex: 0 0 auto;
             min-width: 250px;
@@ -909,95 +941,168 @@ html, body {
         }
         
         .agenda-day-header {
-            height: 40px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
+            height: 0; /* Ocultar header de dia, usamos header dos profissionais */
+            display: none;
         }
         
-        .agenda-day-name {
-            font-size: 12px;
-            color: #6c757d;
-        }
-        
-        .agenda-day-number {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-        
-        .agenda-slot {
-            height: 60px;
-            border-bottom: 1px solid #eee;
-            position: relative;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-        }
-        
-        .agenda-slot:hover {
-            background: rgba(38, 25, 107, 0.05);
-        }
-        
-        /* MELHORIA - Slots de 15 minutos mais claros e interativos */
+        /* CORREÇÃO: Slots de 15 minutos com posicionamento exato */
         .agenda-slot-quarter {
-            height: 15px;
-            border-bottom: 1px dotted #e0e0e0;
+            height: 15px; /* Exatamente 15 minutos = 15px */
+            border-bottom: 1px dotted #f0f0f0;
             transition: background-color 0.1s ease;
             position: relative;
+            box-sizing: border-box;
+        }
+        
+        /* Linha mais visível a cada hora */
+        .agenda-slot-quarter.hour-start {
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Linha a cada 30 minutos */
+        .agenda-slot-quarter.half-hour {
+            border-bottom: 1px dashed #e8e8e8;
         }
         
         .agenda-slot-quarter:hover {
-            background: rgba(38, 25, 107, 0.1);
+            background: rgba(38, 25, 107, 0.08);
         }
         
         .agenda-slot-quarter:hover::after {
             content: '+';
             position: absolute;
-            right: 5px;
+            left: 50%;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translate(-50%, -50%);
             color: var(--primary-color);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            opacity: 0.7;
+            opacity: 0.5;
         }
         
+        /* Agendamento visual estilo Fresha */
         .agenda-appointment {
             position: absolute;
-            left: 2px;
-            right: 2px;
-            background: var(--primary-color);
+            left: 4px;
+            right: 4px;
+            background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%);
             color: white;
-            border-radius: 4px;
-            padding: 5px 8px;
+            border-radius: 6px;
+            padding: 6px 10px;
             font-size: 12px;
             overflow: hidden;
             cursor: pointer;
             z-index: 2;
+            box-shadow: 0 2px 8px rgba(38, 25, 107, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .agenda-appointment:hover {
-            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(38, 25, 107, 0.4);
         }
         
-        /* MELHORIA - Overlay de seleção mais visível e intuitivo */
+        .agenda-appointment-time {
+            font-size: 10px;
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+        
+        .agenda-appointment-client {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .agenda-appointment-service {
+            font-size: 11px;
+            opacity: 0.85;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Overlay de seleção estilo moderno */
         .agenda-selection-overlay {
             position: absolute;
-            background: linear-gradient(135deg, rgba(38, 25, 107, 0.3), rgba(74, 58, 156, 0.3));
-            border: 3px solid var(--primary-color);
+            background: linear-gradient(135deg, rgba(38, 25, 107, 0.25), rgba(74, 58, 156, 0.25));
+            border: 2px solid var(--primary-color);
             border-radius: 8px;
             pointer-events: none;
             z-index: 50;
-            box-shadow: 0 4px 15px rgba(38, 25, 107, 0.3);
-            animation: pulse-selection 1s ease-in-out infinite alternate;
+            box-shadow: 0 4px 20px rgba(38, 25, 107, 0.3);
+            animation: pulse-selection 1.5s ease-in-out infinite alternate;
+        }
+        
+        .agenda-selection-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 5px,
+                rgba(38, 25, 107, 0.05) 5px,
+                rgba(38, 25, 107, 0.05) 10px
+            );
+            border-radius: 6px;
+        }
+        
+        .agenda-selection-time {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         
         @keyframes pulse-selection {
-            0% { box-shadow: 0 4px 15px rgba(38, 25, 107, 0.3); }
-            100% { box-shadow: 0 4px 25px rgba(38, 25, 107, 0.5); }
+            0% { box-shadow: 0 4px 20px rgba(38, 25, 107, 0.3); }
+            100% { box-shadow: 0 4px 30px rgba(38, 25, 107, 0.5); }
+        }
+        
+        /* Linha do horário atual - atravessa toda a tela */
+        .current-time-line-global {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #dc3545;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .current-time-line-global::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background: #dc3545;
+            border-radius: 50%;
+        }
+        
+        .current-time-indicator {
+            position: absolute;
+            left: 0;
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: translateY(-50%);
+            z-index: 101;
+        }
         }
         
         /* Modal de seleção de data */
@@ -4402,16 +4507,18 @@ html, body {
             
             // Se não há colaboradores, mostrar placeholder
             if (activeCollaborators.length === 0) {
-                container.innerHTML = '<div class="text-muted text-center p-3">Nenhum colaborador ativo</div>';
-                container.classList.remove('scrollable');
+                container.innerHTML = '<div class="text-muted text-center p-3" style="width: 100%;">Nenhum colaborador ativo</div>';
+                container.classList.remove('scrollable', 'centered');
                 return;
             }
             
-            // Adicionar classe scrollable se 4+ colaboradores
+            // Configurar layout baseado no número de colaboradores
+            container.classList.remove('scrollable', 'centered');
+            if (activeCollaborators.length <= 3) {
+                container.classList.add('centered');
+            }
             if (activeCollaborators.length > 3) {
                 container.classList.add('scrollable');
-            } else {
-                container.classList.remove('scrollable');
             }
             
             activeCollaborators.forEach((collaborator, index) => {
@@ -4432,21 +4539,20 @@ html, body {
                 const initials = collaborator.name.charAt(0).toUpperCase();
                 
                 div.innerHTML = `
-                    <div class="agenda-professional-photo-container" style="display: flex; justify-content: center; align-items: center; margin-bottom: 5px;">
+                    <div class="agenda-professional-photo-container" style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px;">
                         ${photoUrl ? 
                             `<img src="${photoUrl}" class="agenda-professional-photo" 
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
                                  alt="${collaborator.name}"
-                                 data-id="${collaborator.id}"
-                                 style="margin: 0 auto;">
+                                 data-id="${collaborator.id}">
                              <div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
-                                  style="display: none; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                  style="display: none; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                  ${initials}
                              </div>` :
                             `<div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
-                                  style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                  style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                  ${initials}
                              </div>`
                         }
@@ -4454,19 +4560,19 @@ html, body {
                     <div class="agenda-professional-name">${collaborator.name}</div>
                 `;
                 
-                // Evento de clique no card do profissional
+                // Evento de clique no card do profissional para selecionar
                 div.addEventListener('click', function() {
-                    // Remover seleção de todos
                     document.querySelectorAll('.agenda-professional').forEach(p => p.classList.remove('selected'));
-                    // Adicionar seleção ao clicado
                     this.classList.add('selected');
                     selectedCollaboratorId = collaborator.id;
+                    // Atualizar grid para mostrar agendamentos deste colaborador
+                    renderAgendaGrid();
                 });
                 
                 container.appendChild(div);
             });
             
-            // Adicionar evento de clique nas fotos/placeholders para ver perfil
+            // Duplo clique nas fotos para ver perfil
             container.querySelectorAll('.agenda-professional-photo, .agenda-professional-placeholder').forEach(photo => {
                 photo.addEventListener('dblclick', function(e) {
                     e.stopPropagation();
@@ -4488,76 +4594,87 @@ html, body {
             const currentMinute = now.getMinutes();
             const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
             
+            // CORREÇÃO: Criar slots de hora com altura correta (60px = 1 hora)
             for (let hour = 0; hour < 24; hour++) {
                 const slot = document.createElement('div');
                 slot.className = 'agenda-time-slot';
-                slot.style.position = 'relative';
-                slot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                slot.setAttribute('data-hour', hour);
                 
-                // Adicionar linha vermelha do horário atual - CORRIGIDA para atravessar toda a tela
-                if (hour === currentHour) {
-                    const linePosition = (currentMinute / 60) * 100;
-                    
-                    // Limpar linha anterior se existir
-                    const existingLine = document.querySelector('.current-time-line-global');
-                    if (existingLine) existingLine.remove();
-                    
-                    slot.innerHTML = `
-                        <div style="
-                            position: absolute;
-                            left: -5px;
-                            top: ${linePosition}%;
-                            display: flex;
-                            align-items: center;
-                            z-index: 100;
-                            pointer-events: none;
-                        ">
-                            <div style="
-                                background-color: #dc3545;
-                                color: white;
-                                padding: 2px 6px;
-                                border-radius: 4px;
-                                font-size: 10px;
-                                font-weight: bold;
-                                white-space: nowrap;
-                            ">${currentTimeStr}</div>
-                        </div>
-                    `;
-                    
-                    // Adicionar linha que atravessa toda a agenda
-                    const agendaContent = document.querySelector('.agenda-content');
-                    if (agendaContent) {
-                        const globalLine = document.createElement('div');
-                        globalLine.className = 'current-time-line-global';
-                        globalLine.style.cssText = `
-                            position: absolute;
-                            left: 0;
-                            right: 0;
-                            top: calc(${(hour * 60 + currentMinute)}px + 0px);
-                            height: 2px;
-                            background: linear-gradient(90deg, #dc3545, #dc3545 70%, transparent 100%);
-                            z-index: 50;
-                            pointer-events: none;
-                        `;
-                        agendaContent.style.position = 'relative';
-                        
-                        // Calcular posição baseada na altura dos slots (60px por hora)
-                        const topPosition = (hour * 60) + (currentMinute);
-                        globalLine.style.top = `${topPosition}px`;
-                        
-                        agendaContent.appendChild(globalLine);
-                    }
-                }
+                // Mostrar horário no canto superior direito
+                slot.innerHTML = `<span>${hour.toString().padStart(2, '0')}:00</span>`;
                 
                 container.appendChild(slot);
+            }
+            
+            // Remover linha global antiga se existir
+            const existingLine = document.querySelector('.current-time-line-global');
+            if (existingLine) existingLine.remove();
+            
+            const existingIndicator = document.querySelector('.current-time-indicator');
+            if (existingIndicator) existingIndicator.remove();
+            
+            // Adicionar linha vermelha do horário atual que atravessa toda a tela
+            const agendaContent = document.querySelector('.agenda-content');
+            if (agendaContent) {
+                // Calcular posição: cada hora = 60px, cada minuto = 1px
+                const topPosition = (currentHour * 60) + currentMinute;
+                
+                // Linha vermelha global
+                const globalLine = document.createElement('div');
+                globalLine.className = 'current-time-line-global';
+                globalLine.style.cssText = `
+                    position: absolute;
+                    left: 60px;
+                    right: 0;
+                    top: ${topPosition}px;
+                    height: 2px;
+                    background: #dc3545;
+                    z-index: 100;
+                    pointer-events: none;
+                `;
+                
+                // Indicador de hora atual na coluna de tempo
+                const timeIndicator = document.createElement('div');
+                timeIndicator.className = 'current-time-indicator';
+                timeIndicator.style.cssText = `
+                    position: absolute;
+                    left: 0;
+                    top: ${topPosition}px;
+                    background: #dc3545;
+                    color: white;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    z-index: 101;
+                    transform: translateY(-50%);
+                    white-space: nowrap;
+                `;
+                timeIndicator.textContent = currentTimeStr;
+                
+                // Bolinha vermelha no início da linha
+                globalLine.insertAdjacentHTML('afterbegin', `
+                    <div style="
+                        position: absolute;
+                        left: -5px;
+                        top: -4px;
+                        width: 10px;
+                        height: 10px;
+                        background: #dc3545;
+                        border-radius: 50%;
+                    "></div>
+                `);
+                
+                agendaContent.style.position = 'relative';
+                agendaContent.appendChild(globalLine);
+                
+                container.style.position = 'relative';
+                container.appendChild(timeIndicator);
             }
             
             // Atualizar linha do horário atual a cada minuto
             if (!window.currentTimeInterval) {
                 window.currentTimeInterval = setInterval(() => {
-                    // Remover linha global antiga
-                    const existingLine = document.querySelector('.current-time-line-global');
-                    if (existingLine) existingLine.remove();
                     renderTimeColumn();
                 }, 60000);
             }
@@ -4565,74 +4682,133 @@ html, body {
 
         function renderAgendaGrid() {
             const container = document.getElementById('agendaGrid');
-            if (!container) return; // Proteção se elemento não existe
+            if (!container) return;
             container.innerHTML = '';
             
-            const days = getDaysForView();
-            
-            // Verificar se precisa scroll horizontal (4+ colaboradores)
             const activeCollaborators = collaborators.filter(c => c.active);
-            if (activeCollaborators.length > 3) {
-                container.classList.add('scrollable');
-            } else {
-                container.classList.remove('scrollable');
-            }
             
-            days.forEach(day => {
-                const dayColumn = document.createElement('div');
-                dayColumn.className = 'agenda-day-column';
-                dayColumn.setAttribute('data-date', day.toISOString().split('T')[0]);
-                
-                // Cabeçalho do dia
-                const header = document.createElement('div');
-                header.className = 'agenda-day-header';
-                
-                // Verificar se é hoje para destacar
-                const isToday = day.toDateString() === new Date().toDateString();
-                if (isToday) {
-                    header.style.background = 'linear-gradient(135deg, #26196b 0%, #4a3a9c 100%)';
-                    header.style.color = 'white';
-                }
-                
-                header.innerHTML = `
-                    <div class="agenda-day-name" style="${isToday ? 'color: rgba(255,255,255,0.8);' : ''}">${day.toLocaleDateString('pt-PT', { weekday: 'short' })}</div>
-                    <div class="agenda-day-number" style="${isToday ? 'color: white;' : ''}">${day.getDate()}</div>
-                `;
-                dayColumn.appendChild(header);
-                
-                // Slots de horário com feedback visual melhorado
-                for (let hour = 0; hour < 24; hour++) {
-                    for (let quarter = 0; quarter < 4; quarter++) {
-                        const slot = document.createElement('div');
-                        slot.className = 'agenda-slot-quarter';
-                        slot.setAttribute('data-hour', hour);
-                        slot.setAttribute('data-quarter', quarter);
-                        slot.setAttribute('data-date', day.toISOString().split('T')[0]);
-                        
-                        // Adicionar indicador de hora cheia
-                        if (quarter === 0) {
-                            slot.style.borderTop = '1px solid #ddd';
-                        }
-                        
-                        slot.addEventListener('mousedown', startTimeSelection);
-                        slot.addEventListener('touchstart', startTimeSelection);
-                        slot.addEventListener('mouseenter', updateTimeSelection);
-                        slot.addEventListener('touchmove', updateTimeSelection);
-                        slot.addEventListener('mouseup', endTimeSelection);
-                        slot.addEventListener('touchend', endTimeSelection);
-                        
-                        dayColumn.appendChild(slot);
-                    }
-                }
-                
+            // Configurar classes baseadas no número de colaboradores
+            container.classList.remove('scrollable', 'single-column', 'two-columns', 'three-columns');
+            
+            if (activeCollaborators.length === 0) {
+                // Sem colaboradores, criar uma coluna genérica
+                container.classList.add('single-column');
+                const dayColumn = createDayColumn(new Date());
                 container.appendChild(dayColumn);
-            });
+            } else if (activeCollaborators.length === 1) {
+                container.classList.add('single-column');
+                const dayColumn = createCollaboratorColumn(activeCollaborators[0]);
+                container.appendChild(dayColumn);
+            } else if (activeCollaborators.length === 2) {
+                container.classList.add('two-columns');
+                activeCollaborators.forEach(collab => {
+                    const column = createCollaboratorColumn(collab);
+                    container.appendChild(column);
+                });
+            } else if (activeCollaborators.length === 3) {
+                container.classList.add('three-columns');
+                activeCollaborators.forEach(collab => {
+                    const column = createCollaboratorColumn(collab);
+                    container.appendChild(column);
+                });
+            } else {
+                // 4+ colaboradores = scroll horizontal
+                container.classList.add('scrollable');
+                activeCollaborators.forEach(collab => {
+                    const column = createCollaboratorColumn(collab);
+                    container.appendChild(column);
+                });
+            }
             
             // Renderizar agendamentos existentes
             renderAppointments();
             
             // Adicionar overlay de seleção
             addSelectionOverlay();
+        }
+        
+        // Criar coluna para um colaborador específico
+        function createCollaboratorColumn(collaborator) {
+            const dayColumn = document.createElement('div');
+            dayColumn.className = 'agenda-day-column';
+            dayColumn.setAttribute('data-date', currentAgendaDate.toISOString().split('T')[0]);
+            dayColumn.setAttribute('data-collaborator-id', collaborator.id);
+            
+            // CORREÇÃO: Slots de 15 minutos com posicionamento EXATO
+            // Cada hora = 60px, cada 15 minutos = 15px
+            for (let hour = 0; hour < 24; hour++) {
+                for (let quarter = 0; quarter < 4; quarter++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'agenda-slot-quarter';
+                    
+                    // Adicionar classes visuais para melhor orientação
+                    if (quarter === 0) {
+                        slot.classList.add('hour-start');
+                    }
+                    if (quarter === 2) {
+                        slot.classList.add('half-hour');
+                    }
+                    
+                    // CORREÇÃO: Calcular minutos exatos
+                    const minutes = quarter * 15; // 0, 15, 30, 45
+                    
+                    slot.setAttribute('data-hour', hour);
+                    slot.setAttribute('data-quarter', quarter);
+                    slot.setAttribute('data-minutes', minutes);
+                    slot.setAttribute('data-date', currentAgendaDate.toISOString().split('T')[0]);
+                    slot.setAttribute('data-collaborator-id', collaborator.id);
+                    
+                    // Tooltip com horário exato
+                    slot.title = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    
+                    // Eventos de seleção
+                    slot.addEventListener('mousedown', startTimeSelection);
+                    slot.addEventListener('touchstart', startTimeSelection, { passive: false });
+                    slot.addEventListener('mouseenter', updateTimeSelection);
+                    slot.addEventListener('touchmove', updateTimeSelection, { passive: false });
+                    slot.addEventListener('mouseup', endTimeSelection);
+                    slot.addEventListener('touchend', endTimeSelection);
+                    
+                    dayColumn.appendChild(slot);
+                }
+            }
+            
+            return dayColumn;
+        }
+        
+        // Criar coluna genérica (quando não há colaboradores)
+        function createDayColumn(date) {
+            const dayColumn = document.createElement('div');
+            dayColumn.className = 'agenda-day-column';
+            dayColumn.setAttribute('data-date', date.toISOString().split('T')[0]);
+            
+            for (let hour = 0; hour < 24; hour++) {
+                for (let quarter = 0; quarter < 4; quarter++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'agenda-slot-quarter';
+                    
+                    if (quarter === 0) slot.classList.add('hour-start');
+                    if (quarter === 2) slot.classList.add('half-hour');
+                    
+                    const minutes = quarter * 15;
+                    slot.setAttribute('data-hour', hour);
+                    slot.setAttribute('data-quarter', quarter);
+                    slot.setAttribute('data-minutes', minutes);
+                    slot.setAttribute('data-date', date.toISOString().split('T')[0]);
+                    slot.title = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    
+                    slot.addEventListener('mousedown', startTimeSelection);
+                    slot.addEventListener('touchstart', startTimeSelection, { passive: false });
+                    slot.addEventListener('mouseenter', updateTimeSelection);
+                    slot.addEventListener('touchmove', updateTimeSelection, { passive: false });
+                    slot.addEventListener('mouseup', endTimeSelection);
+                    slot.addEventListener('touchend', endTimeSelection);
+                    
+                    dayColumn.appendChild(slot);
+                }
+            }
+            
+            return dayColumn;
         }
 
         function getDaysForView() {
@@ -4680,35 +4856,73 @@ html, body {
             // Limpar agendamentos existentes
             document.querySelectorAll('.agenda-appointment').forEach(el => el.remove());
             
+            // Filtrar agendamentos pelo colaborador selecionado e data atual
+            const currentDateStr = currentAgendaDate.toISOString().split('T')[0];
+            
             appointments.forEach(appointment => {
-                const appointmentDate = new Date(appointment.date);
-                const dayColumn = document.querySelector(`.agenda-day-column[data-date="${appointment.date}"]`);
+                // Verificar se o agendamento é do colaborador selecionado
+                if (selectedCollaboratorId && appointment.collaboratorId !== selectedCollaboratorId) {
+                    return;
+                }
+                
+                // Verificar se o agendamento é da data atual
+                if (appointment.date !== currentDateStr) {
+                    return;
+                }
+                
+                // Encontrar a coluna correta (por colaborador)
+                let dayColumn = document.querySelector(`.agenda-day-column[data-collaborator-id="${appointment.collaboratorId}"]`);
+                
+                // Se não encontrou por colaborador, tentar pela data
+                if (!dayColumn) {
+                    dayColumn = document.querySelector(`.agenda-day-column[data-date="${appointment.date}"]`);
+                }
                 
                 if (!dayColumn) return;
                 
                 const startHour = parseInt(appointment.startTime.split(':')[0]);
                 const startMinute = parseInt(appointment.startTime.split(':')[1]);
-                const duration = appointment.duration || 60; // minutos
+                const duration = appointment.duration || 60;
                 
-                const startPosition = (startHour * 60 + startMinute) / 15; // cada slot = 15 minutos
-                const heightSlots = duration / 15;
+                // CORREÇÃO: Posição exata baseada em 15px por 15 minutos
+                const totalMinutes = startHour * 60 + startMinute;
+                const topPosition = totalMinutes; // 1 minuto = 1px
+                const height = duration; // duração em minutos = altura em px
                 
                 const appointmentEl = document.createElement('div');
                 appointmentEl.className = 'agenda-appointment';
-                appointmentEl.style.top = `${startPosition * 15}px`;
-                appointmentEl.style.height = `${heightSlots * 15}px`;
-                appointmentEl.style.backgroundColor = appointment.color || '#26196b';
+                appointmentEl.style.top = `${topPosition}px`;
+                appointmentEl.style.height = `${Math.max(height, 30)}px`; // Mínimo 30px
+                
+                // Cor baseada no tipo de serviço ou cor personalizada
+                const bgColor = appointment.color || '#26196b';
+                appointmentEl.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 30)} 100%)`;
+                
                 appointmentEl.innerHTML = `
-                    <strong>${appointment.clientName || 'Cliente'}</strong><br>
-                    <small>${appointment.serviceName || 'Serviço'}</small>
+                    <div class="agenda-appointment-time">${appointment.startTime} - ${appointment.endTime || ''}</div>
+                    <div class="agenda-appointment-client">${appointment.clientName || 'Cliente'}</div>
+                    <div class="agenda-appointment-service">${appointment.serviceName || 'Serviço'}</div>
                 `;
                 
-                appointmentEl.addEventListener('click', () => {
+                appointmentEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     showAppointmentDetails(appointment.id);
                 });
                 
                 dayColumn.appendChild(appointmentEl);
             });
+        }
+        
+        // Função auxiliar para ajustar cor (mais clara ou mais escura)
+        function adjustColor(color, percent) {
+            if (!color || color.charAt(0) !== '#') return color;
+            
+            const num = parseInt(color.slice(1), 16);
+            const r = Math.min(255, Math.floor((num >> 16) * (100 + percent) / 100));
+            const g = Math.min(255, Math.floor(((num >> 8) & 0x00FF) * (100 + percent) / 100));
+            const b = Math.min(255, Math.floor((num & 0x0000FF) * (100 + percent) / 100));
+            
+            return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
         }
 
         function addSelectionOverlay() {
@@ -4737,13 +4951,30 @@ html, body {
             const hour = parseInt(slot.getAttribute('data-hour'));
             const quarter = parseInt(slot.getAttribute('data-quarter'));
             
+            // CORREÇÃO: Capturar o colaborador da coluna clicada
+            const dayColumn = slot.closest('.agenda-day-column');
+            const clickedCollaboratorId = dayColumn ? dayColumn.getAttribute('data-collaborator-id') : null;
+            
+            // Se clicou em uma coluna de colaborador específico, selecionar esse colaborador
+            if (clickedCollaboratorId) {
+                selectedCollaboratorId = clickedCollaboratorId;
+                
+                // Atualizar seleção visual nos cards de colaboradores
+                document.querySelectorAll('.agenda-professional').forEach(p => {
+                    p.classList.remove('selected');
+                    if (p.getAttribute('data-collaborator-id') === clickedCollaboratorId) {
+                        p.classList.add('selected');
+                    }
+                });
+            }
+            
             // Para eventos de mouse, iniciar seleção diretamente
             if (e.type === 'mousedown') {
                 e.preventDefault();
                 isSelectingTime = true;
                 isLongPress = true;
-                selectionStartTime = { date, hour, quarter };
-                selectionEndTime = { date, hour, quarter };
+                selectionStartTime = { date, hour, quarter, collaboratorId: clickedCollaboratorId };
+                selectionEndTime = { date, hour, quarter, collaboratorId: clickedCollaboratorId };
                 updateSelectionOverlay();
                 return;
             }
@@ -4758,8 +4989,8 @@ html, body {
                 longPressTimer = setTimeout(() => {
                     isLongPress = true;
                     isSelectingTime = true;
-                    selectionStartTime = { date, hour, quarter };
-                    selectionEndTime = { date, hour, quarter };
+                    selectionStartTime = { date, hour, quarter, collaboratorId: clickedCollaboratorId };
+                    selectionEndTime = { date, hour, quarter, collaboratorId: clickedCollaboratorId };
                     updateSelectionOverlay();
                     
                     // Feedback visual/háptico
@@ -5411,8 +5642,13 @@ html, body {
 
         function saveAppointment() {
             if (!selectedClient || selectedServices.length === 0 || !selectedDate || !selectedTime) {
-                showError('Preencha todos os campos obrigatórios');
+                showError('Por favor, selecione um cliente, serviço, data e horário.');
                 return;
+            }
+            
+            // Verificar se há colaborador selecionado
+            if (!selectedCollaboratorId && collaborators.filter(c => c.active).length > 0) {
+                selectedCollaboratorId = collaborators.filter(c => c.active)[0].id;
             }
             
             // Calcular duração total dos serviços
@@ -5421,11 +5657,11 @@ html, body {
             // Calcular hora de término
             const startMinutes = selectedTime.hour * 60 + selectedTime.minute;
             const endMinutes = startMinutes + totalDuration;
-            const endHour = Math.floor(endMinutes / 60);
+            const endHour = Math.floor(endMinutes / 60) % 24;
             const endMinute = endMinutes % 60;
             
             const appointmentData = {
-                clientId: selectedClient.id,
+                clientId: selectedClient.id || null,
                 clientName: selectedClient.name,
                 clientPhone: selectedClient.phone || '',
                 date: selectedDate,
@@ -5433,18 +5669,19 @@ html, body {
                 endTime: `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`,
                 duration: totalDuration,
                 services: selectedServices.map(s => ({
-                    id: s.id,
+                    id: s.id || null,
                     name: s.name,
                     price: s.price,
                     duration: s.duration || 30
                 })),
                 serviceName: selectedServices.map(s => s.name).join(', '),
-                total: selectedServices.reduce((sum, s) => sum + s.price, 0),
+                total: selectedServices.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0),
                 userId: currentUser.uid,
-                collaboratorId: selectedCollaboratorId || (collaborators.length > 0 ? collaborators[0].id : null),
+                collaboratorId: selectedCollaboratorId,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 status: 'scheduled',
-                reminder24h: true
+                reminder24h: true,
+                color: '#26196b'
             };
             
             showLoading('Salvando agendamento...');
@@ -5453,22 +5690,35 @@ html, body {
                 .then((docRef) => {
                     Swal.close();
                     
-                    // Recarregar agenda
-                    loadAppointments();
+                    // Adicionar ao array local para exibição imediata
+                    const newAppointment = {
+                        id: docRef.id,
+                        ...appointmentData,
+                        createdAt: new Date()
+                    };
+                    appointments.push(newAppointment);
+                    
+                    // Fechar modal de salvamento
                     closeAppointmentSave();
                     
-                    // Limpar seleção
+                    // Renderizar agendamentos atualizados
+                    renderAppointments();
+                    
+                    // Guardar dados para o popup
                     const savedClient = { ...selectedClient };
-                    const savedData = { ...appointmentData };
+                    const savedData = { ...appointmentData, id: docRef.id };
+                    
+                    // Limpar seleção
                     selectedClient = null;
                     selectedServices = [];
                     selectedDate = null;
                     selectedTime = null;
                     
-                    // Mostrar popup de confirmação OBRIGATÓRIO
+                    // Mostrar popup de confirmação com opção WhatsApp
                     showReminderPopup(savedClient, savedData);
                 })
                 .catch((error) => {
+                    console.error('Erro ao salvar agendamento:', error);
                     showError('Erro ao salvar agendamento: ' + error.message);
                 });
         }
@@ -5508,39 +5758,72 @@ html, body {
             });
         }
         
-        // Abrir WhatsApp com mensagem de confirmação
+        // Abrir WhatsApp com mensagem de confirmação - COM LOCALIZAÇÃO
         function openWhatsAppConfirmation(client, appointmentData) {
             const date = new Date(appointmentData.date);
             const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             const servicesText = appointmentData.serviceName || 'Serviço';
             const totalValue = formatCurrency(appointmentData.total);
             
-            const message = `Olá ${client.name}! 🎉\n\n` +
-                `Seu agendamento foi realizado com sucesso!\n\n` +
+            // Obter nome do colaborador
+            const collaborator = collaborators.find(c => c.id === appointmentData.collaboratorId);
+            const collaboratorName = collaborator ? collaborator.name : 'Profissional';
+            
+            // Links de localização (substitua pelas coordenadas reais do salão)
+            const businessName = businessSettings.name || 'Studio DeVitto';
+            const businessAddress = businessSettings.address || '';
+            const googleMapsLink = businessAddress ? 
+                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessAddress)}` :
+                'https://maps.google.com';
+            const wazeLink = businessAddress ? 
+                `https://www.waze.com/ul?q=${encodeURIComponent(businessAddress)}` :
+                'https://www.waze.com';
+            
+            const message = `Olá ${client.name}! ✂️🎉\n\n` +
+                `Seu agendamento no *${businessName}* foi confirmado!\n\n` +
                 `📅 *Data:* ${dateString}\n` +
                 `⏰ *Horário:* ${appointmentData.startTime}\n` +
+                `👤 *Profissional:* ${collaboratorName}\n` +
                 `💇 *Serviço:* ${servicesText}\n` +
                 `💰 *Valor:* ${totalValue}\n\n` +
-                `Agradecemos a preferência!\n` +
-                `Studio DeVitto`;
+                `📍 *Localização:*\n` +
+                `🗺️ Google Maps: ${googleMapsLink}\n` +
+                `🚗 Waze: ${wazeLink}\n\n` +
+                `Aguardamos você! ❤️\n` +
+                `${businessName}`;
             
             const phone = client.phone.replace(/\D/g, '');
             const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             
             Swal.fire({
-                title: 'Enviar confirmação via WhatsApp?',
-                text: 'Deseja abrir o WhatsApp para enviar a confirmação ao cliente?',
+                title: '✅ Agendamento Confirmado!',
+                html: `
+                    <div class="text-start">
+                        <p class="mb-3"><strong>Detalhes do agendamento:</strong></p>
+                        <p><i class="fas fa-user me-2 text-primary"></i><strong>Cliente:</strong> ${client.name}</p>
+                        <p><i class="fas fa-calendar me-2 text-primary"></i><strong>Data:</strong> ${dateString}</p>
+                        <p><i class="fas fa-clock me-2 text-primary"></i><strong>Horário:</strong> ${appointmentData.startTime}</p>
+                        <p><i class="fas fa-user-tie me-2 text-primary"></i><strong>Profissional:</strong> ${collaboratorName}</p>
+                        <p><i class="fas fa-cut me-2 text-primary"></i><strong>Serviço:</strong> ${servicesText}</p>
+                        <p><i class="fas fa-euro-sign me-2 text-primary"></i><strong>Valor:</strong> ${totalValue}</p>
+                        <hr>
+                        <p class="text-center mt-3">Deseja enviar a confirmação por WhatsApp?</p>
+                    </div>
+                `,
                 icon: 'success',
                 showCancelButton: true,
                 confirmButtonColor: '#25d366',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: '<i class="fab fa-whatsapp"></i> Abrir WhatsApp',
-                cancelButtonText: 'Não enviar'
+                confirmButtonText: '<i class="fab fa-whatsapp me-2"></i>Enviar por WhatsApp',
+                cancelButtonText: 'Fechar',
+                customClass: {
+                    popup: 'swal-wide'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.open(whatsappUrl, '_blank');
+                    showSuccess('WhatsApp aberto! Confirme o envio da mensagem.');
                 }
-                showSuccess('Agendamento salvo com sucesso!');
             });
         }
 
@@ -10216,3 +10499,5 @@ function showClientDetails(clientId) {
     </script>
 </body>
 </html>
+
+
