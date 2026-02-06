@@ -725,11 +725,16 @@ html, body {
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            height: calc(100vh - 180px);
+            height: calc(100vh - 120px);
             display: flex;
             flex-direction: column;
             position: relative;
             overflow: hidden;
+        }
+        
+        /* Agenda section - remove padding for full-width */
+        #agenda.section {
+            padding: 0 !important;
         }
         
         .agenda-header {
@@ -863,7 +868,8 @@ html, body {
         
         .agenda-content {
             flex: 1;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             position: relative;
         }
@@ -875,8 +881,6 @@ html, body {
             max-width: 60px;
             flex-shrink: 0;
             background: #fafafa;
-            position: sticky;
-            left: 0;
             z-index: 5;
             border-right: 1px solid #e0e0e0;
         }
@@ -898,7 +902,6 @@ html, body {
         .agenda-slots-container {
             flex: 1;
             overflow-x: auto;
-            overflow-y: auto;
             position: relative;
         }
         
@@ -3172,7 +3175,6 @@ html, body {
 
                         <!-- AGENDA -->
                         <div id="agenda" class="section">
-                            <h2 class="mb-4">Agenda</h2>
                             <div class="agenda-container">
                                 <!-- Cabeçalho da Agenda -->
                                 <div class="agenda-header">
@@ -4856,24 +4858,18 @@ html, body {
             // Limpar agendamentos existentes
             document.querySelectorAll('.agenda-appointment').forEach(el => el.remove());
             
-            // Filtrar agendamentos pelo colaborador selecionado e data atual
             const currentDateStr = currentAgendaDate.toISOString().split('T')[0];
             
             appointments.forEach(appointment => {
-                // Verificar se o agendamento é do colaborador selecionado
-                if (selectedCollaboratorId && appointment.collaboratorId !== selectedCollaboratorId) {
-                    return;
-                }
-                
                 // Verificar se o agendamento é da data atual
                 if (appointment.date !== currentDateStr) {
                     return;
                 }
                 
-                // Encontrar a coluna correta (por colaborador)
+                // Encontrar a coluna correta pelo colaborador do agendamento
                 let dayColumn = document.querySelector(`.agenda-day-column[data-collaborator-id="${appointment.collaboratorId}"]`);
                 
-                // Se não encontrou por colaborador, tentar pela data
+                // Se não encontrou por colaborador, tentar pela data (coluna genérica)
                 if (!dayColumn) {
                     dayColumn = document.querySelector(`.agenda-day-column[data-date="${appointment.date}"]`);
                 }
@@ -4884,17 +4880,16 @@ html, body {
                 const startMinute = parseInt(appointment.startTime.split(':')[1]);
                 const duration = appointment.duration || 60;
                 
-                // CORREÇÃO: Posição exata baseada em 15px por 15 minutos
+                // Posição exata: 1 minuto = 1px (60px por hora)
                 const totalMinutes = startHour * 60 + startMinute;
-                const topPosition = totalMinutes; // 1 minuto = 1px
-                const height = duration; // duração em minutos = altura em px
+                const topPosition = totalMinutes;
+                const height = duration;
                 
                 const appointmentEl = document.createElement('div');
                 appointmentEl.className = 'agenda-appointment';
                 appointmentEl.style.top = `${topPosition}px`;
-                appointmentEl.style.height = `${Math.max(height, 30)}px`; // Mínimo 30px
+                appointmentEl.style.height = `${Math.max(height, 30)}px`;
                 
-                // Cor baseada no tipo de serviço ou cor personalizada
                 const bgColor = appointment.color || '#26196b';
                 appointmentEl.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 30)} 100%)`;
                 
@@ -5135,70 +5130,7 @@ html, body {
             `;
         }
 
-        function endTimeSelection(e) {
-            if (!isSelectingTime) return;
-            
-            e.preventDefault();
-            isSelectingTime = false;
-            
-            // Verificar se há uma seleção válida
-            if (selectionStartTime && selectionEndTime) {
-                const startMinutes = selectionStartTime.hour * 60 + selectionStartTime.quarter * 15;
-                const endMinutes = selectionEndTime.hour * 60 + selectionEndTime.quarter * 15;
-                
-                const duration = Math.abs(endMinutes - startMinutes);
-                if (duration >= 15) { // Mínimo 15 minutos
-                    selectedDate = selectionStartTime.date;
-                    selectedTime = {
-                        hour: Math.min(selectionStartTime.hour, selectionEndTime.hour),
-                        minute: Math.min(selectionStartTime.quarter, selectionEndTime.quarter) * 15
-                    };
-                    
-                    showClientSelection();
-                }
-            }
-            
-            // Limpar overlay
-            const overlay = document.getElementById('agendaSelectionOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-            
-            selectionStartTime = null;
-            selectionEndTime = null;
-        }
-
-        function updateSelectionOverlay() {
-            if (!selectionStartTime || !selectionEndTime) return;
-            
-            const overlay = document.getElementById('agendaSelectionOverlay');
-            if (!overlay) return;
-            
-            // Calcular posições
-            const startDate = selectionStartTime.date;
-            const endDate = selectionEndTime.date;
-            
-            // Para simplificar, vamos considerar apenas seleções no mesmo dia
-            if (startDate !== endDate) return;
-            
-            const dayColumn = document.querySelector(`.agenda-day-column[data-date="${startDate}"]`);
-            if (!dayColumn) return;
-            
-            const startMinutes = selectionStartTime.hour * 60 + selectionStartTime.quarter * 15;
-            const endMinutes = selectionEndTime.hour * 60 + selectionEndTime.quarter * 15;
-            
-            const top = Math.min(startMinutes, endMinutes);
-            const height = Math.abs(endMinutes - startMinutes);
-            
-            const columnRect = dayColumn.getBoundingClientRect();
-            const containerRect = dayColumn.parentElement.getBoundingClientRect();
-            
-            overlay.style.display = 'block';
-            overlay.style.left = `${columnRect.left - containerRect.left}px`;
-            overlay.style.top = `${top}px`;
-            overlay.style.width = `${columnRect.width}px`;
-            overlay.style.height = `${height}px`;
-        }
+        // Duplicate functions removed - using definitions above
 
         function toggleAgendaMenu() {
             // Implementar menu de opções da agenda
@@ -10499,5 +10431,3 @@ function showClientDetails(clientId) {
     </script>
 </body>
 </html>
-
-
