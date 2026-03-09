@@ -1,10 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Studio DeVitto - Sistema de Gestão</title>
+    
+    <!-- PWA - Progressive Web App -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#26196b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Studio DeVitto">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2326196b'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3E✂️%3C/text%3E%3C/svg%3E">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -2106,11 +2114,6 @@ html, body {
             margin-top: 5px;
         }
         
-        /* Estilos para a seção de agenda no menu */
-        .sidebar .nav-link[data-section="agenda"] {
-            display: flex !important;
-        }
-        
         /* ESTILOS MODERNOS PARA ANIVERSÁRIOS */
 .birthday-card {
     background: white;
@@ -2356,47 +2359,47 @@ html, body {
 
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar -->
-<div class="col-md-3 col-lg-2 sidebar p-0">
-    <nav class="nav flex-column p-3">
-        <a class="nav-link active" href="#" data-section="agenda">
-            <i class="fas fa-calendar-alt"></i> Agenda
-        </a>
-        <a class="nav-link" href="#" data-section="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="#" data-section="cashier">
-            <i class="fas fa-cash-register"></i> Caixa
-        </a>
-        <a class="nav-link" href="#" data-section="inventory">
-            <i class="fas fa-boxes"></i> Estoque
-        </a>
-        <a class="nav-link" href="#" data-section="clients">
-            <i class="fas fa-users"></i> Clientes
-        </a>
-        <a class="nav-link" href="#" data-section="client-records">
-            <i class="fas fa-address-book"></i> Registros de Clientes
-        </a>
-        <a class="nav-link" href="#" data-section="collaborators">
-            <i class="fas fa-user-friends"></i> Colaboradores
-        </a>
-        <a class="nav-link" href="#" data-section="packages">
-            <i class="fas fa-box"></i> Pacotes
-        </a>
-        <a class="nav-link" href="#" data-section="financial-control">
-            <i class="fas fa-chart-line"></i> Controle Financeiro
-        </a>
-        <a class="nav-link" href="#" data-section="business-profile">
-            <i class="fas fa-building"></i> Perfil da Empresa
-        </a>
-        <a class="nav-link" href="#" data-section="reports">
-            <i class="fas fa-chart-bar"></i> Relatórios
-        </a>
-        <a class="nav-link" href="#" data-section="birthdays">
-            <i class="fas fa-birthday-cake"></i> Aniversários
-        </a>
-    </nav>
-</div>
+                <!-- Sidebar - CORRIGIDA: Todas as funções estão em suas respectivas posições -->
+                <div class="col-md-3 col-lg-2 sidebar p-0">
+                    <nav class="nav flex-column p-3">
+                        <a class="nav-link" href="#" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a class="nav-link" href="#" data-section="agenda">
+                            <i class="fas fa-calendar-alt"></i> Agenda
+                        </a>
+                        <a class="nav-link" href="#" data-section="cashier">
+                            <i class="fas fa-cash-register"></i> Caixa
+                        </a>
+                        <a class="nav-link" href="#" data-section="inventory">
+                            <i class="fas fa-boxes"></i> Estoque
+                        </a>
+                        <a class="nav-link" href="#" data-section="clients">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                        <a class="nav-link" href="#" data-section="client-records">
+                            <i class="fas fa-address-book"></i> Registros de Clientes
+                        </a>
+                        <a class="nav-link" href="#" data-section="collaborators">
+                            <i class="fas fa-user-friends"></i> Colaboradores
+                        </a>
+                        <a class="nav-link" href="#" data-section="packages">
+                            <i class="fas fa-box"></i> Pacotes
+                        </a>
+                        <a class="nav-link" href="#" data-section="financial-control">
+                            <i class="fas fa-chart-line"></i> Controle Financeiro
+                        </a>
+                        <a class="nav-link" href="#" data-section="business-profile">
+                            <i class="fas fa-building"></i> Perfil da Empresa
+                        </a>
+                        <a class="nav-link" href="#" data-section="reports">
+                            <i class="fas fa-chart-bar"></i> Relatórios
+                        </a>
+                        <a class="nav-link" href="#" data-section="birthdays">
+                            <i class="fas fa-birthday-cake"></i> Aniversários
+                        </a>
+                    </nav>
+                </div>
 
                 <!-- Conteúdo Principal -->
                 <div class="col-md-9 col-lg-10 p-4 main-content-container">
@@ -2410,6 +2413,13 @@ html, body {
                                         <i class="fas fa-tachometer-alt"></i>
                                         <h5>Dashboard</h5>
                                         <p>Visão geral</p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mobile-card" data-section="agenda">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <h5>Agenda</h5>
+                                        <p>Agendamentos</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -2452,13 +2462,6 @@ html, body {
                                         <i class="fas fa-box"></i>
                                         <h5>Pacotes</h5>
                                         <p>Serviços</p>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mobile-card" data-section="agenda">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <h5>Agenda</h5>
-                                        <p>Agendamentos</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -4280,7 +4283,47 @@ html, body {
                     showLoginScreen();
                 }
             });
+
+            // PWA - Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registrado com sucesso'))
+                    .catch(err => console.log('Erro ao registrar Service Worker', err));
+            }
         });
+
+        // PWA - Manifesto dinâmico
+        const manifest = {
+            name: "Studio DeVitto",
+            short_name: "Studio DeVitto",
+            description: "Sistema de Gestão para Salão de Beleza",
+            start_url: "/",
+            display: "standalone",
+            background_color: "#26196b",
+            theme_color: "#26196b",
+            icons: [
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2326196b'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3E✂️%3C/text%3E%3C/svg%3E",
+                    sizes: "192x192",
+                    type: "image/svg+xml",
+                    purpose: "any maskable"
+                },
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2326196b'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3E✂️%3C/text%3E%3C/svg%3E",
+                    sizes: "512x512",
+                    type: "image/svg+xml",
+                    purpose: "any maskable"
+                }
+            ]
+        };
+        
+        const manifestString = JSON.stringify(manifest);
+        const manifestBlob = new Blob([manifestString], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestUrl;
+        document.head.appendChild(link);
 
         function setupEventListeners() {
             // Login
@@ -9016,8 +9059,8 @@ Que todos os seus sonhos se realizem e que este novo ano de vida seja repleto de
 
 Um grande abraço da equipe ${businessSettings.name || 'Studio DeVitto'}! ❤️
 
-*P.S.: Como presente de aniversário estamos lhe dando uma *Hidrata;ão dos Cabelos com Vapor de Ozônio.!
-(obs: presente valido para os proximos 7 dias, não acompanha o brushing.);* 🎁`
+*P.S.: Como presente de aniversário estamos lhe dando uma *Hidratação dos Cabelos com Vapor de Ozônio.!
+(obs: presente valido para os próximos 7 dias, não acompanha o brushing.);* 🎁`
 
     } else {
         // Mensagem para lembrar do aniversário futuro
@@ -9450,7 +9493,7 @@ function showClientDetails(clientId) {
                             sale.timestamp.toDate() : new Date(sale.timestamp || sale.date);
                         return saleDate.getMonth() === month && saleDate.getFullYear() === year;
                     });
-                } else if (reportType === 'annual') {
+                } else if (reportType === 'yearly') {
                     const selectedDate = new Date(reportDate || new Date());
                     const year = selectedDate.getFullYear();
                     reportPeriod = `Ano: ${year}`;
@@ -9818,7 +9861,6 @@ function showClientDetails(clientId) {
                 'daily': 'Diário',
                 'weekly': 'Semanal',
                 'monthly': 'Mensal',
-                'annual': 'Anual',
                 'yearly': 'Anual',
                 'collaborator': 'Por Colaborador',
                 'inventory': 'Estoque',
@@ -10428,6 +10470,31 @@ function showClientDetails(clientId) {
                 renderAgendaGrid();
             }
         });
+
+        // PWA - Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado com sucesso'))
+                .catch(err => console.log('Erro ao registrar Service Worker', err));
+        }
+    </script>
+    
+    <!-- Service Worker -->
+    <script>
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                // Se não encontrar sw.js, criar um inline
+                const swScript = `
+                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+                `;
+                const swBlob = new Blob([swScript], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl);
+            });
+        }
     </script>
 </body>
 </html>
