@@ -2359,42 +2359,54 @@ html, body {
 
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar - CORRIGIDA: Todas as funções estão em suas respectivas posições -->
+                <!-- Sidebar - CORRIGIDA: Todas as funções em suas posições corretas -->
                 <div class="col-md-3 col-lg-2 sidebar p-0">
                     <nav class="nav flex-column p-3">
+                        <!-- 1º DASHBOARD -->
                         <a class="nav-link" href="#" data-section="dashboard">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
+                        <!-- 2º AGENDA -->
                         <a class="nav-link" href="#" data-section="agenda">
                             <i class="fas fa-calendar-alt"></i> Agenda
                         </a>
+                        <!-- 3º CAIXA -->
                         <a class="nav-link" href="#" data-section="cashier">
                             <i class="fas fa-cash-register"></i> Caixa
                         </a>
+                        <!-- 4º ESTOQUE -->
                         <a class="nav-link" href="#" data-section="inventory">
                             <i class="fas fa-boxes"></i> Estoque
                         </a>
+                        <!-- 5º CLIENTES -->
                         <a class="nav-link" href="#" data-section="clients">
                             <i class="fas fa-users"></i> Clientes
                         </a>
+                        <!-- 6º REGISTROS DE CLIENTES -->
                         <a class="nav-link" href="#" data-section="client-records">
                             <i class="fas fa-address-book"></i> Registros de Clientes
                         </a>
+                        <!-- 7º COLABORADORES -->
                         <a class="nav-link" href="#" data-section="collaborators">
                             <i class="fas fa-user-friends"></i> Colaboradores
                         </a>
+                        <!-- 8º PACOTES -->
                         <a class="nav-link" href="#" data-section="packages">
                             <i class="fas fa-box"></i> Pacotes
                         </a>
+                        <!-- 9º CONTROLE FINANCEIRO -->
                         <a class="nav-link" href="#" data-section="financial-control">
                             <i class="fas fa-chart-line"></i> Controle Financeiro
                         </a>
+                        <!-- 10º PERFIL DA EMPRESA -->
                         <a class="nav-link" href="#" data-section="business-profile">
                             <i class="fas fa-building"></i> Perfil da Empresa
                         </a>
+                        <!-- 11º RELATÓRIOS -->
                         <a class="nav-link" href="#" data-section="reports">
                             <i class="fas fa-chart-bar"></i> Relatórios
                         </a>
+                        <!-- 12º ANIVERSÁRIOS -->
                         <a class="nav-link" href="#" data-section="birthdays">
                             <i class="fas fa-birthday-cake"></i> Aniversários
                         </a>
@@ -4283,47 +4295,7 @@ html, body {
                     showLoginScreen();
                 }
             });
-
-            // PWA - Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado com sucesso'))
-                    .catch(err => console.log('Erro ao registrar Service Worker', err));
-            }
         });
-
-        // PWA - Manifesto dinâmico
-        const manifest = {
-            name: "Studio DeVitto",
-            short_name: "Studio DeVitto",
-            description: "Sistema de Gestão para Salão de Beleza",
-            start_url: "/",
-            display: "standalone",
-            background_color: "#26196b",
-            theme_color: "#26196b",
-            icons: [
-                {
-                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2326196b'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3E✂️%3C/text%3E%3C/svg%3E",
-                    sizes: "192x192",
-                    type: "image/svg+xml",
-                    purpose: "any maskable"
-                },
-                {
-                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2326196b'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3E✂️%3C/text%3E%3C/svg%3E",
-                    sizes: "512x512",
-                    type: "image/svg+xml",
-                    purpose: "any maskable"
-                }
-            ]
-        };
-        
-        const manifestString = JSON.stringify(manifest);
-        const manifestBlob = new Blob([manifestString], { type: 'application/json' });
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestUrl;
-        document.head.appendChild(link);
 
         function setupEventListeners() {
             // Login
