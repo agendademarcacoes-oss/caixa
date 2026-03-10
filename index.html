@@ -3731,15 +3731,15 @@ html, body {
         </div>
     </div>
 
-    <!-- Botão Flutuante para Dispositivos Móveis -->
+    <!-- Botão Flutuante para Dispositivos Móveis (AGORA É O BOTÃO HOME CORRIGIDO) -->
+    <div class="floating-home-btn" id="floatingHomeBtnMobile" style="display: none;">
+        <i class="fas fa-home"></i>
+    </div>
+    
+    <!-- Botão original mantido mas desativado via CSS -->
     <div class="floating-mobile-btn" id="floatingMobileBtn">
         <i class="fas fa-home"></i>
-    </div> 
-    
-    <!-- Botão Home para Dispositivos Móveis -->
-    <div class="floating-home-btn" id="floatingHomeBtn" style="display: none;">
-        <i class="fas fa-home"></i>
-    </div> 
+    </div>
 
     <!-- Modal para Adicionar/Editar Cliente -->
     <div class="modal fade" id="clientModal" tabindex="-1">
@@ -4034,10 +4034,6 @@ html, body {
             </div>
         </div>
     </div>
-
-    <!-- MODAIS DA NOVA AGENDA -->
-
-   
 
     <!-- Tela de Seleção de Cliente -->
     <div class="client-selection-modal" id="clientSelectionModal">
@@ -4455,42 +4451,26 @@ html, body {
             document.getElementById('businessLogoType').addEventListener('change', toggleLogoUpload);
             document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             
-            // Evento para botão menu mobile - CORRIGIDO
-document.getElementById('floatingMobileBtn').addEventListener('click', function() {
-    showSection('mobileCards');
-    
-    // Gerencia botões mobile
-    const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-    const floatingMobileBtn = document.getElementById('floatingMobileBtn');
-    
-    if (floatingHomeBtn && floatingMobileBtn && window.innerWidth <= 768) {
-        floatingHomeBtn.style.display = 'none';
-        floatingMobileBtn.style.display = 'none'; // Esconde ambos nos cards
-    }
-});
+            // Evento para botão home mobile - CORRIGIDO (AGORA FUNCIONA EM TODAS AS SEÇÕES)
+            document.getElementById('floatingHomeBtnMobile').addEventListener('click', function() {
+                showMobileCards();
+                
+                // Remove 'active' de todos os links
+                document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link, .mobile-card').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Gerencia botões mobile
+                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
+                
+                if (floatingHomeBtn && window.innerWidth <= 768) {
+                    floatingHomeBtn.style.display = 'none';
+                }
+            });
             
             // Eventos para Perfil da Empresa
             document.getElementById('businessProfileForm').addEventListener('submit', saveBusinessProfile);
             document.getElementById('saveBusinessHours').addEventListener('click', saveBusinessHours);
-            
-            // Evento para botão home mobile - CORRIGIDO
-document.getElementById('floatingHomeBtn').addEventListener('click', function() {
-    showSection('mobileCards');
-    
-    // Remove 'active' de todos os links
-    document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link, .mobile-card').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Gerencia botões mobile
-    const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-    const floatingMobileBtn = document.getElementById('floatingMobileBtn');
-    
-    if (floatingHomeBtn && floatingMobileBtn && window.innerWidth <= 768) {
-        floatingHomeBtn.style.display = 'none';
-        floatingMobileBtn.style.display = 'flex';
-    }
-});
             
             // Evento para redimensionamento da janela
             window.addEventListener('resize', handleResize);
@@ -6177,13 +6157,13 @@ document.getElementById('floatingHomeBtn').addEventListener('click', function() 
         }
 
         function showMainScreen() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainScreen').classList.remove('hidden');
-    
-    // ADICIONE ESTAS DUAS LINHAS ↓
-    console.log("🔄 Carregando menu principal...");
-    setTimeout(fixMenuNavigation, 800);
-}
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+            
+            // ADICIONE ESTAS DUAS LINHAS ↓
+            console.log("🔄 Carregando menu principal...");
+            setTimeout(fixMenuNavigation, 800);
+        }
 
         function loadInitialData() {
             if (currentUser) {
@@ -8505,10 +8485,15 @@ document.getElementById('floatingHomeBtn').addEventListener('click', function() 
             // Esconder todas as seções
             document.querySelectorAll('.section').forEach(el => {
                 el.classList.remove('active');
+                el.style.display = 'none'; // Garantir que fique escondido
             });
             
             // Esconder cards mobile
-            document.getElementById('mobileCards').classList.remove('active');
+            const mobileCards = document.getElementById('mobileCards');
+            if (mobileCards) {
+                mobileCards.classList.remove('active');
+                mobileCards.style.display = 'none';
+            }
             
             // CORREÇÃO MENU DESKTOP: Atualizar estado ativo dos links do sidebar
             document.querySelectorAll('.sidebar .nav-link').forEach(link => {
@@ -8522,10 +8507,11 @@ document.getElementById('floatingHomeBtn').addEventListener('click', function() 
             const sectionEl = document.getElementById(section);
             if (sectionEl) {
                 sectionEl.classList.add('active');
+                sectionEl.style.display = 'block'; // Garantir que seja mostrado
                 currentSection = section;
                 
                 // CORREÇÃO: Mostrar botão Home em TODAS as seções no mobile, incluindo dashboard
-                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
                 if (floatingHomeBtn) {
                     if (isMobileView) {
                         floatingHomeBtn.style.display = 'flex';
@@ -8564,16 +8550,26 @@ document.getElementById('floatingHomeBtn').addEventListener('click', function() 
             // Esconder todas as seções
             document.querySelectorAll('.section').forEach(el => {
                 el.classList.remove('active');
+                el.style.display = 'none';
             });
             
             // Mostrar cards mobile
-            document.getElementById('mobileCards').classList.add('active');
+            const mobileCards = document.getElementById('mobileCards');
+            if (mobileCards) {
+                mobileCards.classList.add('active');
+                mobileCards.style.display = 'block';
+            }
+            
+            // CORREÇÃO: Remover classe active de todos os links do sidebar
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
             
             // CORREÇÃO: Ocultar botão flutuante home na tela de cards
-            //const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-            //if (floatingHomeBtn) {
-            //    floatingHomeBtn.style.display = 'none';
-           // }
+            const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
+            if (floatingHomeBtn && window.innerWidth <= 768) {
+                floatingHomeBtn.style.display = 'none';
+            }
         }
 
         function checkMobileDevice() {
@@ -8584,25 +8580,13 @@ document.getElementById('floatingHomeBtn').addEventListener('click', function() 
                 showMobileCards();
                 
                 // Ocultar botão flutuante home inicialmente (mostrará quando entrar em seção)
-                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
                 if (floatingHomeBtn) {
                     floatingHomeBtn.style.display = 'none';
-                }
-                
-                // Mostrar botão flutuante mobile
-                const floatingMobileBtn = document.getElementById('floatingMobileBtn');
-                if (floatingMobileBtn) {
-                    floatingMobileBtn.style.display = 'flex';
                 }
             } else {
                 // Mostrar dashboard inicialmente
                 showSection('dashboard');
-                
-                // Ocultar botões flutuantes mobile
-                const floatingMobileBtn = document.getElementById('floatingMobileBtn');
-                const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-                if (floatingMobileBtn) floatingMobileBtn.style.display = 'none';
-                if (floatingHomeBtn) floatingHomeBtn.style.display = 'none';
             }
         }
         
@@ -10530,7 +10514,6 @@ function showClientDetails(clientId) {
             });
         } 
 
-
 // ============================================
 // SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
 // ============================================
@@ -10629,22 +10612,6 @@ window.addEventListener('load', function() {
 // setTimeout(fixMenuNavigation, 1000);
         
     </script>
-
-
-
-
-    
+   
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
