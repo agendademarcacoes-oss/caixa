@@ -10498,9 +10498,83 @@ function showClientDetails(clientId) {
                 navigator.serviceWorker.register(swUrl);
             });
         } 
+
+
+
+
+        ... todo o seu código JavaScript atual ...
+        
+        window.addEventListener('resize', function() {
+            if (currentUser && currentSection === 'agenda') {
+                renderAgendaGrid();
+            }
+        });
+        
+        // ============================================
+        // SOLUÇÃO MÁGICA PARA O MENU - COLE DAQUI PARA BAIXO
+        // ============================================
+        
+        // Espera tudo carregar
+        setTimeout(function() {
+            console.log("🎯 Aplicando correção do menu...");
+            
+            // CORREÇÃO SIMPLES: Apenas um botão azul por vez
+            function corrigirMenu() {
+                // Quando clica em qualquer menu
+                document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        // Tira azul de TODOS
+                        document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(i) {
+                            i.classList.remove('active');
+                        });
+                        // Coloca azul só neste
+                        this.classList.add('active');
+                    });
+                });
+                
+                // Botão Home mobile
+                var homeBtn = document.getElementById('floatingHomeBtn');
+                var menuBtn = document.getElementById('floatingMobileBtn');
+                
+                if (homeBtn) {
+                    homeBtn.addEventListener('click', function() {
+                        // Volta para cards mobile
+                        document.querySelectorAll('.section').forEach(function(sec) {
+                            sec.classList.remove('active');
+                        });
+                        document.getElementById('mobileCards').classList.add('active');
+                        
+                        // Mostra/Esconde botões
+                        if (window.innerWidth <= 768) {
+                            homeBtn.style.display = 'none';
+                            if (menuBtn) menuBtn.style.display = 'flex';
+                        }
+                    });
+                }
+                
+                console.log("✅ Menu corrigido!");
+            }
+            
+            // Executa a correção
+            corrigirMenu();
+            
+        }, 2000); // Espera 2 segundos
+        
+        // ============================================
+        // FIM DA SOLUÇÃO MÁGICA
+        // ============================================
+        
+    </script>  <!-- NÃO APAGUE ESTA LINHA! -->
+
+</body>
+
+
+
+        
     </script>
 </body>
 </html>
+
 
 
 
