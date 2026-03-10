@@ -2373,7 +2373,7 @@ html, body {
             <div class="row">
                 <!-- Sidebar - CORRIGIDA: Todas as funções estão em suas respectivas posições -->
                 <div class="col-md-3 col-lg-2 sidebar p-0">
-                    <nav class="nav flex-column p-3">
+                    <nav class="nav flex-column p-3" id="desktopMenu">
                         <a class="nav-link" href="#" data-section="dashboard">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
@@ -2417,7 +2417,7 @@ html, body {
                 <div class="col-md-9 col-lg-10 p-4 main-content-container">
                     <!-- Container para conteúdo mobile -->
                     <div class="section-container">
-                        <!-- Menu de Cards para Mobile -->
+                        <!-- Menu de Cards para Mobile (TELA INICIAL OBRIGATÓRIA NO MOBILE) -->
                         <div id="mobileCards" class="mobile-cards-container active">
                             <div class="row">
                                 <div class="col-6">
@@ -3731,13 +3731,8 @@ html, body {
         </div>
     </div>
 
-    <!-- Botão Flutuante para Dispositivos Móveis (AGORA É O BOTÃO HOME CORRIGIDO) -->
-    <div class="floating-home-btn" id="floatingHomeBtnMobile" style="display: none;">
-        <i class="fas fa-home"></i>
-    </div>
-    
-    <!-- Botão original mantido mas desativado via CSS -->
-    <div class="floating-mobile-btn" id="floatingMobileBtn">
+    <!-- Botão Flutuante para Dispositivos Móveis - NOVO BOTÃO HOME QUE FUNCIONA EM TODAS AS TELAS -->
+    <div class="floating-home-btn" id="mobileHomeButton" style="display: none;">
         <i class="fas fa-home"></i>
     </div>
 
@@ -4220,7 +4215,7 @@ html, body {
         };
         
         // Controle de navegação mobile
-        let currentSection = 'dashboard';
+        let currentSection = 'mobileCards';
         let isMobileView = false;
         
         // Variáveis para autocomplete
@@ -4451,20 +4446,19 @@ html, body {
             document.getElementById('businessLogoType').addEventListener('change', toggleLogoUpload);
             document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             
-            // Evento para botão home mobile - CORRIGIDO (AGORA FUNCIONA EM TODAS AS SEÇÕES)
-            document.getElementById('floatingHomeBtnMobile').addEventListener('click', function() {
+            // Evento para botão home mobile - NOVO E CORRIGIDO
+            document.getElementById('mobileHomeButton').addEventListener('click', function() {
+                // Voltar para os cards
                 showMobileCards();
                 
-                // Remove 'active' de todos os links
-                document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link, .mobile-card').forEach(item => {
+                // Remover classe ativa de todos os links do menu
+                document.querySelectorAll('.sidebar .nav-link').forEach(item => {
                     item.classList.remove('active');
                 });
                 
-                // Gerencia botões mobile
-                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
-                
-                if (floatingHomeBtn && window.innerWidth <= 768) {
-                    floatingHomeBtn.style.display = 'none';
+                // Esconder o botão home
+                if (window.innerWidth <= 768) {
+                    document.getElementById('mobileHomeButton').style.display = 'none';
                 }
             });
             
@@ -8482,18 +8476,17 @@ html, body {
 
         // Funções auxiliares (mantidas do código original)
         function showSection(section) {
+            // Se for mobile e a seção não for mobileCards, esconder os cards
+            if (isMobileView) {
+                document.getElementById('mobileCards').classList.remove('active');
+                document.getElementById('mobileCards').style.display = 'none';
+            }
+            
             // Esconder todas as seções
             document.querySelectorAll('.section').forEach(el => {
                 el.classList.remove('active');
-                el.style.display = 'none'; // Garantir que fique escondido
+                el.style.display = 'none';
             });
-            
-            // Esconder cards mobile
-            const mobileCards = document.getElementById('mobileCards');
-            if (mobileCards) {
-                mobileCards.classList.remove('active');
-                mobileCards.style.display = 'none';
-            }
             
             // CORREÇÃO MENU DESKTOP: Atualizar estado ativo dos links do sidebar
             document.querySelectorAll('.sidebar .nav-link').forEach(link => {
@@ -8507,27 +8500,14 @@ html, body {
             const sectionEl = document.getElementById(section);
             if (sectionEl) {
                 sectionEl.classList.add('active');
-                sectionEl.style.display = 'block'; // Garantir que seja mostrado
+                sectionEl.style.display = 'block';
                 currentSection = section;
                 
-                // CORREÇÃO: Mostrar botão Home em TODAS as seções no mobile, incluindo dashboard
-                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
-                if (floatingHomeBtn) {
-                    if (isMobileView) {
-                        floatingHomeBtn.style.display = 'flex';
-                    } else {
-                        floatingHomeBtn.style.display = 'none';
-                    }
-                }
-                
-                // Mostrar/ocultar botão voltar mobile
-                const mobileBackBtn = document.getElementById('mobileBackBtn');
-                if (mobileBackBtn) {
-                    if (isMobileView && section !== 'dashboard') {
-                        mobileBackBtn.style.display = 'block';
-                    } else {
-                        mobileBackBtn.style.display = 'none';
-                    }
+                // CORREÇÃO: Em dispositivos móveis, mostrar o botão home em TODAS as seções
+                if (isMobileView) {
+                    document.getElementById('mobileHomeButton').style.display = 'flex';
+                } else {
+                    document.getElementById('mobileHomeButton').style.display = 'none';
                 }
                 
                 // CORREÇÃO: Atualizar colaboradores quando entrar na agenda
@@ -8565,10 +8545,9 @@ html, body {
                 link.classList.remove('active');
             });
             
-            // CORREÇÃO: Ocultar botão flutuante home na tela de cards
-            const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
-            if (floatingHomeBtn && window.innerWidth <= 768) {
-                floatingHomeBtn.style.display = 'none';
+            // CORREÇÃO: Em dispositivos móveis, esconder o botão home quando estiver nos cards
+            if (isMobileView) {
+                document.getElementById('mobileHomeButton').style.display = 'none';
             }
         }
 
@@ -8576,17 +8555,17 @@ html, body {
             isMobileView = window.innerWidth <= 768;
             
             if (isMobileView) {
-                // Mostrar cards mobile inicialmente
+                // Mostrar cards mobile inicialmente (OBRIGATÓRIO)
                 showMobileCards();
                 
-                // Ocultar botão flutuante home inicialmente (mostrará quando entrar em seção)
-                const floatingHomeBtn = document.getElementById('floatingHomeBtnMobile');
-                if (floatingHomeBtn) {
-                    floatingHomeBtn.style.display = 'none';
-                }
+                // Esconder botão home inicialmente
+                document.getElementById('mobileHomeButton').style.display = 'none';
             } else {
                 // Mostrar dashboard inicialmente
                 showSection('dashboard');
+                
+                // Esconder botão home
+                document.getElementById('mobileHomeButton').style.display = 'none';
             }
         }
         
@@ -10556,49 +10535,58 @@ function fixMenuNavigation() {
                 section.style.display = 'none';
             });
             
+            // Esconde os cards mobile
+            document.getElementById('mobileCards').style.display = 'none';
+            document.getElementById('mobileCards').classList.remove('active');
+            
             // Mostra APENAS a seção clicada
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 targetSection.classList.add('active');
                 targetSection.style.display = 'block';
                 console.log(`✅ Mostrando tela: ${sectionId}`);
+                
+                // Se for mobile, mostrar botão home
+                if (window.innerWidth <= 768) {
+                    document.getElementById('mobileHomeButton').style.display = 'flex';
+                }
             } else {
                 console.log(`❌ Seção ${sectionId} não encontrada!`);
-            }
-            
-            // Se for mobile, esconde os cards
-            if (window.innerWidth <= 768) {
-                document.getElementById('mobileCards').style.display = 'none';
             }
         });
     });
     
-    // 3. Garante que o Dashboard seja mostrado inicialmente
-    setTimeout(() => {
-        // Esconde todas as seções
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.remove('active');
-            section.style.display = 'none';
-        });
-        
-        // Mostra apenas o Dashboard
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard) {
-            dashboard.classList.add('active');
-            dashboard.style.display = 'block';
-        }
-        
-        // Ativa o link do Dashboard no menu
-        desktopMenuLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-section') === 'dashboard') {
-                link.classList.add('active');
+    // 3. Garante que o Dashboard seja mostrado inicialmente no desktop
+    if (window.innerWidth > 768) {
+        setTimeout(() => {
+            // Esconde todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Esconde os cards mobile
+            document.getElementById('mobileCards').style.display = 'none';
+            document.getElementById('mobileCards').classList.remove('active');
+            
+            // Mostra apenas o Dashboard
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard) {
+                dashboard.classList.add('active');
+                dashboard.style.display = 'block';
             }
-        });
-        
-        console.log("✅ Menu corrigido com sucesso!");
-        console.log("🖱️ Agora clique em 'Caixa', 'Estoque', etc. no menu lateral!");
-    }, 500);
+            
+            // Ativa o link do Dashboard no menu
+            desktopMenuLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === 'dashboard') {
+                    link.classList.add('active');
+                }
+            });
+            
+            console.log("✅ Menu desktop corrigido com sucesso!");
+        }, 500);
+    }
 }
 
 // Executa quando a página carrega
@@ -10606,10 +10594,6 @@ window.addEventListener('load', function() {
     // Espera o sistema carregar completamente
     setTimeout(fixMenuNavigation, 1500);
 });
-
-// Também executa quando o usuário faz login
-// Adicione esta linha na função showMainScreen()
-// setTimeout(fixMenuNavigation, 1000);
         
     </script>
    
