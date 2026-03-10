@@ -10526,7 +10526,59 @@ function showClientDetails(clientId) {
 
     
 </body>
+
+
+<script>
+// CORREÇÃO DE EMERGÊNCIA PARA O MENU DESKTOP
+document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que o menu desktop funciona
+    setTimeout(function() {
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            // Remover eventos antigos (se houver)
+            link.replaceWith(link.cloneNode(true));
+        });
+        
+        // Adicionar eventos novos
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                
+                // Remover active de todos
+                document.querySelectorAll('.sidebar .nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Adicionar active no clicado
+                this.classList.add('active');
+                
+                // Esconder todas as seções
+                document.querySelectorAll('.section').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Esconder cards mobile
+                const mobileCards = document.getElementById('mobileCards');
+                if (mobileCards) {
+                    mobileCards.classList.remove('active');
+                }
+                
+                // Mostrar a seção clicada
+                const sectionEl = document.getElementById(section);
+                if (sectionEl) {
+                    sectionEl.classList.add('active');
+                }
+            });
+        });
+        
+        console.log('Menu desktop corrigido!');
+    }, 500);
+});
+</script>
+
+    
 </html>
+
 
 
 
