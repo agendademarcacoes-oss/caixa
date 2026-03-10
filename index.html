@@ -4455,15 +4455,42 @@ html, body {
             document.getElementById('businessLogoType').addEventListener('change', toggleLogoUpload);
             document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             
-            // Evento para botão flutuante móvel
-            document.getElementById('floatingMobileBtn').addEventListener('click', showMobileCards);
+            // Evento para botão menu mobile - CORRIGIDO
+document.getElementById('floatingMobileBtn').addEventListener('click', function() {
+    showSection('mobileCards');
+    
+    // Gerencia botões mobile
+    const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+    const floatingMobileBtn = document.getElementById('floatingMobileBtn');
+    
+    if (floatingHomeBtn && floatingMobileBtn && window.innerWidth <= 768) {
+        floatingHomeBtn.style.display = 'none';
+        floatingMobileBtn.style.display = 'none'; // Esconde ambos nos cards
+    }
+});
             
             // Eventos para Perfil da Empresa
             document.getElementById('businessProfileForm').addEventListener('submit', saveBusinessProfile);
             document.getElementById('saveBusinessHours').addEventListener('click', saveBusinessHours);
             
-            // Evento para botão home mobile
-            document.getElementById('floatingHomeBtn').addEventListener('click', showMobileCards);
+            // Evento para botão home mobile - CORRIGIDO
+document.getElementById('floatingHomeBtn').addEventListener('click', function() {
+    showSection('mobileCards');
+    
+    // Remove 'active' de todos os links
+    document.querySelectorAll('.sidebar .nav-link, .mobile-menu .nav-link, .mobile-card').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Gerencia botões mobile
+    const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+    const floatingMobileBtn = document.getElementById('floatingMobileBtn');
+    
+    if (floatingHomeBtn && floatingMobileBtn && window.innerWidth <= 768) {
+        floatingHomeBtn.style.display = 'none';
+        floatingMobileBtn.style.display = 'flex';
+    }
+});
             
             // Evento para redimensionamento da janela
             window.addEventListener('resize', handleResize);
@@ -8543,10 +8570,10 @@ html, body {
             document.getElementById('mobileCards').classList.add('active');
             
             // CORREÇÃO: Ocultar botão flutuante home na tela de cards
-            const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-            if (floatingHomeBtn) {
-                floatingHomeBtn.style.display = 'none';
-            }
+            //const floatingHomeBtn = document.getElementById('floatingHomeBtn');
+            //if (floatingHomeBtn) {
+            //    floatingHomeBtn.style.display = 'none';
+           // }
         }
 
         function checkMobileDevice() {
@@ -10609,6 +10636,7 @@ window.addEventListener('load', function() {
     
 </body>
 </html>
+
 
 
 
