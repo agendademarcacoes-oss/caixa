@@ -4340,41 +4340,24 @@ html, body {
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             
-            // CORREÇÃO DO MENU DESKTOP
-document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const section = this.getAttribute('data-section');
-        console.log('Clicou no menu desktop:', section); // Para debug
-        
-        // Remover classe ativa de TODOS os links do sidebar
-        document.querySelectorAll('.sidebar .nav-link').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // Adicionar classe ativa apenas ao link clicado
-        this.classList.add('active');
-        
-        // Se estiver no mobile, volta para a seção
-        if (window.innerWidth <= 768) {
-            // No mobile, mostra a seção e esconde os cards
-            document.getElementById('mobileCards').classList.remove('active');
-            const sectionEl = document.getElementById(section);
-            if (sectionEl) {
-                sectionEl.classList.add('active');
-            }
-            
-            // Mostrar botão home no mobile
-            const floatingHomeBtn = document.getElementById('floatingHomeBtn');
-            if (floatingHomeBtn) {
-                floatingHomeBtn.style.display = 'flex';
-            }
-        } else {
-            // No desktop, mostra a seção normalmente
-            showSection(section);
-        }
-    });
-});
+            // Navegação - MENU DESKTOP CORRIGIDO
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    // Remover classe ativa de TODOS os links do sidebar
+                    document.querySelectorAll('.sidebar .nav-link').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Adicionar classe ativa apenas ao link clicado
+                    this.classList.add('active');
+                    
+                    // Mostrar a seção correspondente
+                    showSection(section);
+                });
+            });
             
             // Navegação - MENU MOBILE SEPARADO
             document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
@@ -10515,70 +10498,9 @@ function showClientDetails(clientId) {
                 navigator.serviceWorker.register(swUrl);
             });
         } 
-
-
-
-        
     </script>
-
-
-
-
-    
 </body>
-
-
-<script>
-// CORREÇÃO DE EMERGÊNCIA PARA O MENU DESKTOP
-document.addEventListener('DOMContentLoaded', function() {
-    // Garantir que o menu desktop funciona
-    setTimeout(function() {
-        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-            // Remover eventos antigos (se houver)
-            link.replaceWith(link.cloneNode(true));
-        });
-        
-        // Adicionar eventos novos
-        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.getAttribute('data-section');
-                
-                // Remover active de todos
-                document.querySelectorAll('.sidebar .nav-link').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                // Adicionar active no clicado
-                this.classList.add('active');
-                
-                // Esconder todas as seções
-                document.querySelectorAll('.section').forEach(el => {
-                    el.classList.remove('active');
-                });
-                
-                // Esconder cards mobile
-                const mobileCards = document.getElementById('mobileCards');
-                if (mobileCards) {
-                    mobileCards.classList.remove('active');
-                }
-                
-                // Mostrar a seção clicada
-                const sectionEl = document.getElementById(section);
-                if (sectionEl) {
-                    sectionEl.classList.add('active');
-                }
-            });
-        });
-        
-        console.log('Menu desktop corrigido!');
-    }, 500);
-});
-</script>
-
-    
 </html>
-
 
 
 
