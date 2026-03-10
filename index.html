@@ -10498,11 +10498,104 @@ function showClientDetails(clientId) {
 // ============================================
 
 function fixMenuNavigation() {
-    console.log("Menu corrigido com sucesso!");
+    console.log("Corrigindo navegação do menu...");
+    
+    // 1. Primeiro, vamos mostrar que todas as telas existem
+    const allSections = document.querySelectorAll('.section');
+    console.log(`📁 Total de telas encontradas: ${allSections.length}`);
+    
+    allSections.forEach(section => {
+        console.log(`- ${section.id}: ${section.innerHTML.length > 100 ? 'COM conteúdo' : 'SEM conteúdo'}`);
+    });
+    
+    // 2. Corrige os eventos de clique no menu DESKTOP
+    const desktopMenuLinks = document.querySelectorAll('.sidebar .nav-link');
+    
+    desktopMenuLinks.forEach(link => {
+        // Remove qualquer evento antigo
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+        
+        // Adiciona novo evento
+        newLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const sectionId = this.getAttribute('data-section');
+            console.log(`🎯 Clicou em: ${sectionId}`);
+            
+            // Remove 'active' de todos os links
+            desktopMenuLinks.forEach(item => item.classList.remove('active'));
+            
+            // Adiciona 'active' no link clicado
+            this.classList.add('active');
+            
+            // Esconde todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Esconde os cards mobile
+            document.getElementById('mobileCards').style.display = 'none';
+            document.getElementById('mobileCards').classList.remove('active');
+            
+            // Mostra APENAS a seção clicada
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                targetSection.style.display = 'block';
+                console.log(`✅ Mostrando tela: ${sectionId}`);
+                
+                // Se for mobile, mostrar botão home
+                if (window.innerWidth <= 768) {
+                    document.getElementById('mobileHomeButton').style.display = 'flex';
+                }
+            } else {
+                console.log(`❌ Seção ${sectionId} não encontrada!`);
+            }
+        });
+    });
+    
+    // 3. Garante que o Dashboard seja mostrado inicialmente no desktop
+    if (window.innerWidth > 768) {
+        setTimeout(() => {
+            // Esconde todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Esconde os cards mobile
+            document.getElementById('mobileCards').style.display = 'none';
+            document.getElementById('mobileCards').classList.remove('active');
+            
+            // Mostra apenas o Dashboard
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard) {
+                dashboard.classList.add('active');
+                dashboard.style.display = 'block';
+            }
+            
+            // Ativa o link do Dashboard no menu
+            desktopMenuLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === 'dashboard') {
+                    link.classList.add('active');
+                }
+            });
+            
+            console.log("✅ Menu desktop corrigido com sucesso!");
+        }, 500);
+    }
 }
+
+// Executa quando a página carrega
+window.addEventListener('load', function() {
+    // Espera o sistema carregar completamente
+    setTimeout(fixMenuNavigation, 1500);
+});
         
     </script>
    
 </body>
 </html>
-
