@@ -6150,9 +6150,13 @@ html, body {
         }
 
         function showMainScreen() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainScreen').classList.remove('hidden');
-        }
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainScreen').classList.remove('hidden');
+    
+    // ADICIONE ESTAS DUAS LINHAS ↓
+    console.log("🔄 Carregando menu principal...");
+    setTimeout(fixMenuNavigation, 800);
+}
 
         function loadInitialData() {
             if (currentUser) {
@@ -10500,81 +10504,111 @@ function showClientDetails(clientId) {
         } 
 
 
+// ============================================
+// SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
+// ============================================
 
-
-        ... todo o seu código JavaScript atual ...
+function fixMenuNavigation() {
+    console.log("Corrigindo navegação do menu...");
+    
+    // 1. Primeiro, vamos mostrar que todas as telas existem
+    const allSections = document.querySelectorAll('.section');
+    console.log(`📁 Total de telas encontradas: ${allSections.length}`);
+    
+    allSections.forEach(section => {
+        console.log(`- ${section.id}: ${section.innerHTML.length > 100 ? 'COM conteúdo' : 'SEM conteúdo'}`);
+    });
+    
+    // 2. Corrige os eventos de clique no menu DESKTOP
+    const desktopMenuLinks = document.querySelectorAll('.sidebar .nav-link');
+    
+    desktopMenuLinks.forEach(link => {
+        // Remove qualquer evento antigo
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
         
-        window.addEventListener('resize', function() {
-            if (currentUser && currentSection === 'agenda') {
-                renderAgendaGrid();
+        // Adiciona novo evento
+        newLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const sectionId = this.getAttribute('data-section');
+            console.log(`🎯 Clicou em: ${sectionId}`);
+            
+            // Remove 'active' de todos os links
+            desktopMenuLinks.forEach(item => item.classList.remove('active'));
+            
+            // Adiciona 'active' no link clicado
+            this.classList.add('active');
+            
+            // Esconde todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Mostra APENAS a seção clicada
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                targetSection.style.display = 'block';
+                console.log(`✅ Mostrando tela: ${sectionId}`);
+            } else {
+                console.log(`❌ Seção ${sectionId} não encontrada!`);
+            }
+            
+            // Se for mobile, esconde os cards
+            if (window.innerWidth <= 768) {
+                document.getElementById('mobileCards').style.display = 'none';
+            }
+        });
+    });
+    
+    // 3. Garante que o Dashboard seja mostrado inicialmente
+    setTimeout(() => {
+        // Esconde todas as seções
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+            section.style.display = 'none';
+        });
+        
+        // Mostra apenas o Dashboard
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard) {
+            dashboard.classList.add('active');
+            dashboard.style.display = 'block';
+        }
+        
+        // Ativa o link do Dashboard no menu
+        desktopMenuLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === 'dashboard') {
+                link.classList.add('active');
             }
         });
         
-        // ============================================
-        // SOLUÇÃO MÁGICA PARA O MENU - COLE DAQUI PARA BAIXO
-        // ============================================
-        
-        // Espera tudo carregar
-        setTimeout(function() {
-            console.log("🎯 Aplicando correção do menu...");
-            
-            // CORREÇÃO SIMPLES: Apenas um botão azul por vez
-            function corrigirMenu() {
-                // Quando clica em qualquer menu
-                document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(item) {
-                    item.addEventListener('click', function() {
-                        // Tira azul de TODOS
-                        document.querySelectorAll('.sidebar .nav-link, .mobile-card').forEach(function(i) {
-                            i.classList.remove('active');
-                        });
-                        // Coloca azul só neste
-                        this.classList.add('active');
-                    });
-                });
-                
-                // Botão Home mobile
-                var homeBtn = document.getElementById('floatingHomeBtn');
-                var menuBtn = document.getElementById('floatingMobileBtn');
-                
-                if (homeBtn) {
-                    homeBtn.addEventListener('click', function() {
-                        // Volta para cards mobile
-                        document.querySelectorAll('.section').forEach(function(sec) {
-                            sec.classList.remove('active');
-                        });
-                        document.getElementById('mobileCards').classList.add('active');
-                        
-                        // Mostra/Esconde botões
-                        if (window.innerWidth <= 768) {
-                            homeBtn.style.display = 'none';
-                            if (menuBtn) menuBtn.style.display = 'flex';
-                        }
-                    });
-                }
-                
-                console.log("✅ Menu corrigido!");
-            }
-            
-            // Executa a correção
-            corrigirMenu();
-            
-        }, 2000); // Espera 2 segundos
-        
-        // ============================================
-        // FIM DA SOLUÇÃO MÁGICA
-        // ============================================
-        
-    </script>  <!-- NÃO APAGUE ESTA LINHA! -->
+        console.log("✅ Menu corrigido com sucesso!");
+        console.log("🖱️ Agora clique em 'Caixa', 'Estoque', etc. no menu lateral!");
+    }, 500);
+}
 
-</body>
+// Executa quando a página carrega
+window.addEventListener('load', function() {
+    // Espera o sistema carregar completamente
+    setTimeout(fixMenuNavigation, 1500);
+});
 
-
-
+// Também executa quando o usuário faz login
+// Adicione esta linha na função showMainScreen()
+// setTimeout(fixMenuNavigation, 1000);
         
     </script>
+
+
+
+
+    
 </body>
 </html>
-
 
 
 
