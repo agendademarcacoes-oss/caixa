@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio DeVitto - Loja Virtual</title>
+    <title>Studio DeVitto - Sistema de Gestão</title>
     
     <!-- PWA - Progressive Web App -->
     <link rel="manifest" href="/manifest.json">
@@ -22,19 +22,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <!-- Cloudinary SDK -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <script src="https://upload-widget.cloudinary.com/global.js"></script>
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* Todos os estilos CSS anteriores permanecem aqui */
         :root {
             --primary-color: #26196b;
             --secondary-color: #ffd700;
             --accent-color: #4a3a9c;
             --light-bg: #f8f9fa;
-            --store-card-bg: #ffffff;
-            --store-hover: #f0f0ff;
         }
         
         /* CORREÇÃO DO ESPAÇO NO TOPO */
@@ -884,6 +881,7 @@
             position: relative;
         }
         
+        /* LAYOUT AGENDA ESTILO GOOGLE CALENDAR - Coluna de horários 5% */
         .agenda-time-column {
             width: 60px;
             min-width: 60px;
@@ -1105,6 +1103,7 @@
             z-index: 101;
         }
         
+        /* Modal de seleção de data */
         .date-picker-modal {
             position: fixed;
             top: 10%;
@@ -1178,6 +1177,7 @@
             border: 2px solid var(--primary-color);
         }
         
+        /* Tela de seleção de cliente */
         .client-selection-modal {
             position: fixed;
             top: 0;
@@ -1286,6 +1286,7 @@
             font-size: 18px;
         }
         
+        /* Tela de seleção de serviços */
         .service-selection-modal {
             position: fixed;
             top: 0;
@@ -1399,6 +1400,7 @@
             font-weight: 600;
         }
         
+        /* Tela de salvar agendamento */
         .appointment-save-modal {
             position: fixed;
             top: 0;
@@ -1814,18 +1816,6 @@
             .footer-action-btn.icon {
                 flex: 0 0 48px;
             }
-            
-            /* Ajustes para loja em mobile */
-            .store-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-            
-            .cart-sidebar {
-                width: 100% !important;
-                max-width: 100% !important;
-                left: 0 !important;
-                border-radius: 20px 20px 0 0 !important;
-            }
         }
         
         @media (min-width: 769px) {
@@ -2240,637 +2230,114 @@
             border: none;
             color: #000;
         }
-        
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .birthday-card {
-                padding: 15px;
-            }
-            
-            .birthday-avatar {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .birthday-avatar .avatar-inner {
-                font-size: 20px;
-            }
-            
-            .birthday-details {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-        
-        /* DESATIVAR O BOTÃO PROBLEMÁTICO */
-        #floatingMobileBtn {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        
-        /* ============================================= */
-        /* NOVOS ESTILOS PARA A LOJA / VITRINE */
-        /* ============================================= */
-        
-        #store.section {
-            background-color: #f5f7fa;
-            padding: 20px;
-        }
-        
-        .store-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .store-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin: 0;
-        }
-        
-        .cart-icon-container {
-            position: relative;
-            cursor: pointer;
-            background: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-        
-        .cart-icon-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-        
-        .cart-icon {
-            font-size: 24px;
-            color: var(--primary-color);
-        }
-        
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .store-search {
-            flex: 1;
-            max-width: 400px;
-            position: relative;
-        }
-        
-        .store-search input {
-            width: 100%;
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 50px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .store-search input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(38, 25, 107, 0.1);
-        }
-        
-        .store-search i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-        
-        .store-filters {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-        
-        .filter-btn {
-            padding: 8px 20px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-        
-        .store-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
+
+        /* ESTILOS DA LOJA */
         .product-card {
-            background: var(--store-card-bg);
-            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: white;
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
         
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(38, 25, 107, 0.15);
+            box-shadow: 0 8px 20px rgba(38, 25, 107, 0.15);
         }
         
         .product-image-container {
-            position: relative;
-            padding-top: 100%;
-            background: #f8f9fa;
+            width: 100%;
+            height: 200px;
             overflow: hidden;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .product-image {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease;
         }
         
         .product-card:hover .product-image {
             transform: scale(1.05);
         }
         
-        .product-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: var(--primary-color);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 2;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        
-        .product-badge.out-of-stock {
-            background: #6c757d;
-        }
-        
-        .product-badge.low-stock {
-            background: #ffc107;
-            color: #333;
-        }
-        
-        .product-info {
-            padding: 20px;
-            flex: 1;
+        .product-image-placeholder {
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+            color: #9e9e9e;
+            font-size: 3rem;
         }
         
-        .product-category {
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #999;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
+        .product-details {
+            padding: 15px;
+            flex-grow: 1;
         }
         
         .product-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-            line-height: 1.3;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .product-description {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.5;
-            flex: 1;
-        }
-        
-        .product-price-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+            min-height: 40px;
         }
         
         .product-price {
-            font-size: 22px;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .product-original-price {
-            font-size: 14px;
-            color: #999;
-            text-decoration: line-through;
-            margin-left: 5px;
-        }
-        
-        .product-stock {
-            font-size: 13px;
             color: #28a745;
-            font-weight: 600;
+            margin-bottom: 0;
         }
         
-        .product-stock.low {
-            color: #dc3545;
+        .product-stock-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-top: 5px;
         }
         
         .product-actions {
-            display: flex;
-            gap: 10px;
+            padding: 0 15px 15px 15px;
             margin-top: auto;
         }
         
-        .btn-add-to-cart {
-            flex: 1;
-            background: var(--primary-color);
-            color: white;
+        .product-actions .btn-success {
+            width: 100%;
+            background: linear-gradient(135deg, #25D366, #1da851);
             border: none;
-            padding: 12px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-add-to-cart:hover:not(:disabled) {
-            background: var(--accent-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(38, 25, 107, 0.3);
-        }
-        
-        .btn-add-to-cart:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .btn-quick-view {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
             transition: all 0.3s;
         }
         
-        .btn-quick-view:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: rotate(90deg);
-        }
-        
-        /* Carrinho lateral */
-        .cart-sidebar {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 100%;
-            max-width: 380px;
-            height: 100vh;
-            background: white;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
-            z-index: 2000;
-            transition: right 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .cart-sidebar.open {
-            right: 0;
-        }
-        
-        .cart-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1999;
-            display: none;
-        }
-        
-        .cart-overlay.active {
-            display: block;
-        }
-        
-        .cart-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .cart-header h3 {
-            margin: 0;
-            font-size: 20px;
-        }
-        
-        .cart-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
-        
-        .cart-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .cart-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .cart-item-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        
-        .cart-item-info {
-            flex: 1;
-        }
-        
-        .cart-item-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .cart-item-price {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .cart-item-quantity {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .cart-item-quantity button {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .cart-item-quantity button:hover {
-            background: #f8f9fa;
-        }
-        
-        .cart-item-quantity span {
-            min-width: 30px;
-            text-align: center;
-        }
-        
-        .cart-item-remove {
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .cart-footer {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            background: white;
-        }
-        
-        .cart-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        
-        .cart-total-value {
-            color: var(--primary-color);
-        }
-        
-        .cart-client-info {
-            margin-bottom: 15px;
-        }
-        
-        .cart-client-info input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        .cart-client-info input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-        
-        .cart-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .btn-checkout {
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s;
-        }
-        
-        .btn-checkout:hover {
-            background: #128C7E;
-            transform: translateY(-2px);
+        .product-actions .btn-success:hover {
+            transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
-        
-        .btn-clear-cart {
-            background: #f8f9fa;
-            color: #6c757d;
-            border: 1px solid #ddd;
-            padding: 12px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-clear-cart:hover {
-            background: #e9ecef;
-        }
-        
-        .empty-cart {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-        
-        .empty-cart i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #ddd;
-        }
-        
-        /* Modal de visualização rápida */
-        .quick-view-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 600px;
-            background: white;
-            border-radius: 20px;
-            z-index: 2100;
-            display: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        
-        .quick-view-modal.active {
-            display: block;
-        }
-        
-        .quick-view-content {
-            padding: 30px;
-        }
-        
-        .quick-view-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .quick-view-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .quick-view-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-        }
-        
-        .quick-view-image {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .quick-view-price {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-        
-        .quick-view-description {
-            font-size: 16px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        
-        .quick-view-stock {
-            font-size: 16px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .quick-view-actions {
-            display: flex;
-            gap: 15px;
-        }
-        
-        /* Loading e notificações */
-        .store-loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .store-loading i {
-            font-size: 40px;
-            margin-bottom: 15px;
-            color: var(--primary-color);
+
+        /* Responsividade para a Loja */
+        @media (max-width: 768px) {
+            .product-image-container {
+                height: 150px;
+            }
         }
     </style>
 </head>
@@ -2967,17 +2434,17 @@
 
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar - CORRIGIDA: Todas as funções estão em suas respectivas posições -->
+                <!-- Sidebar -->
                 <div class="col-md-3 col-lg-2 sidebar p-0">
                     <nav class="nav flex-column p-3" id="desktopMenu">
                         <a class="nav-link" href="#" data-section="dashboard">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
-                        <a class="nav-link" href="#" data-section="store">
-                            <i class="fas fa-store"></i> Loja / Vitrine
-                        </a>
                         <a class="nav-link" href="#" data-section="agenda">
                             <i class="fas fa-calendar-alt"></i> Agenda
+                        </a>
+                        <a class="nav-link" href="#" data-section="store"> <!-- NOVA SEÇÃO: Loja -->
+                            <i class="fas fa-store"></i> Loja
                         </a>
                         <a class="nav-link" href="#" data-section="cashier">
                             <i class="fas fa-cash-register"></i> Caixa
@@ -3027,17 +2494,17 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="mobile-card" data-section="store">
-                                        <i class="fas fa-store"></i>
-                                        <h5>Loja</h5>
-                                        <p>Comprar produtos</p>
-                                    </div>
-                                </div>
-                                <div class="col-6">
                                     <div class="mobile-card" data-section="agenda">
                                         <i class="fas fa-calendar-alt"></i>
                                         <h5>Agenda</h5>
                                         <p>Agendamentos</p>
+                                    </div>
+                                </div>
+                                <div class="col-6"> <!-- NOVO CARD: Loja -->
+                                    <div class="mobile-card" data-section="store">
+                                        <i class="fas fa-store"></i>
+                                        <h5>Loja</h5>
+                                        <p>Vitrine</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -3323,99 +2790,52 @@
                             </div>
                         </div>
 
-                        <!-- NOVA SEÇÃO: LOJA / VITRINE -->
+                        <!-- AGENDA -->
+                        <div id="agenda" class="section">
+                            <div class="agenda-container">
+                                <!-- Cabeçalho da Agenda -->
+                                <div class="agenda-header">
+                                    <button class="agenda-menu-btn" id="agendaMenuBtn">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                    <div class="agenda-date-display" id="agendaDateDisplay">
+                                        quinta 22 jan ↓
+                                    </div>
+                                    <div class="agenda-view-options">
+                                        <button class="agenda-view-btn active" data-view="day">Dia</button>
+                                        <button class="agenda-view-btn" data-view="3days">3 dias</button>
+                                        <button class="agenda-view-btn" data-view="week">Semana</button>
+                                        <button class="agenda-view-btn" data-view="month">Mês</button>
+                                    </div>
+                                </div>
+
+                                <!-- Lista de Colaboradores -->
+                                <div class="agenda-professionals" id="agendaProfessionals">
+                                    <!-- Colaboradores serão preenchidos dinamicamente -->
+                                </div>
+
+                                <!-- Conteúdo da Agenda -->
+                                <div class="agenda-content">
+                                    <!-- Coluna de horários -->
+                                    <div class="agenda-time-column" id="agendaTimeColumn">
+                                        <!-- Horários serão preenchidos dinamicamente -->
+                                    </div>
+                                    
+                                    <!-- Grade de agendamentos -->
+                                    <div class="agenda-slots-container" id="agendaSlotsContainer">
+                                        <div class="agenda-grid" id="agendaGrid">
+                                            <!-- Grade será preenchida dinamicamente -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOVA SEÇÃO: LOJA -->
                         <div id="store" class="section">
-                            <div class="store-header">
-                                <h2 class="store-title">🛍️ Loja de Produtos</h2>
-                                
-                                <div class="store-search">
-                                    <input type="text" id="storeSearch" placeholder="Buscar produtos...">
-                                    <i class="fas fa-search"></i>
-                                </div>
-                                
-                                <div class="cart-icon-container" id="cartIcon">
-                                    <i class="fas fa-shopping-cart cart-icon"></i>
-                                    <span class="cart-badge" id="cartCount">0</span>
-                                </div>
-                            </div>
-                            
-                            <div class="store-filters" id="storeFilters">
-                                <button class="filter-btn active" data-category="all">Todos</button>
-                                <button class="filter-btn" data-category="cabelo">Cabelo</button>
-                                <button class="filter-btn" data-category="pele">Pele</button>
-                                <button class="filter-btn" data-category="maquiagem">Maquiagem</button>
-                                <button class="filter-btn" data-category="acessorios">Acessórios</button>
-                                <button class="filter-btn" data-category="outros">Outros</button>
-                            </div>
-                            
-                            <div id="storeLoading" class="store-loading" style="display: none;">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Carregando produtos...</p>
-                            </div>
-                            
-                            <div class="store-grid" id="storeGrid">
-                                <!-- Produtos serão carregados dinamicamente aqui -->
-                                <div class="text-center text-muted py-5" style="grid-column: 1 / -1;">
-                                    <i class="fas fa-box-open fa-3x mb-3"></i>
-                                    <h5>Carregando produtos...</h5>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Carrinho Lateral -->
-                        <div class="cart-overlay" id="cartOverlay"></div>
-                        <div class="cart-sidebar" id="cartSidebar">
-                            <div class="cart-header">
-                                <h3>🛒 Meu Carrinho</h3>
-                                <button class="cart-close" id="cartClose">&times;</button>
-                            </div>
-                            
-                            <div class="cart-body" id="cartBody">
-                                <!-- Itens do carrinho serão inseridos aqui -->
-                                <div class="empty-cart">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <h5>Seu carrinho está vazio</h5>
-                                    <p>Adicione produtos para continuar</p>
-                                </div>
-                            </div>
-                            
-                            <div class="cart-footer" id="cartFooter" style="display: none;">
-                                <div class="cart-client-info">
-                                    <input type="text" id="cartClientName" placeholder="Nome do cliente (opcional)">
-                                </div>
-                                
-                                <div class="cart-total">
-                                    <span>Total:</span>
-                                    <span class="cart-total-value" id="cartTotal">€ 0,00</span>
-                                </div>
-                                
-                                <div class="cart-actions">
-                                    <button class="btn-checkout" id="checkoutWhatsApp">
-                                        <i class="fab fa-whatsapp"></i> Finalizar Pedido
-                                    </button>
-                                    <button class="btn-clear-cart" id="clearCart">
-                                        <i class="fas fa-trash-alt"></i> Limpar Carrinho
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal de Visualização Rápida -->
-                        <div class="quick-view-modal" id="quickViewModal">
-                            <div class="quick-view-content">
-                                <div class="quick-view-header">
-                                    <h3 class="quick-view-title" id="quickViewTitle">Produto</h3>
-                                    <button class="quick-view-close" id="quickViewClose">&times;</button>
-                                </div>
-                                <img id="quickViewImage" class="quick-view-image" src="" alt="Produto">
-                                <div class="quick-view-price" id="quickViewPrice">€ 0,00</div>
-                                <div class="quick-view-description" id="quickViewDescription"></div>
-                                <div class="quick-view-stock" id="quickViewStock"></div>
-                                <div class="quick-view-actions">
-                                    <button class="btn-add-to-cart" id="quickViewAddToCart">
-                                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
-                                    </button>
-                                </div>
+                            <h2 class="mb-4"><i class="fas fa-store me-2"></i>Loja - Vitrine de Produtos</h2>
+                            <div class="row" id="storeProductList">
+                                <!-- Cards de produtos serão inseridos aqui dinamicamente -->
                             </div>
                         </div>
 
@@ -3891,52 +3311,11 @@
                             </div>
                         </div>
 
-                        <!-- AGENDA -->
-                        <div id="agenda" class="section">
-                            <div class="agenda-container">
-                                <!-- Cabeçalho da Agenda -->
-                                <div class="agenda-header">
-                                    <button class="agenda-menu-btn" id="agendaMenuBtn">
-                                        <i class="fas fa-bars"></i>
-                                    </button>
-                                    <div class="agenda-date-display" id="agendaDateDisplay">
-                                        quinta 22 jan ↓
-                                    </div>
-                                    <div class="agenda-view-options">
-                                        <button class="agenda-view-btn active" data-view="day">Dia</button>
-                                        <button class="agenda-view-btn" data-view="3days">3 dias</button>
-                                        <button class="agenda-view-btn" data-view="week">Semana</button>
-                                        <button class="agenda-view-btn" data-view="month">Mês</button>
-                                    </div>
-                                </div>
-
-                                <!-- Lista de Colaboradores -->
-                                <div class="agenda-professionals" id="agendaProfessionals">
-                                    <!-- Colaboradores serão preenchidos dinamicamente -->
-                                </div>
-
-                                <!-- Conteúdo da Agenda -->
-                                <div class="agenda-content">
-                                    <!-- Coluna de horários -->
-                                    <div class="agenda-time-column" id="agendaTimeColumn">
-                                        <!-- Horários serão preenchidos dinamicamente -->
-                                    </div>
-                                    
-                                    <!-- Grade de agendamentos -->
-                                    <div class="agenda-slots-container" id="agendaSlotsContainer">
-                                        <div class="agenda-grid" id="agendaGrid">
-                                            <!-- Grade será preenchida dinamicamente -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Controle Financeiro -->
                         <div id="financial-control" class="section">
                             <h2 class="mb-4">Controle Financeiro</h2>
                             
-                            <!-- Resumo Financeiro MELHORADO COM DOIS CAIXAS SEPARADOS -->
+                            <!-- Resumo Financeiro -->
                             <div class="financial-summary">
                                 <h3>Resumo Financeiro - Mês Atual</h3>
                                 
@@ -4299,6 +3678,11 @@
                                                     <label for="businessDescription" class="form-label">Descrição</label>
                                                     <textarea class="form-control" id="businessDescription" rows="3" placeholder="Breve descrição sobre o seu negócio..."></textarea>
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label for="businessWhatsApp" class="form-label">WhatsApp (para pedidos da loja)</label>
+                                                    <input type="text" class="form-control" id="businessWhatsApp" placeholder="+351 123 456 789">
+                                                    <small class="text-muted">Número que receberá os pedidos da loja.</small>
+                                                </div>
                                                 <button type="submit" class="btn btn-primary">Salvar Informações</button>
                                             </form>
                                         </div>
@@ -4434,7 +3818,7 @@
         </div>
     </div>
 
-    <!-- Botão Flutuante para Dispositivos Móveis - NOVO BOTÃO HOME QUE FUNCIONA EM TODAS AS TELAS -->
+    <!-- Botão Flutuante para Dispositivos Móveis -->
     <div class="floating-home-btn" id="mobileHomeButton" style="display: none;">
         <i class="fas fa-home"></i>
     </div>
@@ -4584,9 +3968,9 @@
         </div>
     </div>
 
-    <!-- Modal para Adicionar/Editar Produto (ATUALIZADO COM IMAGEM CLOUDINARY) -->
+    <!-- Modal para Adicionar/Editar Produto -->
     <div class="modal fade" id="productModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="productModalTitle">Adicionar Produto</h5>
@@ -4595,58 +3979,62 @@
                 <div class="modal-body">
                     <form id="productForm">
                         <input type="hidden" id="productId">
-                        
-                        <!-- Upload de Imagem Cloudinary -->
-                        <div class="mb-3 text-center">
-                            <label class="form-label">Imagem do Produto</label>
-                            <div class="product-image-upload-container">
-                                <button type="button" class="btn btn-outline-primary w-100" id="uploadProductImageBtn">
-                                    <i class="fas fa-cloud-upload-alt me-2"></i> Upload de Imagem
-                                </button>
-                                <input type="hidden" id="productImageUrl">
-                                <div id="productImagePreview" class="mt-2" style="display: none;">
-                                    <img src="" class="img-thumbnail" style="max-height: 150px;">
+                        <input type="hidden" id="productImageUrl">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productName" class="form-label">Nome do Produto</label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productQuantity" class="form-label">Quantidade em Estoque</label>
+                                        <input type="number" class="form-control" id="productQuantity" min="0" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productMinQuantity" class="form-label">Quantidade Mínima</label>
+                                        <input type="number" class="form-control" id="productMinQuantity" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productPurchasePrice" class="form-label">Preço de Compra (€)</label>
+                                        <input type="number" class="form-control" id="productPurchasePrice" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productSalePrice" class="form-label">Preço de Venda (€)</label>
+                                        <input type="number" class="form-control" id="productSalePrice" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productDescription" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productCategory" class="form-label">Categoria</label>
+                                    <select class="form-select" id="productCategory">
+                                        <option value="cabelo">Cabelo</option>
+                                        <option value="pele">Pele</option>
+                                        <option value="maquiagem">Maquiagem</option>
+                                        <option value="acessorios">Acessórios</option>
+                                        <option value="outros">Outros</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Nome do Produto</label>
-                            <input type="text" class="form-control" id="productName" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="productQuantity" class="form-label">Quantidade em Estoque</label>
-                                <input type="number" class="form-control" id="productQuantity" min="0" required>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Imagem do Produto</label>
+                                    <div class="text-center">
+                                        <img id="productImagePreview" src="#" alt="Preview da imagem" style="max-width: 100%; max-height: 200px; display: none;" class="mb-3">
+                                        <div id="productImagePlaceholder" style="width: 100%; height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('productImageUpload').click();">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
+                                            <p class="text-muted mt-2">Clique para fazer upload</p>
+                                        </div>
+                                        <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="uploadProductImageBtn">Escolher Imagem</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="productMinQuantity" class="form-label">Quantidade Mínima</label>
-                                <input type="number" class="form-control" id="productMinQuantity" min="1" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="productPurchasePrice" class="form-label">Preço de Compra (€)</label>
-                                <input type="number" class="form-control" id="productPurchasePrice" step="0.01" min="0" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="productSalePrice" class="form-label">Preço de Venda (€)</label>
-                                <input type="number" class="form-control" id="productSalePrice" step="0.01" min="0" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productDescription" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="productDescription" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productCategory" class="form-label">Categoria</label>
-                            <select class="form-select" id="productCategory">
-                                <option value="cabelo">Cabelo</option>
-                                <option value="pele">Pele</option>
-                                <option value="maquiagem">Maquiagem</option>
-                                <option value="acessorios">Acessórios</option>
-                                <option value="outros">Outros</option>
-                            </select>
                         </div>
                     </form>
                 </div>
@@ -4658,7 +4046,7 @@
         </div>
     </div>
 
-    <!-- Modal para Configurar Estabelecimento (ATUALIZADO COM CLOUDINARY) -->
+    <!-- Modal para Configurar Estabelecimento -->
     <div class="modal fade" id="businessSettingsModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -4684,12 +4072,14 @@
                             </select>
                         </div>
                         <div class="logo-upload-container" id="logoUploadContainer" style="display: none;">
-                            <label for="logoUploadBtn" class="form-label">Upload de Logo (Cloudinary)</label>
-                            <button type="button" class="btn btn-outline-primary w-100" id="logoUploadBtn">
-                                <i class="fas fa-cloud-upload-alt me-2"></i> Selecionar Imagem
-                            </button>
-                            <div class="logo-preview-container mt-2 text-center">
-                                <img id="logoPreview" class="logo-preview" src="" alt="Preview da logo" style="max-width: 100%; max-height: 150px;">
+                            <label for="logoUpload" class="form-label">Upload de Logo</label>
+                            <div class="text-center">
+                                <img id="logoPreview" class="logo-preview" src="" alt="Preview da logo">
+                                <div class="logo-placeholder" id="logoPlaceholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <input type="file" class="form-control mt-2" id="logoUpload" accept="image/*">
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="uploadLogoBtn">Fazer Upload</button>
                             </div>
                         </div>
                     </form>
@@ -4880,12 +4270,10 @@
             measurementId: "G-FCC5T13QW8"
         };
 
-        // Configuração Cloudinary
-        const CLOUDINARY_CONFIG = {
-            cloudName: 'STUDIODEVITTO',
-            apiKey: '569982421317823',
-            apiSecret: '5GchYxbNQtG0N14Pm67_zPyaeBY',
-            uploadPreset: 'studio_devitto_preset'
+        // Configuração do Cloudinary
+        const cloudinaryConfig = {
+            cloudName: "STUDIODEVITTO",
+            uploadPreset: "STUDIODEVITTO_PRESET"
         };
 
         // Inicializar Firebase
@@ -4908,13 +4296,6 @@
         let selectedClientId = null;
         let clientNotes = {};
         
-        // Carrinho de compras
-        let cart = {
-            items: [],
-            clientName: '',
-            total: 0
-        };
-        
         // Controle Financeiro
         let expenses = [];
         let salaryPayments = [];
@@ -4924,7 +4305,8 @@
         let businessSettings = {
             name: "Studio DeVitto",
             logoType: "scissors",
-            customLogo: null
+            customLogo: null,
+            whatsAppNumber: ""
         };
         
         // Perfil da Empresa
@@ -4932,6 +4314,7 @@
             name: "Studio DeVitto",
             email: "",
             phone: "",
+            whatsApp: "",
             address: "",
             description: ""
         };
@@ -4988,24 +4371,21 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
             
-            // Configurar Cloudinary Upload Widget
-            setupCloudinaryWidgets();
-            
             // Carregar configurações locais do estabelecimento (não requerem auth)
             loadBusinessSettings();
             
-            // Verificar se há um usuário logado - CRÍTICO: onAuthStateChanged deve ser configurado PRIMEIRO
+            // Verificar se há um usuário logado
             auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUser = user;
                     showMainScreen();
                     loadInitialData();
-                    // Inicializar agenda SOMENTE após autenticação confirmada
                     setTimeout(() => {
                         checkMobileDevice();
                         if (typeof initAgenda === 'function') {
                             initAgenda();
                         }
+                        renderStore(); // Renderizar a loja após carregar dados
                     }, 100);
                 } else {
                     currentUser = null;
@@ -5054,463 +4434,6 @@
         link.href = manifestUrl;
         document.head.appendChild(link);
 
-        // =============================================
-        // FUNÇÕES DA LOJA / VITRINE
-        // =============================================
-        
-        // Configurar Cloudinary Upload Widgets
-        function setupCloudinaryWidgets() {
-            // Widget para upload de imagens de produtos
-            const productUploadWidget = cloudinary.createUploadWidget(
-                {
-                    cloudName: CLOUDINARY_CONFIG.cloudName,
-                    apiKey: CLOUDINARY_CONFIG.apiKey,
-                    uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-                    sources: ['local', 'camera', 'url'],
-                    multiple: false,
-                    maxFiles: 1,
-                    cropping: true,
-                    croppingAspectRatio: 1,
-                    showAdvancedOptions: false,
-                    styles: {
-                        palette: {
-                            window: "#ffffff",
-                            windowBorder: "#26196b",
-                            tabIcon: "#26196b",
-                            menuIcons: "#5a5a5a",
-                            textDark: "#000000",
-                            textLight: "#ffffff",
-                            link: "#26196b",
-                            action: "#26196b",
-                            inactiveTabIcon: "#0e0e0e",
-                            error: "#f44235",
-                            inProgress: "#26196b",
-                            complete: "#20b832",
-                            sourceBg: "#e4e4e4"
-                        }
-                    }
-                },
-                (error, result) => {
-                    if (!error && result && result.event === 'success') {
-                        const imageUrl = result.info.secure_url;
-                        document.getElementById('productImageUrl').value = imageUrl;
-                        
-                        // Mostrar preview
-                        const previewContainer = document.getElementById('productImagePreview');
-                        const previewImg = previewContainer.querySelector('img');
-                        previewImg.src = imageUrl;
-                        previewContainer.style.display = 'block';
-                        
-                        showSuccess('Imagem enviada com sucesso!');
-                    }
-                }
-            );
-            
-            document.getElementById('uploadProductImageBtn')?.addEventListener('click', () => {
-                productUploadWidget.open();
-            });
-            
-            // Widget para upload de logo
-            const logoUploadWidget = cloudinary.createUploadWidget(
-                {
-                    cloudName: CLOUDINARY_CONFIG.cloudName,
-                    apiKey: CLOUDINARY_CONFIG.apiKey,
-                    uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-                    sources: ['local', 'url'],
-                    multiple: false,
-                    maxFiles: 1,
-                    cropping: true,
-                    croppingAspectRatio: 1,
-                    styles: {
-                        palette: {
-                            window: "#ffffff",
-                            windowBorder: "#26196b",
-                            tabIcon: "#26196b",
-                            menuIcons: "#5a5a5a",
-                            textDark: "#000000",
-                            textLight: "#ffffff",
-                            link: "#26196b",
-                            action: "#26196b",
-                            inactiveTabIcon: "#0e0e0e",
-                            error: "#f44235",
-                            inProgress: "#26196b",
-                            complete: "#20b832",
-                            sourceBg: "#e4e4e4"
-                        }
-                    }
-                },
-                (error, result) => {
-                    if (!error && result && result.event === 'success') {
-                        const imageUrl = result.info.secure_url;
-                        document.getElementById('logoPreview').src = imageUrl;
-                        document.getElementById('logoPreview').style.display = 'block';
-                        businessSettings.customLogo = imageUrl;
-                        showSuccess('Logo enviada com sucesso!');
-                    }
-                }
-            );
-            
-            document.getElementById('logoUploadBtn')?.addEventListener('click', () => {
-                logoUploadWidget.open();
-            });
-        }
-
-        // Renderizar produtos na loja
-        function renderStore() {
-            const grid = document.getElementById('storeGrid');
-            const searchTerm = document.getElementById('storeSearch')?.value.toLowerCase() || '';
-            const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
-            
-            if (!grid) return;
-            
-            // Mostrar loading
-            document.getElementById('storeLoading').style.display = 'block';
-            grid.innerHTML = '';
-            
-            // Filtrar produtos
-            let filteredProducts = products;
-            
-            if (activeCategory !== 'all') {
-                filteredProducts = filteredProducts.filter(p => p.category === activeCategory);
-            }
-            
-            if (searchTerm) {
-                filteredProducts = filteredProducts.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) ||
-                    (p.description && p.description.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            // Esconder loading
-            document.getElementById('storeLoading').style.display = 'none';
-            
-            if (filteredProducts.length === 0) {
-                grid.innerHTML = `
-                    <div class="text-center text-muted py-5" style="grid-column: 1 / -1;">
-                        <i class="fas fa-box-open fa-4x mb-3"></i>
-                        <h5>Nenhum produto encontrado</h5>
-                        <p>Tente ajustar os filtros ou adicionar produtos no estoque</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Renderizar cards
-            filteredProducts.forEach(product => {
-                const stockStatus = product.quantity <= 0 ? 'Esgotado' : 
-                                   product.quantity <= product.minQuantity ? 'Últimas unidades' : 'Em estoque';
-                const stockClass = product.quantity <= 0 ? 'out-of-stock' :
-                                  product.quantity <= product.minQuantity ? 'low-stock' : '';
-                
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="product-image-container">
-                        <img src="${product.imageUrl || 'https://via.placeholder.com/300x300?text=Sem+Imagem'}" 
-                             class="product-image" alt="${product.name}"
-                             onerror="this.src='https://via.placeholder.com/300x300?text=Sem+Imagem'">
-                        <span class="product-badge ${stockClass}">${stockStatus}</span>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">${getCategoryName(product.category)}</div>
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description || 'Sem descrição'}</p>
-                        <div class="product-price-row">
-                            <span class="product-price">${formatCurrency(product.salePrice)}</span>
-                            <span class="product-stock ${product.quantity <= product.minQuantity ? 'low' : ''}">
-                                ${product.quantity} disponíveis
-                            </span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-to-cart" onclick="addToCart('${product.id}')" 
-                                    ${product.quantity <= 0 ? 'disabled' : ''}>
-                                <i class="fas fa-cart-plus"></i> Adicionar
-                            </button>
-                            <button class="btn-quick-view" onclick="quickView('${product.id}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        // Adicionar ao carrinho
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product || product.quantity <= 0) {
-                showError('Produto indisponível');
-                return;
-            }
-            
-            // Verificar se produto já está no carrinho
-            const existingItem = cart.items.find(item => item.id === productId);
-            
-            if (existingItem) {
-                if (existingItem.quantity < product.quantity) {
-                    existingItem.quantity++;
-                } else {
-                    showError('Quantidade máxima disponível atingida');
-                    return;
-                }
-            } else {
-                cart.items.push({
-                    id: product.id,
-                    name: product.name,
-                    price: product.salePrice,
-                    quantity: 1,
-                    imageUrl: product.imageUrl,
-                    maxQuantity: product.quantity
-                });
-            }
-            
-            updateCartUI();
-            showSuccess('Produto adicionado ao carrinho!');
-        }
-        
-        // Atualizar carrinho na interface
-        function updateCartUI() {
-            const cartCount = document.getElementById('cartCount');
-            const cartBody = document.getElementById('cartBody');
-            const cartFooter = document.getElementById('cartFooter');
-            const cartTotal = document.getElementById('cartTotal');
-            
-            // Atualizar contador
-            const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-            cartCount.textContent = totalItems;
-            
-            // Atualizar total
-            cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            cartTotal.textContent = formatCurrency(cart.total);
-            
-            // Mostrar/esconder footer
-            if (cart.items.length === 0) {
-                cartBody.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h5>Seu carrinho está vazio</h5>
-                        <p>Adicione produtos para continuar</p>
-                    </div>
-                `;
-                cartFooter.style.display = 'none';
-            } else {
-                let html = '';
-                cart.items.forEach((item, index) => {
-                    html += `
-                        <div class="cart-item">
-                            <img src="${item.imageUrl || 'https://via.placeholder.com/60'}" class="cart-item-image">
-                            <div class="cart-item-info">
-                                <div class="cart-item-name">${item.name}</div>
-                                <div class="cart-item-price">${formatCurrency(item.price)}</div>
-                                <div class="cart-item-quantity">
-                                    <button onclick="updateCartItemQuantity(${index}, -1)">-</button>
-                                    <span>${item.quantity}</span>
-                                    <button onclick="updateCartItemQuantity(${index}, 1)" 
-                                            ${item.quantity >= item.maxQuantity ? 'disabled' : ''}>+</button>
-                                    <span class="cart-item-remove" onclick="removeFromCart(${index})">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                cartBody.innerHTML = html;
-                cartFooter.style.display = 'block';
-            }
-            
-            // Salvar carrinho no localStorage
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-        
-        // Atualizar quantidade do item no carrinho
-        function updateCartItemQuantity(index, change) {
-            const item = cart.items[index];
-            const newQuantity = item.quantity + change;
-            
-            if (newQuantity <= 0) {
-                removeFromCart(index);
-            } else if (newQuantity <= item.maxQuantity) {
-                item.quantity = newQuantity;
-                updateCartUI();
-            }
-        }
-        
-        // Remover item do carrinho
-        function removeFromCart(index) {
-            cart.items.splice(index, 1);
-            updateCartUI();
-        }
-        
-        // Limpar carrinho
-        function clearCart() {
-            Swal.fire({
-                title: 'Limpar carrinho?',
-                text: 'Todos os itens serão removidos',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sim, limpar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    cart.items = [];
-                    cart.total = 0;
-                    updateCartUI();
-                    showSuccess('Carrinho limpo!');
-                }
-            });
-        }
-        
-        // Visualização rápida
-        function quickView(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            document.getElementById('quickViewTitle').textContent = product.name;
-            document.getElementById('quickViewImage').src = product.imageUrl || 'https://via.placeholder.com/400';
-            document.getElementById('quickViewPrice').textContent = formatCurrency(product.salePrice);
-            document.getElementById('quickViewDescription').textContent = product.description || 'Sem descrição';
-            
-            const stockText = product.quantity <= 0 ? 'Produto esgotado' :
-                             `${product.quantity} unidades disponíveis (mínimo: ${product.minQuantity})`;
-            document.getElementById('quickViewStock').textContent = stockText;
-            
-            document.getElementById('quickViewAddToCart').onclick = () => {
-                addToCart(productId);
-                document.getElementById('quickViewModal').classList.remove('active');
-            };
-            
-            document.getElementById('quickViewModal').classList.add('active');
-        }
-        
-        // Finalizar compra via WhatsApp
-        function checkoutWhatsApp() {
-            const clientName = document.getElementById('cartClientName').value.trim();
-            
-            if (cart.items.length === 0) {
-                showError('Carrinho vazio');
-                return;
-            }
-            
-            // Gerar mensagem do pedido
-            let message = `🛍️ *NOVO PEDIDO - ${businessSettings.name}*\n\n`;
-            
-            if (clientName) {
-                message += `👤 *Cliente:* ${clientName}\n`;
-            }
-            
-            message += `📅 *Data:* ${new Date().toLocaleDateString('pt-PT')}\n`;
-            message += `⏰ *Hora:* ${new Date().toLocaleTimeString('pt-PT')}\n\n`;
-            message += `📦 *ITENS DO PEDIDO:*\n`;
-            
-            cart.items.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} - ${formatCurrency(item.price * item.quantity)}\n`;
-            });
-            
-            message += `\n💵 *TOTAL: ${formatCurrency(cart.total)}*\n\n`;
-            message += `📍 *Retirada:* Loja física\n`;
-            message += `⏳ *Pagamento:* Na retirada\n\n`;
-            message += `_Aguardamos seu contato para confirmar o pedido!_ ❤️`;
-            
-            // Número do WhatsApp (configurar depois)
-            const businessPhone = businessProfile.phone?.replace(/\D/g, '') || '';
-            const whatsappUrl = businessPhone ? 
-                `https://wa.me/${businessPhone}?text=${encodeURIComponent(message)}` :
-                `https://wa.me/?text=${encodeURIComponent(message)}`;
-            
-            // Abrir WhatsApp
-            window.open(whatsappUrl, '_blank');
-            
-            // Registrar venda (se caixa estiver aberto)
-            if (currentCashier) {
-                registerCartSale(clientName);
-            } else {
-                showSuccess('Pedido enviado! Aguarde confirmação por WhatsApp.');
-            }
-            
-            // Limpar carrinho após envio
-            setTimeout(() => {
-                cart.items = [];
-                cart.clientName = '';
-                updateCartUI();
-                closeCart();
-            }, 1000);
-        }
-        
-        // Registrar venda do carrinho no sistema
-        function registerCartSale(clientName) {
-            if (!currentCashier) return;
-            
-            const promises = [];
-            
-            cart.items.forEach(item => {
-                const product = products.find(p => p.id === item.id);
-                if (!product) return;
-                
-                const saleData = {
-                    productId: item.id,
-                    productName: item.name,
-                    quantity: item.quantity,
-                    unitPrice: item.price,
-                    totalValue: item.price * item.quantity,
-                    clientId: null, // Associar cliente depois
-                    clientName: clientName || 'Cliente Loja',
-                    date: new Date().toISOString().split('T')[0],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    userId: currentUser.uid,
-                    source: 'store'
-                };
-                
-                // Atualizar estoque
-                const newQuantity = product.quantity - item.quantity;
-                promises.push(
-                    db.collection('products').doc(item.id).update({
-                        quantity: newQuantity
-                    })
-                );
-                
-                // Registrar venda
-                promises.push(
-                    db.collection('productSales').add(saleData)
-                );
-            });
-            
-            Promise.all(promises)
-                .then(() => {
-                    loadProducts();
-                    loadAllProductSales();
-                    showSuccess('Venda registrada no caixa!');
-                })
-                .catch(error => {
-                    console.error('Erro ao registrar venda:', error);
-                    showError('Erro ao registrar venda no sistema');
-                });
-        }
-        
-        // Abrir carrinho
-        function openCart() {
-            document.getElementById('cartSidebar').classList.add('open');
-            document.getElementById('cartOverlay').classList.add('active');
-        }
-        
-        // Fechar carrinho
-        function closeCart() {
-            document.getElementById('cartSidebar').classList.remove('open');
-            document.getElementById('cartOverlay').classList.remove('active');
-        }
-        
-        // Filtrar loja
-        function filterStore() {
-            renderStore();
-        }
-        
-        // =============================================
-        // FUNÇÕES EXISTENTES (MANTIDAS INTACTAS)
-        // =============================================
-        
         function setupEventListeners() {
             // Login
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -5523,32 +4446,40 @@
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             
-            // Navegação - MENU DESKTOP
+            // Navegação - MENU DESKTOP CORRIGIDO
             document.querySelectorAll('.sidebar .nav-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const section = this.getAttribute('data-section');
                     
+                    // Remover classe ativa de TODOS os links do sidebar
                     document.querySelectorAll('.sidebar .nav-link').forEach(item => {
                         item.classList.remove('active');
                     });
                     
+                    // Adicionar classe ativa apenas ao link clicado
                     this.classList.add('active');
+                    
+                    // Mostrar a seção correspondente
                     showSection(section);
                 });
             });
             
-            // Navegação - MENU MOBILE
+            // Navegação - MENU MOBILE SEPARADO
             document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const section = this.getAttribute('data-section');
                     
+                    // Remover classe ativa de TODOS os links do mobile menu
                     document.querySelectorAll('.mobile-menu .nav-link').forEach(item => {
                         item.classList.remove('active');
                     });
                     
+                    // Adicionar classe ativa apenas ao link clicado
                     this.classList.add('active');
+                    
+                    // Mostrar a seção correspondente
                     showSection(section);
                 });
             });
@@ -5561,7 +4492,7 @@
                 });
             });
 
-            // Caixa - NOVO: Eventos para autocomplete
+            // Caixa - Eventos para autocomplete
             document.getElementById('clientSelect').addEventListener('input', filterClientsAutocomplete);
             document.getElementById('productSaleSelect').addEventListener('input', filterProductsAutocomplete);
             document.getElementById('productSaleClient').addEventListener('input', filterProductClientsAutocomplete);
@@ -5597,6 +4528,8 @@
             // Produtos
             document.getElementById('addProductBtn').addEventListener('click', showAddProductModal);
             document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
+            document.getElementById('uploadProductImageBtn').addEventListener('click', () => document.getElementById('productImageUpload').click());
+            document.getElementById('productImageUpload').addEventListener('change', handleProductImageUpload);
             
             // Pacotes
             document.getElementById('packageForm').addEventListener('submit', savePackage);
@@ -5628,15 +4561,20 @@
             document.getElementById('changeBusinessSettings').addEventListener('click', showBusinessSettingsModal);
             document.getElementById('saveBusinessSettingsBtn').addEventListener('click', saveBusinessSettings);
             document.getElementById('businessLogoType').addEventListener('change', toggleLogoUpload);
+            document.getElementById('uploadLogoBtn').addEventListener('click', () => document.getElementById('logoUpload').click());
+            document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             
             // Evento para botão home mobile
             document.getElementById('mobileHomeButton').addEventListener('click', function() {
+                // Voltar para os cards
                 showMobileCards();
                 
+                // Remover classe ativa de todos os links do menu
                 document.querySelectorAll('.sidebar .nav-link').forEach(item => {
                     item.classList.remove('active');
                 });
                 
+                // Esconder o botão home
                 if (window.innerWidth <= 768) {
                     document.getElementById('mobileHomeButton').style.display = 'none';
                 }
@@ -5649,7 +4587,7 @@
             // Evento para redimensionamento da janela
             window.addEventListener('resize', handleResize);
             
-            // NOVO: Eventos da Agenda
+            // Eventos da Agenda
             document.getElementById('agendaMenuBtn').addEventListener('click', toggleAgendaMenu);
             document.getElementById('agendaDateDisplay').addEventListener('click', showDatePicker);
             document.querySelectorAll('.agenda-view-btn').forEach(btn => {
@@ -5657,6 +4595,7 @@
                     changeAgendaView(this.getAttribute('data-view'));
                 });
             });
+            document.getElementById('datePickerClose').addEventListener('click', closeDatePicker);
             document.getElementById('clientSelectionBack').addEventListener('click', closeClientSelection);
             document.getElementById('serviceSelectionBack').addEventListener('click', closeServiceSelection);
             document.getElementById('appointmentSaveBack').addEventListener('click', closeAppointmentSave);
@@ -5671,29 +4610,12 @@
             document.getElementById('saveAppointmentBtn').addEventListener('click', saveAppointment);
             document.getElementById('confirmationCancel').addEventListener('click', cancelConfirmation);
             document.getElementById('confirmationConfirm').addEventListener('click', confirmConfirmation);
-            
-            // NOVOS: Eventos da Loja
-            document.getElementById('storeSearch').addEventListener('input', filterStore);
-            document.getElementById('cartIcon').addEventListener('click', openCart);
-            document.getElementById('cartClose').addEventListener('click', closeCart);
-            document.getElementById('cartOverlay').addEventListener('click', closeCart);
-            document.getElementById('checkoutWhatsApp').addEventListener('click', checkoutWhatsApp);
-            document.getElementById('clearCart').addEventListener('click', clearCart);
-            document.getElementById('quickViewClose').addEventListener('click', () => {
-                document.getElementById('quickViewModal').classList.remove('active');
-            });
-            
-            // Filtros da loja
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    renderStore();
-                });
-            });
         }
 
+        // FUNÇÕES DA NOVA AGENDA
+
         function initAgenda() {
+            // Verificar se elementos da agenda existem antes de inicializar
             if (!document.getElementById('agendaDateDisplay')) {
                 console.log('Elementos da agenda não encontrados, pulando inicialização');
                 return;
@@ -5703,6 +4625,7 @@
         }
         
         function renderAgenda() {
+            // Função de compatibilidade - chama renderAgendaGrid
             if (typeof renderAgendaGrid === 'function') {
                 renderAgendaGrid();
             }
@@ -5749,12 +4672,14 @@
             
             const activeCollaborators = collaborators.filter(c => c.active);
             
+            // Se não há colaboradores, mostrar placeholder
             if (activeCollaborators.length === 0) {
                 container.innerHTML = '<div class="text-muted text-center p-3" style="width: 100%;">Nenhum colaborador ativo</div>';
                 container.classList.remove('scrollable', 'centered');
                 return;
             }
             
+            // Configurar layout baseado no número de colaboradores
             container.classList.remove('scrollable', 'centered');
             if (activeCollaborators.length <= 3) {
                 container.classList.add('centered');
@@ -5768,6 +4693,7 @@
                 div.className = 'agenda-professional';
                 div.setAttribute('data-collaborator-id', collaborator.id);
                 
+                // Marcar primeiro como selecionado por padrão
                 if (index === 0 && !selectedCollaboratorId) {
                     selectedCollaboratorId = collaborator.id;
                     div.classList.add('selected');
@@ -5775,6 +4701,7 @@
                     div.classList.add('selected');
                 }
                 
+                // Criar foto ou placeholder
                 const photoUrl = collaborator.photoUrl || '';
                 const initials = collaborator.name.charAt(0).toUpperCase();
                 
@@ -5800,16 +4727,19 @@
                     <div class="agenda-professional-name">${collaborator.name}</div>
                 `;
                 
+                // Evento de clique no card do profissional para selecionar
                 div.addEventListener('click', function() {
                     document.querySelectorAll('.agenda-professional').forEach(p => p.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedCollaboratorId = collaborator.id;
+                    // Atualizar grid para mostrar agendamentos deste colaborador
                     renderAgendaGrid();
                 });
                 
                 container.appendChild(div);
             });
             
+            // Duplo clique nas fotos para ver perfil
             container.querySelectorAll('.agenda-professional-photo, .agenda-professional-placeholder').forEach(photo => {
                 photo.addEventListener('dblclick', function(e) {
                     e.stopPropagation();
@@ -5831,24 +4761,32 @@
             const currentMinute = now.getMinutes();
             const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
             
+            // CORREÇÃO: Criar slots de hora com altura correta (60px = 1 hora)
             for (let hour = 0; hour < 24; hour++) {
                 const slot = document.createElement('div');
                 slot.className = 'agenda-time-slot';
                 slot.setAttribute('data-hour', hour);
+                
+                // Mostrar horário no canto superior direito
                 slot.innerHTML = `<span>${hour.toString().padStart(2, '0')}:00</span>`;
+                
                 container.appendChild(slot);
             }
             
+            // Remover linha global antiga se existir
             const existingLine = document.querySelector('.current-time-line-global');
             if (existingLine) existingLine.remove();
             
             const existingIndicator = document.querySelector('.current-time-indicator');
             if (existingIndicator) existingIndicator.remove();
             
+            // Adicionar linha vermelha do horário atual que atravessa toda a tela
             const agendaContent = document.querySelector('.agenda-content');
             if (agendaContent) {
+                // Calcular posição: cada hora = 60px, cada minuto = 1px
                 const topPosition = (currentHour * 60) + currentMinute;
                 
+                // Linha vermelha global
                 const globalLine = document.createElement('div');
                 globalLine.className = 'current-time-line-global';
                 globalLine.style.cssText = `
@@ -5862,6 +4800,7 @@
                     pointer-events: none;
                 `;
                 
+                // Indicador de hora atual na coluna de tempo
                 const timeIndicator = document.createElement('div');
                 timeIndicator.className = 'current-time-indicator';
                 timeIndicator.style.cssText = `
@@ -5880,6 +4819,7 @@
                 `;
                 timeIndicator.textContent = currentTimeStr;
                 
+                // Bolinha vermelha no início da linha
                 globalLine.insertAdjacentHTML('afterbegin', `
                     <div style="
                         position: absolute;
@@ -5899,6 +4839,7 @@
                 container.appendChild(timeIndicator);
             }
             
+            // Atualizar linha do horário atual a cada minuto
             if (!window.currentTimeInterval) {
                 window.currentTimeInterval = setInterval(() => {
                     renderTimeColumn();
@@ -5913,9 +4854,11 @@
             
             const activeCollaborators = collaborators.filter(c => c.active);
             
+            // Configurar classes baseadas no número de colaboradores
             container.classList.remove('scrollable', 'single-column', 'two-columns', 'three-columns');
             
             if (activeCollaborators.length === 0) {
+                // Sem colaboradores, criar uma coluna genérica
                 container.classList.add('single-column');
                 const dayColumn = createDayColumn(new Date());
                 container.appendChild(dayColumn);
@@ -5936,6 +4879,7 @@
                     container.appendChild(column);
                 });
             } else {
+                // 4+ colaboradores = scroll horizontal
                 container.classList.add('scrollable');
                 activeCollaborators.forEach(collab => {
                     const column = createCollaboratorColumn(collab);
@@ -5943,21 +4887,28 @@
                 });
             }
             
+            // Renderizar agendamentos existentes
             renderAppointments();
+            
+            // Adicionar overlay de seleção
             addSelectionOverlay();
         }
         
+        // Criar coluna para um colaborador específico
         function createCollaboratorColumn(collaborator) {
             const dayColumn = document.createElement('div');
             dayColumn.className = 'agenda-day-column';
             dayColumn.setAttribute('data-date', currentAgendaDate.toISOString().split('T')[0]);
             dayColumn.setAttribute('data-collaborator-id', collaborator.id);
             
+            // CORREÇÃO: Slots de 15 minutos com posicionamento EXATO
+            // Cada hora = 60px, cada 15 minutos = 15px
             for (let hour = 0; hour < 24; hour++) {
                 for (let quarter = 0; quarter < 4; quarter++) {
                     const slot = document.createElement('div');
                     slot.className = 'agenda-slot-quarter';
                     
+                    // Adicionar classes visuais para melhor orientação
                     if (quarter === 0) {
                         slot.classList.add('hour-start');
                     }
@@ -5965,7 +4916,8 @@
                         slot.classList.add('half-hour');
                     }
                     
-                    const minutes = quarter * 15;
+                    // CORREÇÃO: Calcular minutos exatos
+                    const minutes = quarter * 15; // 0, 15, 30, 45
                     
                     slot.setAttribute('data-hour', hour);
                     slot.setAttribute('data-quarter', quarter);
@@ -5973,8 +4925,10 @@
                     slot.setAttribute('data-date', currentAgendaDate.toISOString().split('T')[0]);
                     slot.setAttribute('data-collaborator-id', collaborator.id);
                     
+                    // Tooltip com horário exato
                     slot.title = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                     
+                    // Eventos de seleção
                     slot.addEventListener('mousedown', startTimeSelection);
                     slot.addEventListener('touchstart', startTimeSelection, { passive: false });
                     slot.addEventListener('mouseenter', updateTimeSelection);
@@ -5989,6 +4943,7 @@
             return dayColumn;
         }
         
+        // Criar coluna genérica (quando não há colaboradores)
         function createDayColumn(date) {
             const dayColumn = document.createElement('div');
             dayColumn.className = 'agenda-day-column';
@@ -6039,6 +4994,7 @@
                     }
                     break;
                 case 'week':
+                    // Ajustar para começar na segunda-feira
                     const dayOfWeek = startDate.getDay();
                     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
                     startDate.setDate(startDate.getDate() + diffToMonday);
@@ -6050,6 +5006,7 @@
                     }
                     break;
                 case 'month':
+                    // Mostrar primeiros 30 dias do mês
                     startDate.setDate(1);
                     for (let i = 0; i < 30; i++) {
                         const date = new Date(startDate);
@@ -6063,17 +5020,21 @@
         }
 
         function renderAppointments() {
+            // Limpar agendamentos existentes
             document.querySelectorAll('.agenda-appointment').forEach(el => el.remove());
             
             const currentDateStr = currentAgendaDate.toISOString().split('T')[0];
             
             appointments.forEach(appointment => {
+                // Verificar se o agendamento é da data atual
                 if (appointment.date !== currentDateStr) {
                     return;
                 }
                 
+                // Encontrar a coluna correta pelo colaborador do agendamento
                 let dayColumn = document.querySelector(`.agenda-day-column[data-collaborator-id="${appointment.collaboratorId}"]`);
                 
+                // Se não encontrou por colaborador, tentar pela data (coluna genérica)
                 if (!dayColumn) {
                     dayColumn = document.querySelector(`.agenda-day-column[data-date="${appointment.date}"]`);
                 }
@@ -6084,6 +5045,7 @@
                 const startMinute = parseInt(appointment.startTime.split(':')[1]);
                 const duration = appointment.duration || 60;
                 
+                // Posição exata: 1 minuto = 1px (60px por hora)
                 const totalMinutes = startHour * 60 + startMinute;
                 const topPosition = totalMinutes;
                 const height = duration;
@@ -6111,6 +5073,7 @@
             });
         }
         
+        // Função auxiliar para ajustar cor (mais clara ou mais escura)
         function adjustColor(color, percent) {
             if (!color || color.charAt(0) !== '#') return color;
             
@@ -6134,6 +5097,7 @@
             return overlay;
         }
 
+        // Variáveis para controle de toque longo
         let longPressTimer = null;
         let isLongPress = false;
         let touchStartY = 0;
@@ -6147,12 +5111,15 @@
             const hour = parseInt(slot.getAttribute('data-hour'));
             const quarter = parseInt(slot.getAttribute('data-quarter'));
             
+            // CORREÇÃO: Capturar o colaborador da coluna clicada
             const dayColumn = slot.closest('.agenda-day-column');
             const clickedCollaboratorId = dayColumn ? dayColumn.getAttribute('data-collaborator-id') : null;
             
+            // Se clicou em uma coluna de colaborador específico, selecionar esse colaborador
             if (clickedCollaboratorId) {
                 selectedCollaboratorId = clickedCollaboratorId;
                 
+                // Atualizar seleção visual nos cards de colaboradores
                 document.querySelectorAll('.agenda-professional').forEach(p => {
                     p.classList.remove('selected');
                     if (p.getAttribute('data-collaborator-id') === clickedCollaboratorId) {
@@ -6161,6 +5128,7 @@
                 });
             }
             
+            // Para eventos de mouse, iniciar seleção diretamente
             if (e.type === 'mousedown') {
                 e.preventDefault();
                 isSelectingTime = true;
@@ -6171,11 +5139,13 @@
                 return;
             }
             
+            // Para eventos de toque, verificar toque longo
             if (e.type === 'touchstart') {
                 touchStartY = e.touches[0].clientY;
                 lastTouchY = touchStartY;
                 isLongPress = false;
                 
+                // Iniciar timer para toque longo (500ms)
                 longPressTimer = setTimeout(() => {
                     isLongPress = true;
                     isSelectingTime = true;
@@ -6183,6 +5153,7 @@
                     selectionEndTime = { date, hour, quarter, collaboratorId: clickedCollaboratorId };
                     updateSelectionOverlay();
                     
+                    // Feedback visual/háptico
                     if (navigator.vibrate) {
                         navigator.vibrate(50);
                     }
@@ -6191,10 +5162,12 @@
         }
 
         function updateTimeSelection(e) {
+            // Para scroll normal no touch, não fazer nada
             if (e.type === 'touchmove') {
                 const currentY = e.touches[0].clientY;
                 const deltaY = Math.abs(currentY - touchStartY);
                 
+                // Se moveu muito sem toque longo, cancelar timer e permitir scroll
                 if (!isLongPress && deltaY > 10) {
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
@@ -6203,10 +5176,12 @@
                     return;
                 }
                 
+                // Se é toque longo, prevenir scroll e atualizar seleção
                 if (isLongPress && isSelectingTime) {
                     e.preventDefault();
                     lastTouchY = currentY;
                     
+                    // Encontrar o slot sob o dedo
                     const touch = e.touches[0];
                     const element = document.elementFromPoint(touch.clientX, touch.clientY);
                     const slot = element ? element.closest('.agenda-slot-quarter') : null;
@@ -6225,6 +5200,7 @@
                 return;
             }
             
+            // Para mouse, atualizar normalmente
             if (!isSelectingTime || e.type !== 'mouseenter') return;
             
             const slot = e.target.closest('.agenda-slot-quarter');
@@ -6241,6 +5217,7 @@
         }
         
         function endTimeSelection(e) {
+            // Limpar timer de toque longo
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
@@ -6258,6 +5235,7 @@
             isSelectingTime = false;
             
             if (selectionStartTime && selectionEndTime) {
+                // Calcular hora selecionada
                 const startTotal = selectionStartTime.hour * 60 + selectionStartTime.quarter * 15;
                 const endTotal = selectionEndTime.hour * 60 + selectionEndTime.quarter * 15;
                 
@@ -6268,9 +5246,11 @@
                 selectedDate = selectionStartTime.date;
                 selectedTime = { hour, minute };
                 
+                // Mostrar seleção de cliente
                 showClientSelection();
             }
             
+            // Limpar overlay
             const overlay = document.getElementById('agendaSelectionOverlay');
             if (overlay) {
                 overlay.style.display = 'none';
@@ -6299,6 +5279,7 @@
             overlay.style.left = '0';
             overlay.style.right = '0';
             
+            // Mostrar hora selecionada
             const startHour = Math.floor(minPos / 4);
             const startMin = (minPos % 4) * 15;
             const endHour = Math.floor((maxPos + 1) / 4);
@@ -6319,17 +5300,85 @@
         }
 
         function showDatePicker() {
-            // Implementar date picker
-            showError('Seletor de data em desenvolvimento');
+            const modal = document.getElementById('datePickerModal');
+            const body = document.getElementById('datePickerBody');
+            
+            body.innerHTML = '';
+            
+            // Gerar calendário para 12 meses
+            const today = new Date();
+            for (let m = 0; m < 12; m++) {
+                const monthDate = new Date(today.getFullYear(), today.getMonth() + m, 1);
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'date-picker-month';
+                
+                const title = document.createElement('div');
+                title.className = 'date-picker-month-title';
+                title.textContent = monthDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+                monthDiv.appendChild(title);
+                
+                const daysGrid = document.createElement('div');
+                daysGrid.className = 'date-picker-days';
+                
+                // Dias da semana
+                const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                weekdays.forEach(day => {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'date-picker-day';
+                    dayEl.style.fontWeight = 'bold';
+                    dayEl.textContent = day;
+                    daysGrid.appendChild(dayEl);
+                });
+                
+                // Dias vazios no início
+                const firstDay = monthDate.getDay();
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    daysGrid.appendChild(emptyDay);
+                }
+                
+                // Dias do mês
+                const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dayDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), d);
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'date-picker-day';
+                    dayEl.textContent = d;
+                    
+                    // Marcar hoje
+                    if (dayDate.toDateString() === new Date().toDateString()) {
+                        dayEl.classList.add('today');
+                    }
+                    
+                    // Marcar selecionado
+                    if (dayDate.toDateString() === currentAgendaDate.toDateString()) {
+                        dayEl.classList.add('selected');
+                    }
+                    
+                    dayEl.addEventListener('click', () => {
+                        currentAgendaDate = dayDate;
+                        updateAgendaDisplay();
+                        modal.classList.remove('active');
+                    });
+                    
+                    daysGrid.appendChild(dayEl);
+                }
+                
+                monthDiv.appendChild(daysGrid);
+                body.appendChild(monthDiv);
+            }
+            
+            modal.classList.add('active');
         }
 
         function closeDatePicker() {
-            // Fechar date picker
+            document.getElementById('datePickerModal').classList.remove('active');
         }
 
         function changeAgendaView(view) {
             currentAgendaView = view;
             
+            // Atualizar botões ativos
             document.querySelectorAll('.agenda-view-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.getAttribute('data-view') === view) {
@@ -6429,6 +5478,7 @@
             
             if (!selectedClient || !selectedClient.id) return;
             
+            // Filtrar serviços recentes do cliente
             const clientServices = allServices
                 .filter(service => service.clientId === selectedClient.id)
                 .slice(0, 5);
@@ -6690,12 +5740,15 @@
                 return;
             }
             
+            // Verificar se há colaborador selecionado
             if (!selectedCollaboratorId && collaborators.filter(c => c.active).length > 0) {
                 selectedCollaboratorId = collaborators.filter(c => c.active)[0].id;
             }
             
+            // Calcular duração total dos serviços
             const totalDuration = selectedServices.reduce((sum, s) => sum + (s.duration || 30), 0);
             
+            // Calcular hora de término
             const startMinutes = selectedTime.hour * 60 + selectedTime.minute;
             const endMinutes = startMinutes + totalDuration;
             const endHour = Math.floor(endMinutes / 60) % 24;
@@ -6731,6 +5784,7 @@
                 .then((docRef) => {
                     Swal.close();
                     
+                    // Adicionar ao array local para exibição imediata
                     const newAppointment = {
                         id: docRef.id,
                         ...appointmentData,
@@ -6738,18 +5792,23 @@
                     };
                     appointments.push(newAppointment);
                     
+                    // Fechar modal de salvamento
                     closeAppointmentSave();
                     
+                    // Renderizar agendamentos atualizados
                     renderAppointments();
                     
+                    // Guardar dados para o popup
                     const savedClient = { ...selectedClient };
                     const savedData = { ...appointmentData, id: docRef.id };
                     
+                    // Limpar seleção
                     selectedClient = null;
                     selectedServices = [];
                     selectedDate = null;
                     selectedTime = null;
                     
+                    // Mostrar popup de confirmação com opção WhatsApp
                     showReminderPopup(savedClient, savedData);
                 })
                 .catch((error) => {
@@ -6758,6 +5817,7 @@
                 });
         }
         
+        // POPUP OBRIGATÓRIO - Notificação 24h antes
         function showReminderPopup(client, appointmentData) {
             const date = new Date(appointmentData.date);
             const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -6783,6 +5843,7 @@
                     showSuccess('Notificação programada para 24 horas antes!');
                 }
                 
+                // Abrir WhatsApp com mensagem de confirmação
                 if (client.phone) {
                     openWhatsAppConfirmation(client, appointmentData);
                 } else {
@@ -6791,17 +5852,20 @@
             });
         }
         
+        // Abrir WhatsApp com mensagem de confirmação - COM LOCALIZAÇÃO
         function openWhatsAppConfirmation(client, appointmentData) {
             const date = new Date(appointmentData.date);
             const dateString = date.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             const servicesText = appointmentData.serviceName || 'Serviço';
             const totalValue = formatCurrency(appointmentData.total);
             
+            // Obter nome do colaborador
             const collaborator = collaborators.find(c => c.id === appointmentData.collaboratorId);
             const collaboratorName = collaborator ? collaborator.name : 'Profissional';
             
+            // Links de localização (substitua pelas coordenadas reais do salão)
             const businessName = businessSettings.name || 'Studio DeVitto';
-            const businessAddress = businessSettings.address || '';
+            const businessAddress = businessProfile.address || '';
             const googleMapsLink = businessAddress ? 
                 `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessAddress)}` :
                 'https://maps.google.com';
@@ -6858,6 +5922,7 @@
         }
 
         function sendAppointmentConfirmation(appointmentData) {
+            // Função mantida para compatibilidade
             console.log('Agendamento salvo:', appointmentData);
         }
 
@@ -6914,6 +5979,150 @@
             });
         }
 
+        // FIM DAS FUNÇÕES DA NOVA AGENDA
+
+        // NOVA FUNÇÃO: Renderizar a Loja
+        function renderStore() {
+            const container = document.getElementById('storeProductList');
+            if (!container) return;
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="col-12"><div class="alert alert-info text-center">Nenhum produto disponível na loja no momento.</div></div>';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(product => {
+                // Verificar se o produto tem imagem, senão usar placeholder
+                const imageUrl = product.imageUrl || '';
+                const isLowStock = product.quantity <= product.minQuantity;
+                
+                html += `
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                ${imageUrl ? 
+                                    `<img src="${imageUrl}" class="product-image" alt="${product.name}">` : 
+                                    `<div class="product-image-placeholder"><i class="fas fa-box"></i></div>`
+                                }
+                            </div>
+                            <div class="product-details">
+                                <h5 class="product-name">${product.name}</h5>
+                                <p class="product-description">${product.description || 'Sem descrição'}</p>
+                                <p class="product-price">${formatCurrency(product.salePrice)}</p>
+                                <div class="product-stock-badge ${isLowStock ? 'bg-warning' : 'bg-success'} text-white">
+                                    ${isLowStock ? 'Últimas unidades!' : `${product.quantity} em estoque`}
+                                </div>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn btn-success" onclick="buyProduct('${product.id}', '${product.name}', ${product.salePrice})">
+                                    <i class="fab fa-whatsapp me-2"></i>Comprar via WhatsApp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // NOVA FUNÇÃO: Comprar Produto via WhatsApp (com subtração do estoque)
+        function buyProduct(productId, productName, productPrice) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (product.quantity <= 0) {
+                showError('Produto fora de estoque!');
+                return;
+            }
+            
+            // Perguntar a quantidade desejada
+            Swal.fire({
+                title: 'Comprar Produto',
+                html: `
+                    <p>Produto: <strong>${productName}</strong></p>
+                    <p>Preço: <strong>${formatCurrency(productPrice)}</strong></p>
+                    <p>Estoque disponível: <strong>${product.quantity}</strong></p>
+                    <div class="mb-3">
+                        <label for="purchaseQuantity" class="form-label">Quantidade desejada</label>
+                        <input type="number" class="form-control" id="purchaseQuantity" min="1" max="${product.quantity}" value="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="clientNameForPurchase" class="form-label">Seu nome (opcional)</label>
+                        <input type="text" class="form-control" id="clientNameForPurchase" placeholder="Digite seu nome para o pedido">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Continuar para WhatsApp',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const quantity = parseInt(document.getElementById('purchaseQuantity').value);
+                    const clientName = document.getElementById('clientNameForPurchase').value;
+                    if (isNaN(quantity) || quantity < 1 || quantity > product.quantity) {
+                        Swal.showValidationMessage(`Quantidade inválida. Máximo disponível: ${product.quantity}`);
+                    }
+                    return { quantity, clientName };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { quantity, clientName } = result.value;
+                    
+                    // Subtrair do estoque
+                    const newQuantity = product.quantity - quantity;
+                    
+                    // Atualizar no Firestore
+                    db.collection('products').doc(productId).update({
+                        quantity: newQuantity
+                    }).then(() => {
+                        // Registrar a venda (para manter o histórico)
+                        const saleData = {
+                            productId: productId,
+                            productName: product.name,
+                            quantity: quantity,
+                            unitPrice: product.salePrice,
+                            totalValue: quantity * product.salePrice,
+                            clientName: clientName || 'Cliente da Loja',
+                            date: new Date().toISOString().split('T')[0],
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            userId: currentUser.uid,
+                            source: 'store'
+                        };
+                        
+                        return db.collection('productSales').add(saleData);
+                    }).then(() => {
+                        // Recarregar produtos e a loja
+                        loadProducts();
+                        
+                        // Montar mensagem para WhatsApp
+                        const businessPhone = businessProfile.whatsApp || '';
+                        if (!businessPhone) {
+                            showError('Número de WhatsApp da empresa não configurado em Perfil da Empresa.');
+                            return;
+                        }
+                        
+                        const clientNameText = clientName ? `Nome: ${clientName}\n` : '';
+                        const message = `Olá! Gostaria de comprar o produto *${product.name}*.\n` +
+                                       `Quantidade: *${quantity}*\n` +
+                                       `Valor total: *${formatCurrency(quantity * product.salePrice)}*\n` +
+                                       `${clientNameText}\n` +
+                                       `Estou aguardando confirmação do pedido.`;
+                        
+                        const phone = businessPhone.replace(/\D/g, '');
+                        const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                        
+                        // Abrir WhatsApp
+                        window.open(whatsappUrl, '_blank');
+                        
+                        showSuccess('Pedido registrado! O WhatsApp foi aberto para finalizar a compra.');
+                    }).catch(error => {
+                        console.error('Erro ao processar venda pela loja:', error);
+                        showError('Erro ao processar a venda: ' + error.message);
+                    });
+                }
+            });
+        }
+
         function handleResize() {
             checkMobileDevice();
         }
@@ -6924,6 +6133,7 @@
             document.getElementById('currentDateTime').textContent = dateTimeString;
         }
 
+        // Funções para autocomplete
         function filterClientsAutocomplete() {
             const searchTerm = document.getElementById('clientSelect').value.toLowerCase();
             const list = document.getElementById('clientAutocompleteList');
@@ -6951,6 +6161,7 @@
             list.innerHTML = html;
             list.classList.add('active');
             
+            // Adicionar eventos aos itens
             list.querySelectorAll('.autocomplete-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const clientId = this.getAttribute('data-id');
@@ -6973,7 +6184,7 @@
             
             filteredProducts = products.filter(product => 
                 product.name.toLowerCase().includes(searchTerm) ||
-                (product.description && product.description.toLowerCase().includes(searchTerm))
+                product.description.toLowerCase().includes(searchTerm)
             );
             
             let html = '';
@@ -6989,6 +6200,7 @@
             list.innerHTML = html;
             list.classList.add('active');
             
+            // Adicionar eventos aos itens
             list.querySelectorAll('.autocomplete-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const productId = this.getAttribute('data-id');
@@ -6999,6 +6211,7 @@
                     document.getElementById('productSaleSelect').value = productName;
                     document.getElementById('selectedProductId').value = productId;
                     
+                    // Atualizar quantidade máxima disponível
                     document.getElementById('productSaleQuantity').max = productStock;
                     document.getElementById('productSaleQuantity').value = 1;
                     
@@ -7026,11 +6239,13 @@
                 html += `<div class="autocomplete-item" data-id="${client.id}" data-name="${client.name}">${client.name} (${client.phone})</div>`;
             });
             
+            // Adicionar opção para venda avulsa
             html += '<div class="autocomplete-item" data-id="" data-name="Venda Avulsa">Venda Avulsa (sem cliente)</div>';
             
             list.innerHTML = html;
             list.classList.add('active');
             
+            // Adicionar eventos aos itens
             list.querySelectorAll('.autocomplete-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const clientId = this.getAttribute('data-id');
@@ -7190,8 +6405,6 @@
         function showMainScreen() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
-            
-            console.log("🔄 Carregando menu principal...");
             setTimeout(fixMenuNavigation, 800);
         }
 
@@ -7209,16 +6422,11 @@
                 loadClientNotes();
                 loadFinancialData();
                 
-                // Carregar carrinho salvo
-                const savedCart = localStorage.getItem('cart');
-                if (savedCart) {
-                    cart = JSON.parse(savedCart);
-                    updateCartUI();
-                }
-                
+                // Carregar dados do perfil da empresa do Firestore
                 loadBusinessProfileFromFirestore();
                 loadBusinessHoursFromFirestore();
                 
+                // Inicializar agenda
                 initAgenda();
             }
         }
@@ -7498,7 +6706,7 @@
                     
                     updateInventoryUI();
                     checkLowStock();
-                    renderStore(); // Atualizar loja
+                    renderStore(); // Atualizar a loja quando produtos carregarem
                 })
                 .catch((error) => {
                     console.error("Erro ao carregar produtos: ", error);
@@ -7548,6 +6756,7 @@
                 });
         }
 
+        // Função para atualizar estatísticas de produtos vendidos
         function updateProductsSoldStats() {
             const today = new Date();
             const currentMonth = today.getMonth();
@@ -7570,6 +6779,7 @@
             document.getElementById('totalProductsSoldValue').textContent = formatCurrency(totalProductsValue);
         }
 
+        // Função para atualizar gráfico de vendas mensais
         function updateMonthlySalesChart() {
             const today = new Date();
             const currentYear = today.getFullYear();
@@ -7892,14 +7102,9 @@
                     const client = clients.find(c => c.id === service.clientId) || { name: 'Cliente não encontrado' };
                     const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Colaborador não encontrado' };
                     
-                    const missingFields = [];
-                    if (!service.clientId) missingFields.push('cliente');
-                    if (!service.collaboratorId) missingFields.push('colaborador');
-                    if (!service.value) missingFields.push('valor');
-                    
                     let warningHtml = '';
-                    if (missingFields.length > 0) {
-                        warningHtml = `<div class="alert alert-warning p-1 mt-1"><small><i class="fas fa-exclamation-triangle me-1"></i>Faltam dados: ${missingFields.join(', ')}</small></div>`;
+                    if (!service.clientId || !service.collaboratorId || !service.value) {
+                        warningHtml = `<div class="alert alert-warning p-1 mt-1"><small><i class="fas fa-exclamation-triangle me-1"></i>Faltam dados: cliente/colaborador/valor</small></div>`;
                     }
                     
                     html += `
@@ -7946,8 +7151,8 @@
                 }
                 
                 const imageHtml = product.imageUrl ? 
-                    `<img src="${product.imageUrl}" width="40" height="40" style="object-fit: cover; border-radius: 4px;">` : 
-                    '<span class="text-muted">Sem imagem</span>';
+                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;">` : 
+                    '<i class="fas fa-box fa-2x text-muted"></i>';
                 
                 html += `
                     <tr class="${isLowStock ? 'low-stock' : ''}">
@@ -8252,6 +7457,10 @@
             });
         }
 
+        // ============================================================
+        // FUNÇÕES DO CONTROLE FINANCEIRO
+        // ============================================================
+
         function updateExpensesUI() {
             updateMonthSelector('expensesMonth');
             loadExpensesByMonth();
@@ -8531,7 +7740,6 @@
                 .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
             
             const monthProductsProfit = monthProductsRevenue - monthProductsCost;
-            
             const servicesFinalCash = monthServicesRevenue - monthServicesExpenses - monthServicesSalaries;
             const productsFinalCash = monthProductsProfit;
             
@@ -8833,6 +8041,10 @@
                 }
             });
         }
+
+        // ============================================================
+        // FUNÇÕES AUXILIARES DO SISTEMA
+        // ============================================================
 
         function handleCollaboratorPhotoUpload(event) {
             const file = event.target.files[0];
@@ -9296,6 +8508,7 @@
             document.getElementById('productId').value = '';
             document.getElementById('productImageUrl').value = '';
             document.getElementById('productImagePreview').style.display = 'none';
+            document.getElementById('productImagePlaceholder').style.display = 'flex';
             
             const modal = new bootstrap.Modal(document.getElementById('productModal'));
             modal.show();
@@ -9317,14 +8530,58 @@
             document.getElementById('productImageUrl').value = product.imageUrl || '';
             
             if (product.imageUrl) {
-                const previewContainer = document.getElementById('productImagePreview');
-                const previewImg = previewContainer.querySelector('img');
-                previewImg.src = product.imageUrl;
-                previewContainer.style.display = 'block';
+                document.getElementById('productImagePreview').src = product.imageUrl;
+                document.getElementById('productImagePreview').style.display = 'block';
+                document.getElementById('productImagePlaceholder').style.display = 'none';
+            } else {
+                document.getElementById('productImagePreview').style.display = 'none';
+                document.getElementById('productImagePlaceholder').style.display = 'flex';
             }
             
             const modal = new bootstrap.Modal(document.getElementById('productModal'));
             modal.show();
+        }
+
+        function handleProductImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*')) {
+                showError('Por favor, selecione uma imagem válida.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('productImagePreview').src = e.target.result;
+                document.getElementById('productImagePreview').style.display = 'block';
+                document.getElementById('productImagePlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function uploadImageToCloudinary(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                
+                fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.secure_url) {
+                        resolve(data.secure_url);
+                    } else {
+                        reject('Erro no upload: ' + JSON.stringify(data));
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
         }
 
         function saveProduct() {
@@ -9336,43 +8593,64 @@
             const salePrice = parseFloat(document.getElementById('productSalePrice').value);
             const description = document.getElementById('productDescription').value;
             const category = document.getElementById('productCategory').value;
-            const imageUrl = document.getElementById('productImageUrl').value;
+            const existingImageUrl = document.getElementById('productImageUrl').value;
             
-            const productData = {
-                name: name,
-                quantity: quantity,
-                minQuantity: minQuantity,
-                purchasePrice: purchasePrice,
-                salePrice: salePrice,
-                description: description,
-                category: category,
-                imageUrl: imageUrl || null,
-                userId: currentUser.uid,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            // Verificar se há uma nova imagem para upload
+            const imageFile = document.getElementById('productImageUpload').files[0];
+            
+            const saveProductData = (imageUrl) => {
+                const productData = {
+                    name: name,
+                    quantity: quantity,
+                    minQuantity: minQuantity,
+                    purchasePrice: purchasePrice,
+                    salePrice: salePrice,
+                    description: description,
+                    category: category,
+                    imageUrl: imageUrl || null,
+                    userId: currentUser.uid,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                let promise;
+                
+                if (productId) {
+                    promise = db.collection('products').doc(productId).update(productData);
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    promise = db.collection('products').add(productData);
+                }
+                
+                showLoading('Salvando produto...');
+                
+                promise
+                    .then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                        modal.hide();
+                        loadProducts();
+                        showSuccess(productId ? 'Produto atualizado com sucesso!' : 'Produto adicionado com sucesso!');
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao salvar produto:', error);
+                        showError('Erro ao salvar produto: ' + error.message);
+                    });
             };
             
-            let promise;
-            
-            if (productId) {
-                promise = db.collection('products').doc(productId).update(productData);
+            if (imageFile) {
+                // Fazer upload para o Cloudinary
+                showLoading('Fazendo upload da imagem...');
+                uploadImageToCloudinary(imageFile)
+                    .then(imageUrl => {
+                        saveProductData(imageUrl);
+                    })
+                    .catch(error => {
+                        console.error('Erro no upload da imagem:', error);
+                        showError('Erro no upload da imagem. O produto será salvo sem imagem.');
+                        saveProductData(existingImageUrl);
+                    });
             } else {
-                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                promise = db.collection('products').add(productData);
+                saveProductData(existingImageUrl);
             }
-            
-            showLoading('Salvando produto...');
-            
-            promise
-                .then(() => {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-                    modal.hide();
-                    loadProducts();
-                    showSuccess(productId ? 'Produto atualizado com sucesso!' : 'Produto adicionado com sucesso!');
-                })
-                .catch((error) => {
-                    console.error('Erro ao salvar produto:', error);
-                    showError('Erro ao salvar produto: ' + error.message);
-                });
         }
 
         function deleteProduct(productId) {
@@ -9520,17 +8798,6 @@
             container.innerHTML = html;
         }
 
-        function getCategoryName(category) {
-            const categories = {
-                'cabelo': 'Cabelo',
-                'pele': 'Pele',
-                'maquiagem': 'Maquiagem',
-                'acessorios': 'Acessórios',
-                'outros': 'Outros'
-            };
-            return categories[category] || 'Outros';
-        }
-
         function formatCurrency(value) {
             if (typeof value !== 'number') {
                 value = parseFloat(value) || 0;
@@ -9622,8 +8889,10 @@
             if (businessSettings.customLogo) {
                 document.getElementById('logoPreview').src = businessSettings.customLogo;
                 document.getElementById('logoPreview').style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
             } else {
                 document.getElementById('logoPreview').style.display = 'none';
+                document.getElementById('logoPlaceholder').style.display = 'flex';
             }
             
             toggleLogoUpload();
@@ -9640,15 +8909,57 @@
             }
         }
 
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*')) {
+                showError('Por favor, selecione uma imagem válida.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').src = e.target.result;
+                document.getElementById('logoPreview').style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
         function saveBusinessSettings() {
             businessSettings.name = document.getElementById('businessNameInput').value;
             businessSettings.logoType = document.getElementById('businessLogoType').value;
             
-            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-            updateBusinessLogo();
+            const logoFile = document.getElementById('logoUpload').files[0];
             
-            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-            showSuccess('Configurações salvas com sucesso!');
+            if (logoFile) {
+                showLoading('Fazendo upload do logo...');
+                uploadImageToCloudinary(logoFile)
+                    .then(imageUrl => {
+                        businessSettings.customLogo = imageUrl;
+                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                        updateBusinessLogo();
+                        bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+                        showSuccess('Configurações salvas com sucesso!');
+                    })
+                    .catch(error => {
+                        console.error('Erro no upload do logo:', error);
+                        showError('Erro no upload da imagem. As configurações foram salvas sem o logo.');
+                        businessSettings.customLogo = null;
+                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                        updateBusinessLogo();
+                        bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+                    });
+            } else {
+                if (businessSettings.logoType !== 'custom') {
+                    businessSettings.customLogo = null;
+                }
+                localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                updateBusinessLogo();
+                bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+                showSuccess('Configurações salvas com sucesso!');
+            }
         }
 
         function loadBusinessProfile() {
@@ -9663,6 +8974,7 @@
             document.getElementById('businessName').value = businessProfile.name;
             document.getElementById('businessEmail').value = businessProfile.email;
             document.getElementById('businessPhone').value = businessProfile.phone;
+            document.getElementById('businessWhatsApp').value = businessProfile.whatsApp || '';
             document.getElementById('businessAddress').value = businessProfile.address;
             document.getElementById('businessDescription').value = businessProfile.description;
         }
@@ -9674,6 +8986,7 @@
                 name: document.getElementById('businessName').value,
                 email: document.getElementById('businessEmail').value,
                 phone: document.getElementById('businessPhone').value,
+                whatsApp: document.getElementById('businessWhatsApp').value,
                 address: document.getElementById('businessAddress').value,
                 description: document.getElementById('businessDescription').value
             };
@@ -9940,7 +9253,7 @@ Que todos os seus sonhos se realizem e que este novo ano de vida seja repleto de
 Um grande abraço da equipe ${businessSettings.name || 'Studio DeVitto'}! ❤️
 
 *P.S.: Como presente de aniversário estamos lhe dando uma *Hidratação dos Cabelos com Vapor de Ozônio.!
-(obs: presente valido para os próximos 7 dias, não acompanha o brushing.);* 🎁`
+(obs: presente valido para os próximos 7 dias, não acompanha o brushing.);* 🎁`;
             } else {
                 message = `Olá! 👋
 
@@ -11038,21 +10351,14 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             let photoUploadPromise = Promise.resolve(null);
             
             if (photoFile) {
-                photoUploadPromise = new Promise((resolve, reject) => {
-                    const storageRef = storage.ref();
-                    const photoRef = storageRef.child(`collaborators/${currentUser.uid}/${collaboratorId || Date.now()}_${photoFile.name}`);
-                    
-                    photoRef.put(photoFile)
-                        .then(snapshot => snapshot.ref.getDownloadURL())
-                        .then(url => {
-                            collaboratorData.photoUrl = url;
-                            resolve(url);
-                        })
-                        .catch(error => {
-                            console.error('Erro no upload da foto:', error);
-                            resolve(null);
-                        });
-                });
+                photoUploadPromise = uploadImageToCloudinary(photoFile)
+                    .then(url => {
+                        collaboratorData.photoUrl = url;
+                    })
+                    .catch(error => {
+                        console.error('Erro no upload da foto:', error);
+                        return null;
+                    });
             }
             
             photoUploadPromise.then(() => {
@@ -11132,8 +10438,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             filteredProducts.forEach(product => {
                 const isLowStock = product.quantity <= product.minQuantity;
                 const imageHtml = product.imageUrl ? 
-                    `<img src="${product.imageUrl}" width="40" height="40" style="object-fit: cover; border-radius: 4px;">` : 
-                    '<span class="text-muted">Sem imagem</span>';
+                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;">` : 
+                    '<i class="fas fa-box fa-2x text-muted"></i>';
                 
                 html += `
                     <tr class="${isLowStock ? 'low-stock' : ''}">
@@ -11313,6 +10619,10 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 .catch(err => console.log('Erro ao registrar Service Worker', err));
         }
 
+        // ============================================
+        // SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
+        // ============================================
+
         function fixMenuNavigation() {
             console.log("Corrigindo navegação do menu...");
             
@@ -11356,6 +10666,10 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                         if (window.innerWidth <= 768) {
                             document.getElementById('mobileHomeButton').style.display = 'flex';
                         }
+                        
+                        if (sectionId === 'store') {
+                            renderStore();
+                        }
                     } else {
                         console.log(`❌ Seção ${sectionId} não encontrada!`);
                     }
@@ -11394,66 +10708,21 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             setTimeout(fixMenuNavigation, 1500);
         });
     </script>
-
-
-<script>
-// SOLUÇÃO SIMPLES - CORRIGE CARRINHO EM CELULARES
-document.addEventListener('DOMContentLoaded', function() {
-    // Função para ajustar o carrinho em celulares
-    function ajustarCarrinhoMobile() {
-        // Verifica se é celular (largura menor que 768px)
-        if (window.innerWidth <= 768) {
-            // Esconde o carrinho quando abre a loja em celular
-            const cartSidebar = document.getElementById('cartSidebar');
-            const cartOverlay = document.getElementById('cartOverlay');
-            
-            if (cartSidebar && cartOverlay) {
-                // Garante que o carrinho comece fechado
-                cartSidebar.classList.remove('open');
-                cartOverlay.classList.remove('active');
-            }
-            
-            // Fecha o carrinho se clicar em qualquer card da loja
-            document.querySelectorAll('.product-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // Só fecha se não for clicar nos botões do produto
-                    if (!e.target.closest('.btn-add-to-cart') && !e.target.closest('.btn-quick-view')) {
-                        const cartSidebar = document.getElementById('cartSidebar');
-                        const cartOverlay = document.getElementById('cartOverlay');
-                        if (cartSidebar && cartOverlay) {
-                            cartSidebar.classList.remove('open');
-                            cartOverlay.classList.remove('active');
-                        }
-                    }
-                });
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                const swScript = `
+                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+                `;
+                const swBlob = new Blob([swScript], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl);
             });
-            
-            console.log('✅ Ajuste de carrinho para celular aplicado!');
-        }
-    }
-    
-    // Executa quando carrega
-    ajustarCarrinhoMobile();
-    
-    // Executa quando gira a tela
-    window.addEventListener('resize', ajustarCarrinhoMobile);
-    
-    // FORÇA O CARRINHO FECHADO AO ABRIR A LOGA
-    const storeLinks = document.querySelectorAll('[data-section="store"]');
-    storeLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            setTimeout(() => {
-                if (window.innerWidth <= 768) {
-                    document.getElementById('cartSidebar')?.classList.remove('open');
-                    document.getElementById('cartOverlay')?.classList.remove('active');
-                }
-            }, 300);
-        });
-    });
-});
-</script>
-
-    
+        } 
+    </script>
 </body>
 </html>
-
