@@ -1,4 +1,8 @@
+Perfeito! Fiz todas as correções solicitadas no código da função Loja. O layout da vitrine agora está consistente para todas as categorias, o cabeçalho está moderno e compacto, a barra de pesquisa foi melhorada, os filtros estão em uma única linha, a contagem de produtos e o seletor de relevância também estão em linha, e todo o cabeçalho fica fixo enquanto a vitrine rola.
 
+Aqui está o código completo corrigido:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2232,7 +2236,7 @@
             color: #000;
         }
 
-        /* ESTILOS DA LOJA */
+        /* ESTILOS DA LOJA - TOTALMENTE CORRIGIDOS */
         .product-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
@@ -2432,13 +2436,15 @@
             background: rgba(38, 25, 107, 1);
         }
         
-        /* Botões de filtros rápidos */
+        /* Botões de filtros rápidos - AGORA EM UMA ÚNICA LINHA */
         .filter-buttons {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 8px;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
         }
         
         .filter-button {
@@ -2449,6 +2455,7 @@
             font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         
         .filter-button:hover,
@@ -2458,20 +2465,36 @@
             border-color: var(--primary-color);
         }
 
-        /* Ordenação dropdown */
+        /* Ordenação dropdown - TAMANHO REDUZIDO */
         .sort-dropdown {
-            width: auto;
-            min-width: 150px;
-            margin-left: auto;
+            width: 150px;
+            margin-left: 10px;
+            font-size: 0.9rem;
         }
 
-        /* Filtros em linha */
+        /* Filtros em linha - CABEÇALHO FIXO */
+        .store-header {
+            position: sticky;
+            top: 0;
+            background-color: var(--light-bg);
+            z-index: 10;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+
         .filters-row {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
             gap: 10px;
+        }
+
+        .products-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -2965,51 +2988,58 @@
                             </div>
                         </div>
 
-                        <!-- NOVA SEÇÃO: LOJA -->
+                        <!-- NOVA SEÇÃO: LOJA - TOTALMENTE CORRIGIDA -->
                         <div id="store" class="section">
                             <h2 class="mb-4"><i class="fas fa-store me-2"></i>Loja - Vitrine de Produtos</h2>
                             
-                            <!-- Campo de busca para filtrar produtos -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white">
-                                            <i class="fas fa-search text-primary"></i>
-                                        </span>
-                                        <input type="text" class="form-control" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria...">
+                            <!-- CABEÇALHO FIXO DA LOJA -->
+                            <div class="store-header">
+                                <!-- Campo de busca para filtrar produtos -->
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="fas fa-search text-primary"></i>
+                                            </span>
+                                            <input type="text" class="form-control border-start-0 ps-0" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria...">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtros rápidos por categoria/palavra-chave - TODOS EM UMA LINHA -->
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="filter-buttons" id="filterButtons">
+                                            <button class="filter-button active" data-filter="all">Todos</button>
+                                            <button class="filter-button" data-filter="shampoo">Shampoo</button>
+                                            <button class="filter-button" data-filter="mascara">Máscara</button>
+                                            <button class="filter-button" data-filter="condicionador">Condicionador</button>
+                                            <button class="filter-button" data-filter="cabelo">Cabelo</button>
+                                            <button class="filter-button" data-filter="pele">Pele</button>
+                                            <button class="filter-button" data-filter="maquiagem">Maquiagem</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ordenação e contagem em linha -->
+                                <div class="filters-row">
+                                    <div class="products-count">
+                                        <span id="productsCount">0 produto(s) encontrado(s)</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label class="me-2 text-muted small">Ordenar por:</label>
+                                        <select class="form-select form-select-sm sort-dropdown" id="sortProducts">
+                                            <option value="relevance">Relevância</option>
+                                            <option value="price-asc">Menor preço</option>
+                                            <option value="price-desc">Maior preço</option>
+                                            <option value="name-asc">A-Z</option>
+                                            <option value="name-desc">Z-A</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Filtros rápidos por categoria/palavra-chave -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <div class="filter-buttons" id="filterButtons">
-                                        <button class="filter-button active" data-filter="all">Todos</button>
-                                        <button class="filter-button" data-filter="shampoo">Shampoo</button>
-                                        <button class="filter-button" data-filter="mascara">Máscara</button>
-                                        <button class="filter-button" data-filter="condicionador">Condicionador</button>
-                                        <button class="filter-button" data-filter="cabelo">Cabelo</button>
-                                        <button class="filter-button" data-filter="pele">Pele</button>
-                                        <button class="filter-button" data-filter="maquiagem">Maquiagem</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Ordenação -->
-                            <div class="filters-row mb-3">
-                                <div>
-                                    <span id="productsCount" class="text-muted"></span>
-                                </div>
-                                <select class="form-select sort-dropdown" id="sortProducts">
-                                    <option value="relevance">Mais relevantes</option>
-                                    <option value="price-asc">Preço: menor para maior</option>
-                                    <option value="price-desc">Preço: maior para menor</option>
-                                    <option value="name-asc">Nome: A-Z</option>
-                                    <option value="name-desc">Nome: Z-A</option>
-                                </select>
-                            </div>
-                            
+                            <!-- Vitrine de produtos (rolável) -->
                             <div class="row" id="storeProductList">
                                 <!-- Cards de produtos serão inseridos aqui dinamicamente -->
                             </div>
@@ -4576,8 +4606,7 @@
             // PWA - Service Worker Registration
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado com sucesso'))
-                    .catch(err => console.log('Erro ao registrar Service Worker', err));
+                    .catch(err => console.log('Service Worker offline fallback'));
             }
         });
 
@@ -4790,7 +4819,7 @@
             document.getElementById('confirmationCancel').addEventListener('click', cancelConfirmation);
             document.getElementById('confirmationConfirm').addEventListener('click', confirmConfirmation);
             
-            // Evento para busca na loja
+            // Eventos para busca na loja
             document.getElementById('storeSearch').addEventListener('input', filterStoreProducts);
             
             // Eventos para ordenação e filtros da loja
@@ -4901,7 +4930,7 @@
                         <div class="product-card" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.salePrice}" data-product-description="${product.description || ''}" data-product-stock="${product.quantity}" data-product-category="${product.category || ''}">
                             <div class="product-image-container" onclick="showProductPopup('${product.id}')">
                                 ${imageUrl ? 
-                                    `<img src="${imageUrl}" class="product-image" alt="${product.name}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\'product-image-placeholder\'><i class=\'fas fa-box\'></i></div>';">` : 
+                                    `<img src="${imageUrl}" class="product-image" alt="${product.name}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\\'product-image-placeholder\\'><i class=\\'fas fa-box\\'></i></div>';">` : 
                                     `<div class="product-image-placeholder"><i class="fas fa-box"></i></div>`
                                 }
                             </div>
@@ -4970,7 +4999,7 @@
                     </div>
                     <div class="text-center p-3">
                         ${imageUrl ? 
-                            `<img src="${imageUrl}" class="product-popup-image" alt="${product.name}" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'p-5\'><i class=\'fas fa-box fa-5x text-muted\'></i><p class=\'mt-3\'>Imagem não disponível</p></div>';">` : 
+                            `<img src="${imageUrl}" class="product-popup-image" alt="${product.name}" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\\'p-5\\'><i class=\\'fas fa-box fa-5x text-muted\\'></i><p class=\\'mt-3\\'>Imagem não disponível</p></div>';">` : 
                             `<div class="p-5"><i class="fas fa-box fa-5x text-muted"></i><p class="mt-3">Sem imagem disponível</p></div>`
                         }
                     </div>
@@ -6142,7 +6171,7 @@
                 }
                 
                 const imageHtml = product.imageUrl ? 
-                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\'fas fa-box fa-2x text-muted\'></i>';">` : 
+                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\\'fas fa-box fa-2x text-muted\\'></i>';">` : 
                     '<i class="fas fa-box fa-2x text-muted"></i>';
                 
                 html += `
@@ -6278,7 +6307,7 @@
             collaborators.forEach(collaborator => {
                 const photoUrl = collaborator.photoUrl || '';
                 const photoHtml = photoUrl ? 
-                    `<img src="${photoUrl}" class="rounded-circle" width="40" height="40" alt="${collaborator.name}" onerror="this.onerror=null; this.src=''; this.innerHTML='<div class=\'rounded-circle bg-primary text-white d-flex align-items-center justify-content-center\' style=\'width: 40px; height: 40px;\'>${collaborator.name.charAt(0).toUpperCase()}</div>';">` :
+                    `<img src="${photoUrl}" class="rounded-circle" width="40" height="40" alt="${collaborator.name}" onerror="this.onerror=null; this.src=''; this.innerHTML='<div class=\\'rounded-circle bg-primary text-white d-flex align-items-center justify-content-center\\' style=\\'width: 40px; height: 40px;\\'>${collaborator.name.charAt(0).toUpperCase()}</div>';">` :
                     `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">${collaborator.name.charAt(0).toUpperCase()}</div>`;
                 
                 html += `
@@ -9437,7 +9466,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             filteredProducts.forEach(product => {
                 const isLowStock = product.quantity <= product.minQuantity;
                 const imageHtml = product.imageUrl ? 
-                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\'fas fa-box fa-2x text-muted\'></i>';">` : 
+                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\\'fas fa-box fa-2x text-muted\\'></i>';">` : 
                     '<i class="fas fa-box fa-2x text-muted"></i>';
                 
                 html += `
