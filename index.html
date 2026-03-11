@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Studio DeVitto - Sistema de Gestão</title>
     
     <!-- PWA - Progressive Web App -->
@@ -2231,7 +2231,7 @@
             color: #000;
         }
 
-        /* ESTILOS DA LOJA */
+        /* ESTILOS DA LOJA - CORRIGIDO PARA MOBILE */
         .product-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
@@ -2241,6 +2241,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            margin-bottom: 15px;
         }
         
         .product-card:hover {
@@ -2256,6 +2257,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
         
         .product-image {
@@ -2364,7 +2366,7 @@
             }
         }
         
-        /* Estilo para o popup da imagem do produto */
+        /* Estilo para o popup da imagem do produto - COM SCROLL */
         .product-popup {
             position: fixed;
             top: 0;
@@ -2388,7 +2390,7 @@
             max-height: 90%;
             background: white;
             border-radius: 12px;
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
         }
         
@@ -2404,9 +2406,11 @@
         }
         
         .product-popup-close {
-            position: absolute;
+            position: sticky;
             top: 10px;
-            right: 10px;
+            float: right;
+            margin-right: 10px;
+            margin-top: 10px;
             background: rgba(0,0,0,0.5);
             color: white;
             width: 40px;
@@ -2422,6 +2426,28 @@
         
         .product-popup-close:hover {
             background: rgba(0,0,0,0.8);
+        }
+
+        /* Logo fixa */
+        #businessLogo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #businessLogoImg {
+            height: 40px;
+            width: auto;
+            max-width: 150px;
+            object-fit: contain;
+            border-radius: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #businessLogoImg {
+                height: 30px;
+                max-width: 120px;
+            }
         }
     </style>
 </head>
@@ -2527,7 +2553,7 @@
                         <a class="nav-link" href="#" data-section="agenda">
                             <i class="fas fa-calendar-alt"></i> Agenda
                         </a>
-                        <a class="nav-link" href="#" data-section="store"> <!-- NOVA SEÇÃO: Loja -->
+                        <a class="nav-link" href="#" data-section="store">
                             <i class="fas fa-store"></i> Loja
                         </a>
                         <a class="nav-link" href="#" data-section="cashier">
@@ -2569,7 +2595,7 @@
                     <div class="section-container">
                         <!-- Menu de Cards para Mobile (TELA INICIAL OBRIGATÓRIA NO MOBILE) -->
                         <div id="mobileCards" class="mobile-cards-container active">
-                            <div class="row">
+                            <div class="row g-2">
                                 <div class="col-6">
                                     <div class="mobile-card" data-section="dashboard">
                                         <i class="fas fa-tachometer-alt"></i>
@@ -2584,7 +2610,7 @@
                                         <p>Agendamentos</p>
                                     </div>
                                 </div>
-                                <div class="col-6"> <!-- NOVO CARD: Loja -->
+                                <div class="col-6">
                                     <div class="mobile-card" data-section="store">
                                         <i class="fas fa-store"></i>
                                         <h5>Loja</h5>
@@ -2926,7 +2952,7 @@
                                         <span class="input-group-text bg-white">
                                             <i class="fas fa-search text-primary"></i>
                                         </span>
-                                        <input type="text" class="form-control" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria..." oninput="filterStoreProducts()">
+                                        <input type="text" class="form-control" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria...">
                                     </div>
                                 </div>
                             </div>
@@ -6094,8 +6120,30 @@
                 return;
             }
             
+            // Ordenar produtos: Shampoos e Máscaras primeiro, depois por mais buscados
+            const sortedProducts = [...products].sort((a, b) => {
+                const catA = (a.category || '').toLowerCase();
+                const catB = (b.category || '').toLowerCase();
+                
+                // Prioridade para shampoos e máscaras
+                const isShampooA = catA.includes('shampoo') || catA.includes('shamp');
+                const isShampooB = catB.includes('shampoo') || catB.includes('shamp');
+                const isMaskA = catA.includes('mascara') || catA.includes('máscara');
+                const isMaskB = catB.includes('mascara') || catB.includes('máscara');
+                
+                if (isShampooA && !isShampooB) return -1;
+                if (!isShampooA && isShampooB) return 1;
+                if (isMaskA && !isMaskB) return -1;
+                if (!isMaskA && isMaskB) return 1;
+                
+                // Depois ordenar por mais buscados (baseado em acessos ou popularidade simulada)
+                const popularA = a.popularity || 0;
+                const popularB = b.popularity || 0;
+                return popularB - popularA;
+            });
+            
             let html = '';
-            products.forEach(product => {
+            sortedProducts.forEach(product => {
                 // Verificar se o produto tem imagem, senão usar placeholder
                 const imageUrl = product.imageUrl || '';
                 const isLowStock = product.quantity <= product.minQuantity;
@@ -6149,7 +6197,7 @@
         // Função para filtrar produtos na loja
         function filterStoreProducts() {
             const searchTerm = document.getElementById('storeSearch').value.toLowerCase().trim();
-            const productCards = document.querySelectorAll('#storeProductList .col-md-4');
+            const productCards = document.querySelectorAll('#storeProductList .col-6');
             
             if (!searchTerm) {
                 productCards.forEach(card => card.style.display = '');
@@ -6207,6 +6255,7 @@
                             <strong>${isLowStock ? '⚠️ Últimas unidades!' : `✅ ${product.quantity} em estoque`}</strong>
                         </p>
                         <p class="text-muted small">Categoria: ${product.category || 'Outros'}</p>
+                        <p class="text-muted small">Código: ${product.id.substring(0, 8)}...</p>
                         <button class="btn btn-success w-100 mt-3" onclick="buyProduct('${product.id}', '${product.name}', ${product.salePrice})">
                             <i class="fab fa-whatsapp me-2"></i>Comprar via WhatsApp
                         </button>
@@ -9077,20 +9126,22 @@
             const logoIcon = document.getElementById('businessLogoIcon');
             const businessNameSpan = document.getElementById('businessName');
             
+            // Remover imagem existente se houver
+            const existingImg = document.getElementById('businessLogoImg');
+            if (existingImg) existingImg.remove();
+            
             if (businessSettings.customLogo) {
                 logoIcon.style.display = 'none';
-                const logoImg = document.getElementById('businessLogoImg');
-                if (!logoImg) {
-                    const img = document.createElement('img');
-                    img.id = 'businessLogoImg';
-                    img.src = businessSettings.customLogo;
-                    img.style.height = '30px';
-                    img.style.marginRight = '10px';
-                    document.getElementById('businessLogo').prepend(img);
-                }
+                const img = document.createElement('img');
+                img.id = 'businessLogoImg';
+                img.src = businessSettings.customLogo;
+                img.style.height = '30px';
+                img.style.width = 'auto';
+                img.style.maxWidth = '150px';
+                img.style.objectFit = 'contain';
+                img.style.borderRadius = '20px';
+                document.getElementById('businessLogo').prepend(img);
             } else {
-                const logoImg = document.getElementById('businessLogoImg');
-                if (logoImg) logoImg.remove();
                 logoIcon.style.display = 'inline-block';
                 
                 const icons = {
@@ -9166,6 +9217,12 @@
                         updateBusinessLogo();
                         bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
                         showSuccess('Configurações salvas com sucesso!');
+                        
+                        // Salvar no Firestore
+                        if (currentUser) {
+                            db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
+                                .catch(error => console.error('Erro ao salvar configurações no Firebase:', error));
+                        }
                     })
                     .catch(error => {
                         console.error('Erro no upload do logo:', error);
@@ -9183,6 +9240,12 @@
                 updateBusinessLogo();
                 bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
                 showSuccess('Configurações salvas com sucesso!');
+                
+                // Salvar no Firestore
+                if (currentUser) {
+                    db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
+                        .catch(error => console.error('Erro ao salvar configurações no Firebase:', error));
+                }
             }
         }
 
@@ -10950,4 +11013,3 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
     </script>
 </body>
 </html>
-
