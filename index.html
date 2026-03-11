@@ -11394,5 +11394,66 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             setTimeout(fixMenuNavigation, 1500);
         });
     </script>
+
+
+<script>
+// SOLUÇÃO SIMPLES - CORRIGE CARRINHO EM CELULARES
+document.addEventListener('DOMContentLoaded', function() {
+    // Função para ajustar o carrinho em celulares
+    function ajustarCarrinhoMobile() {
+        // Verifica se é celular (largura menor que 768px)
+        if (window.innerWidth <= 768) {
+            // Esconde o carrinho quando abre a loja em celular
+            const cartSidebar = document.getElementById('cartSidebar');
+            const cartOverlay = document.getElementById('cartOverlay');
+            
+            if (cartSidebar && cartOverlay) {
+                // Garante que o carrinho comece fechado
+                cartSidebar.classList.remove('open');
+                cartOverlay.classList.remove('active');
+            }
+            
+            // Fecha o carrinho se clicar em qualquer card da loja
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Só fecha se não for clicar nos botões do produto
+                    if (!e.target.closest('.btn-add-to-cart') && !e.target.closest('.btn-quick-view')) {
+                        const cartSidebar = document.getElementById('cartSidebar');
+                        const cartOverlay = document.getElementById('cartOverlay');
+                        if (cartSidebar && cartOverlay) {
+                            cartSidebar.classList.remove('open');
+                            cartOverlay.classList.remove('active');
+                        }
+                    }
+                });
+            });
+            
+            console.log('✅ Ajuste de carrinho para celular aplicado!');
+        }
+    }
+    
+    // Executa quando carrega
+    ajustarCarrinhoMobile();
+    
+    // Executa quando gira a tela
+    window.addEventListener('resize', ajustarCarrinhoMobile);
+    
+    // FORÇA O CARRINHO FECHADO AO ABRIR A LOGA
+    const storeLinks = document.querySelectorAll('[data-section="store"]');
+    storeLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            setTimeout(() => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('cartSidebar')?.classList.remove('open');
+                    document.getElementById('cartOverlay')?.classList.remove('active');
+                }
+            }, 300);
+        });
+    });
+});
+</script>
+
+    
 </body>
 </html>
+
