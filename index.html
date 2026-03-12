@@ -4,6 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Studio DeVitto - Sistema de Gestão</title>
+
+        <!-- BARRA DE PESQUISA FIXA - SEMPRE VISÍVEL -->
+    <style>
+        /* Estilo para a barra de pesquisa fixa */
+        .global-search-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #26196b; /* COR AZUL QUE VOCÊ QUER ENCONTRAR */
+            padding: 12px 20px;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+        
+        .global-search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            background-color: white;
+            outline: none;
+        }
+        
+        .global-search-input:focus {
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5);
+        }
+        
+        .global-search-button {
+            background-color: #ffd700;
+            color: #26196b;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .global-search-button:hover {
+            background-color: #e6c200;
+        }
+        
+        /* Ajuste para o conteúdo não ficar escondido atrás da barra */
+        body {
+            margin-top: 70px !important;
+        }
+        
+        .navbar {
+            top: 70px !important; /* Ajusta a navbar para ficar abaixo da barra de pesquisa */
+        }
+        
+        @media (max-width: 768px) {
+            .global-search-bar {
+                padding: 8px 10px;
+            }
+            .global-search-button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            body {
+                margin-top: 60px !important;
+            }
+            .navbar {
+                top: 60px !important;
+            }
+        }
+    </style>
+
+        <!-- BARRA DE PESQUISA AZUL - SEMPRE NO TOPO -->
+    <div class="global-search-bar">
+        <input type="text" class="global-search-input" id="globalSearch" placeholder="🔍 Pesquisar clientes, serviços, produtos... (digite e pressione Enter)">
+        <button class="global-search-button" id="globalSearchButton">Pesquisar</button>
+    </div>
+
+    
     
     <!-- PWA - Progressive Web App -->
     <link rel="manifest" href="/manifest.json">
@@ -11092,6 +11173,139 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 navigator.serviceWorker.register(swUrl);
             });
         } 
+    </script>
+
+        <!-- FUNÇÃO DE PESQUISA GLOBAL -->
+    <script>
+        // Função de pesquisa global - SIMPLES E EFICAZ
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('globalSearch');
+            const searchButton = document.getElementById('globalSearchButton');
+            
+            function performGlobalSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    alert('Digite algo para pesquisar!');
+                    return;
+                }
+                
+                // Mostrar mensagem de busca
+                Swal.fire({
+                    title: '🔍 Pesquisando...',
+                    text: `Buscando por: "${searchTerm}"`,
+                    icon: 'info',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                console.log('🔍 Pesquisando por:', searchTerm);
+                
+                // Ir para a seção de clientes se for um nome
+                if (searchTerm.length > 2) {
+                    // Verificar se é um cliente
+                    if (window.clients && window.clients.length > 0) {
+                        const foundClients = window.clients.filter(client => 
+                            client.name.toLowerCase().includes(searchTerm) ||
+                            (client.phone && client.phone.includes(searchTerm))
+                        );
+                        
+                        if (foundClients.length > 0) {
+                            // Encontrou clientes
+                            const names = foundClients.map(c => c.name).join(', ');
+                            alert(`✅ Cliente(s) encontrado(s): ${names}`);
+                            
+                            // Se for mobile, mostrar nos cards
+                            if (window.innerWidth <= 768) {
+                                document.querySelectorAll('.mobile-card').forEach(card => {
+                                    if (card.getAttribute('data-section') === 'clients') {
+                                        card.click();
+                                    }
+                                });
+                            } else {
+                                // No desktop, ir para clientes
+                                const clientLink = document.querySelector('.sidebar .nav-link[data-section="clients"]');
+                                if (clientLink) clientLink.click();
+                            }
+                            
+                            // Preencher o campo de busca de clientes
+                            setTimeout(() => {
+                                const clientSearch = document.getElementById('clientSearch');
+                                if (clientSearch) {
+                                    clientSearch.value = searchTerm;
+                                    clientSearch.dispatchEvent(new Event('input'));
+                                }
+                            }, 500);
+                            
+                            return;
+                        }
+                    }
+                    
+                    // Verificar produtos
+                    if (window.products && window.products.length > 0) {
+                        const foundProducts = window.products.filter(product => 
+                            product.name.toLowerCase().includes(searchTerm) ||
+                            (product.description && product.description.toLowerCase().includes(searchTerm))
+                        );
+                        
+                        if (foundProducts.length > 0) {
+                            alert(`✅ Produto(s) encontrado(s): ${foundProducts.map(p => p.name).join(', ')}`);
+                            
+                            // Ir para a loja
+                            if (window.innerWidth <= 768) {
+                                document.querySelectorAll('.mobile-card').forEach(card => {
+                                    if (card.getAttribute('data-section') === 'store') {
+                                        card.click();
+                                    }
+                                });
+                            } else {
+                                const storeLink = document.querySelector('.sidebar .nav-link[data-section="store"]');
+                                if (storeLink) storeLink.click();
+                            }
+                            
+                            // Aplicar filtro na loja
+                            setTimeout(() => {
+                                const storeSearch = document.getElementById('storeSearch');
+                                if (storeSearch) {
+                                    storeSearch.value = searchTerm;
+                                    storeSearch.dispatchEvent(new Event('input'));
+                                }
+                            }, 500);
+                            
+                            return;
+                        }
+                    }
+                    
+                    // Verificar serviços recentes
+                    if (window.todayServices && window.todayServices.length > 0) {
+                        const foundServices = window.todayServices.filter(service => 
+                            service.description && service.description.toLowerCase().includes(searchTerm)
+                        );
+                        
+                        if (foundServices.length > 0) {
+                            alert(`✅ Serviço(s) encontrado(s) hoje: ${foundServices.length}`);
+                        }
+                    }
+                    
+                    // Se não encontrou nada
+                    alert('❌ Nenhum resultado encontrado. Tente pesquisar por nome de cliente ou produto.');
+                }
+            }
+            
+            // Pesquisar ao clicar no botão
+            searchButton.addEventListener('click', performGlobalSearch);
+            
+            // Pesquisar ao pressionar Enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performGlobalSearch();
+                }
+            });
+            
+            // Adicionar sugestões rápidas
+            const suggestions = ['Maria', 'João', 'Cabelo', 'Shampoo', 'Corte'];
+            searchInput.placeholder = `🔍 Pesquisar... (ex: ${suggestions.join(', ')})`;
+        });
     </script>
 </body>
 </html>
