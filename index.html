@@ -7858,12 +7858,34 @@
         }
 
         function loadBusinessSettings() {
-            const savedSettings = localStorage.getItem('businessSettings');
-            if (savedSettings) {
-                businessSettings = JSON.parse(savedSettings);
-                updateBusinessLogo();
-            }
-        }
+    // Primeiro tenta carregar do localStorage (mais rápido)
+    const savedSettings = localStorage.getItem('businessSettings');
+    if (savedSettings) {
+        businessSettings = JSON.parse(savedSettings);
+        updateBusinessLogo();
+    }
+    
+    // Depois tenta carregar do Firebase (para ter a versão mais atualizada)
+    if (currentUser) {
+        db.collection('businessSettings').doc(currentUser.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const firebaseSettings = doc.data();
+                    businessSettings = { ...businessSettings, ...firebaseSettings };
+                    
+                    // Atualiza o localStorage com os dados do Firebase
+                    localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                    
+                    updateBusinessLogo();
+                    console.log('✅ Configurações carregadas do Firebase');
+                }
+            })
+            .catch((error) => {
+                console.error('Erro ao carregar do Firebase:', error);
+                // Continua usando o que já tinha do localStorage
+            });
+    }
+}
 
         function updateBusinessLogo() {
             const logoIcon = document.getElementById('businessLogoIcon');
@@ -7944,39 +7966,67 @@
         }
 
         function saveBusinessSettings() {
-            businessSettings.name = document.getElementById('businessNameInput').value;
-            businessSettings.logoType = document.getElementById('businessLogoType').value;
-            
-            const logoFile = document.getElementById('logoUpload').files[0];
-            
-            if (logoFile) {
-                showLoading('Fazendo upload do logo...');
-                uploadImageToCloudinary(logoFile)
-                    .then(imageUrl => {
-                        businessSettings.customLogo = imageUrl;
-                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                        updateBusinessLogo();
-                        bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                        showSuccess('Configurações salvas com sucesso!');
-                    })
-                    .catch(error => {
-                        console.error('Erro no upload do logo:', error);
-                        showError('Erro no upload da imagem. As configurações foram salvas sem o logo.');
-                        businessSettings.customLogo = null;
-                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                        updateBusinessLogo();
-                        bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                    });
-            } else {
-                if (businessSettings.logoType !== 'custom') {
-                    businessSettings.customLogo = null;
-                }
-                localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                updateBusinessLogo();
-                bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                showSuccess('Configurações salvas com sucesso!');
-            }
+    const name = document.getElementById('businessNameInput').value;
+    const logoType = document.getElementById('businessLogoType').value;
+    const logoFile = document.getElementById('logoUpload').files[0];
+    
+    businessSettings.name = name;
+    businessSettings.logoType = logoType;
+    
+    // Função para salvar no Firebase
+    const saveToFirebase = (imageUrl) => {
+        if (imageUrl) {
+            businessSettings.customLogo = imageUrl;
+        } else if (logoType !== 'custom') {
+            businessSettings.customLogo = null;
         }
+        
+        // Salvar NO BANCO DE DADOS (Firestore)
+        if (currentUser) {
+            showLoading('Salvando configurações...');
+            
+            db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
+                .then(() => {
+                    // Também salvar no localStorage como backup
+                    localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                    
+                    updateBusinessLogo();
+                    bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+                    showSuccess('Configurações salvas no banco de dados com sucesso!');
+                })
+                .catch((error) => {
+                    console.error('Erro ao salvar no Firebase:', error);
+                    // Se falhar, pelo menos salva localmente
+                    localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                    updateBusinessLogo();
+                    bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+                    showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
+                });
+        } else {
+            // Se não tiver usuário logado, salva só local
+            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+            updateBusinessLogo();
+            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
+            showSuccess('Configurações salvas localmente!');
+        }
+    };
+    
+    // Se tem arquivo de logo, upload para Cloudinary primeiro
+    if (logoFile) {
+        showLoading('Fazendo upload da logo...');
+        uploadImageToCloudinary(logoFile)
+            .then(imageUrl => {
+                saveToFirebase(imageUrl);
+            })
+            .catch(error => {
+                console.error('Erro no upload da logo:', error);
+                showError('Erro no upload. Salvando sem a nova logo...');
+                saveToFirebase(null);
+            });
+    } else {
+        saveToFirebase(null);
+    }
+}
 
         function loadBusinessProfile() {
             const savedProfile = localStorage.getItem('businessProfile');
