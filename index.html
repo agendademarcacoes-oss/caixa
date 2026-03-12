@@ -2975,57 +2975,62 @@
                             </div>
                         </div>
 
-                        <!-- NOVA SEÇÃO: LOJA - VERSÃO SUPER COMPACTA -->
-<div id="store" class="section" style="padding-top: 0 !important; margin-top: -10px;"> <!-- Margem negativa para subir -->
+                        <!-- NOVA SEÇÃO: LOJA - COM CABEÇALHO MAIS ALTO -->
+<div id="store" class="section" style="padding-top: 0 !important;">
     
-    <!-- CABEÇALHO SUPER COMPACTO -->
-    <div class="store-header" style="position: sticky; top: 0; background: var(--light-bg); z-index: 100; padding: 2px 0; margin-top: -5px;">
+    <!-- CABEÇALHO FIXO DA LOJA - AGORA MAIS COLADO NO TOPO -->
+    <div class="store-header" style="position: sticky; top: 0; background: var(--light-bg); z-index: 100; padding: 5px 0; margin-top: -10px;">
         
-        <!-- Campo de busca - TUDO COLADO -->
-        <div class="row" style="margin-bottom: 2px;"> <!-- Praticamente sem margem -->
+        <!-- Primeira linha: Logo e nome ficam acima, então não mechemos -->
+        
+        <!-- Campo de busca - MAIS EM CIMA -->
+        <div class="row mb-1"> <!-- Reduzi o mb-4 para mb-1 -->
             <div class="col-12">
-                <div class="input-group input-group-sm"> <!-- Versão pequena do input -->
-                    <span class="input-group-text bg-white border-end-0" style="padding: 4px 8px;">
-                        <i class="fas fa-search text-primary" style="font-size: 14px;"></i>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-primary"></i>
                     </span>
-                    <input type="text" class="form-control form-control-sm border-start-0 ps-0" id="storeSearch" placeholder="Buscar produtos..." style="font-size: 14px; padding: 4px 8px;">
+                    <input type="text" class="form-control border-start-0 ps-0" id="storeSearch" placeholder="🔍 Buscar produtos por nome, descrição ou categoria...">
                 </div>
             </div>
         </div>
         
-        <!-- Filtros rápidos - COMPACTOS -->
-        <div class="row" style="margin-bottom: 2px;">
+        <!-- Filtros rápidos - MAIS EM CIMA (reduzi margens) -->
+        <div class="row mb-1"> <!-- Era mb-2, agora mb-1 -->
             <div class="col-12">
-                <div class="filter-buttons" id="filterButtons" style="gap: 3px; margin-bottom: 0; flex-wrap: wrap;">
-                    <button class="filter-button active" data-filter="all" style="padding: 3px 8px; font-size: 12px;">Todos</button>
-                    <button class="filter-button" data-filter="shampoo" style="padding: 3px 8px; font-size: 12px;">Shampoo</button>
-                    <button class="filter-button" data-filter="mascara" style="padding: 3px 8px; font-size: 12px;">Máscara</button>
-                    <button class="filter-button" data-filter="condicionador" style="padding: 3px 8px; font-size: 12px;">Condicionador</button>
-                    <button class="filter-button" data-filter="cabelo" style="padding: 3px 8px; font-size: 12px;">Cabelo</button>
-                    <button class="filter-button" data-filter="pele" style="padding: 3px 8px; font-size: 12px;">Pele</button>
-                    <button class="filter-button" data-filter="maquiagem" style="padding: 3px 8px; font-size: 12px;">Maquiagem</button>
+                <div class="filter-buttons" id="filterButtons" style="gap: 5px; margin-bottom: 2px;">
+                    <button class="filter-button active" data-filter="all">Todos</button>
+                    <button class="filter-button" data-filter="shampoo">Shampoo</button>
+                    <button class="filter-button" data-filter="mascara">Máscara</button>
+                    <button class="filter-button" data-filter="condicionador">Condicionador</button>
+                    <button class="filter-button" data-filter="cabelo">Cabelo</button>
+                    <button class="filter-button" data-filter="pele">Pele</button>
+                    <button class="filter-button" data-filter="maquiagem">Maquiagem</button>
                 </div>
             </div>
         </div>
         
-        <!-- Linha de ordenação - SUPER COMPACTA -->
-        <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 2px;">
-            <span id="productsCount" style="font-size: 11px;">0 produtos</span>
+        <!-- Ordenação e contagem - MAIS COMPACTAS -->
+        <div class="filters-row" style="margin-bottom: 5px;"> <!-- Reduzi margin -->
+            <div class="products-count">
+                <span id="productsCount" style="font-size: 0.85rem;">0 produto(s) encontrado(s)</span> <!-- Fonte menor -->
+            </div>
             <div class="d-flex align-items-center">
-                <span style="font-size: 11px; margin-right: 5px;">Ordenar:</span>
-                <select id="sortProducts" style="font-size: 11px; padding: 2px 15px 2px 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <label class="me-2 text-muted small" style="font-size: 0.8rem;">Ordenar:</label> <!-- Texto menor -->
+                <select class="form-select form-select-sm sort-dropdown" id="sortProducts" style="width: 130px; font-size: 0.8rem; padding: 4px 8px;"> <!-- Mais compacto -->
                     <option value="relevance">Relevância</option>
                     <option value="price-asc">Menor preço</option>
                     <option value="price-desc">Maior preço</option>
                     <option value="name-asc">A-Z</option>
+                    <option value="name-desc">Z-A</option>
                 </select>
             </div>
         </div>
     </div>
     
-    <!-- Vitrine de produtos - SEM ESPAÇO -->
+    <!-- Vitrine de produtos - COMEÇA MAIS EM CIMA -->
     <div class="row" id="storeProductList" style="margin-top: 0;">
-        <!-- Cards -->
+        <!-- Cards de produtos serão inseridos aqui dinamicamente -->
     </div>
 </div>
                         <!-- Caixa -->
