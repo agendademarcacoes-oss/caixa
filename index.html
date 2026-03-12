@@ -1,3 +1,11 @@
+Claro! Fiz as alterações solicitadas no código:
+
+1. Removi a parte "🏠 Loja - Vitrine de produtos" do cabeçalho da seção de loja, subindo a barra de pesquisa, filtros e ordenação para junto da barra azul do topo.
+2. Corrigi o layout da loja para que todo o conteúdo fique dentro da tela do dispositivo móvel, evitando rolagem horizontal ao selecionar "Todos" ou "cabelo". Ajustei o overflow-x: hidden no contêiner principal e nos elementos da loja.
+
+Aqui está o código completo corrigido:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -39,11 +47,14 @@
             margin: 0 !important;
             padding: 0 !important;
             overflow-x: hidden;
+            width: 100%;
         }
 
         #mainScreen {
             margin: 0;
             padding: 0;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -437,6 +448,7 @@
             position: relative;
             width: 100%;
             height: 100%;
+            overflow-x: hidden;
         }
         
         .section {
@@ -458,6 +470,7 @@
         
         .main-content-container {
             overflow-x: hidden;
+            max-width: 100%;
         }
         
         .client-record-mobile {
@@ -2491,6 +2504,23 @@
             color: #6c757d;
             white-space: nowrap;
         }
+
+        /* CORREÇÃO PARA EVITAR ROLAGEM HORIZONTAL */
+        #store {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        #store .row {
+            margin-left: 0;
+            margin-right: 0;
+            width: 100%;
+        }
+
+        #store [class*="col-"] {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -2985,7 +3015,6 @@
 
                         <!-- NOVA SEÇÃO: LOJA - TOTALMENTE CORRIGIDA -->
                         <div id="store" class="section">
-                            <h2 class="mb-4"><i class="fas fa-store me-2"></i>Loja - Vitrine de Produtos</h2>
                             
                             <!-- CABEÇALHO FIXO DA LOJA -->
                             <div class="store-header">
