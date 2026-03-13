@@ -12139,6 +12139,32 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 navigator.serviceWorker.register(swUrl);
             });
         } 
+        
+        
+        
+        // Função para abrir ficha do cliente
+function showClientRecord(clientId) {
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+    
+    // Mostrar a seção de registros de clientes
+    showSection('client-records');
+    
+    // Aguardar um pouco e abrir a ficha do cliente
+    setTimeout(() => {
+        // Encontrar o card do cliente e clicar nele
+        const cards = document.querySelectorAll('#clientCardsList .client-card');
+        cards.forEach(card => {
+            if (card.innerHTML.includes(client.name)) {
+                card.click();
+            }
+        });
+    }, 500);
+    
+    showSuccess('Abrindo ficha do cliente...');
+}
+        
+        
     </script>
 </body>
 </html>
