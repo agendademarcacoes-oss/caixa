@@ -653,6 +653,10 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
         }
         
         .client-record-close {
@@ -11878,8 +11882,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 
                 // Foto do cliente
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="inactive-client-avatar-img" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">` : 
-                    `<div class="inactive-client-avatar" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<img src="${client.photoUrl}" class="inactive-client-avatar-img" onclick="showInactiveClientRecord('${client.id}')" style="cursor: pointer;">` : 
+                    `<div class="inactive-client-avatar" onclick="showInactiveClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 // Mensagem padrão (editável)
                 const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
@@ -11934,7 +11938,23 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             
             container.innerHTML = html;
         }
-        
+
+        // NOVA FUNÇÃO: Mostrar a ficha completa do cliente a partir da seção de inativos
+        function showInactiveClientRecord(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            // Usar a mesma lógica da função showClientRecord, que já existe e está completa
+            // Vamos reutilizá-la
+            showClientRecord(clientId);
+
+            // Opcional: Fechar a seção de inativos no mobile se necessário
+            if (window.innerWidth <= 768) {
+                // A seção de inativos ainda está ativa, mas a ficha já abriu sobreposta
+                // Não precisamos fazer nada, pois o overlay da ficha já cobre a tela
+            }
+        }
+
         // Função para restaurar mensagem padrão
         function resetMessage(clientId) {
             const client = clients.find(c => c.id === clientId);
@@ -12139,16 +12159,6 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 navigator.serviceWorker.register(swUrl);
             });
         } 
-        
-        
-        // Função para abrir ficha do cliente (reutiliza o layout existente)
-function showClientRecordFromInactive(clientId) {
-    // Chama a função que já existe no sistema
-    showClientRecord(clientId);
-}
-
-        
-        
     </script>
 </body>
 </html>
