@@ -7967,68 +7967,52 @@
             reader.readAsDataURL(file);
         }
 
-        function saveBusinessSettings() {
-            const name = document.getElementById('businessNameInput').value;
-            const logoType = document.getElementById('businessLogoType').value;
-            const logoFile = document.getElementById('logoUpload').files[0];
-            
-            businessSettings.name = name;
-            businessSettings.logoType = logoType;
-            
-            // Função para salvar no Firebase
-            const saveToFirebase = (imageUrl) => {
-                if (imageUrl) {
-                    businessSettings.customLogo = imageUrl;
-                } else if (logoType !== 'custom') {
-                    businessSettings.customLogo = null;
-                }
+        // Função que salva a logo (já corrigida)
+function saveBusinessSettings() {
+    const logoFile = document.getElementById('logoUpload').files[0];
+    
+    // Se tem arquivo de logo
+    if (logoFile) {
+        // 1. ENVIA PARA O CLOUDINARY (nuvem)
+        uploadImageToCloudinary(logoFile)
+            .then(imageUrl => {
+                // 2. SALVA O LINK NO BANCO DE DADOS
+                businessSettings.customLogo = imageUrl;
                 
-                // Salvar NO BANCO DE DADOS (Firestore)
-                if (currentUser) {
-                    showLoading('Salvando configurações...');
-                    
-                    db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
-                        .then(() => {
-                            // Também salvar no localStorage como backup
-                            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                            
-                            updateBusinessLogo();
-                            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                            showSuccess('Configurações salvas no banco de dados com sucesso!');
-                        })
-                        .catch((error) => {
-                            console.error('Erro ao salvar no Firebase:', error);
-                            // Se falhar, pelo menos salva localmente
-                            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                            updateBusinessLogo();
-                            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                            showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
-                        });
-                } else {
-                    // Se não tiver usuário logado, salva só local
-                    localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                    updateBusinessLogo();
-                    bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                    showSuccess('Configurações salvas localmente!');
-                }
-            };
-            
-            // Se tem arquivo de logo, upload para Cloudinary primeiro
-            if (logoFile) {
-                showLoading('Fazendo upload da logo...');
-                uploadImageToCloudinary(logoFile)
-                    .then(imageUrl => {
-                        saveToFirebase(imageUrl);
-                    })
-                    .catch(error => {
-                        console.error('Erro no upload da logo:', error);
-                        showError('Erro no upload. Salvando sem a nova logo...');
-                        saveToFirebase(null);
+                // 3. SALVA NO FIREBASE (para todos verem)
+                db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
+                    .then(() => {
+                        // 4. ATUALIZA A LOGO NA TELA IMEDIATAMENTE
+                        updateBusinessLogo();
+                        showSuccess('Logo atualizada para todos!');
                     });
-            } else {
-                saveToFirebase(null);
-            }
+            });
+    }
+}
+
+// Função que mostra a logo (já corrigida)
+function updateBusinessLogo() {
+    const logoIcon = document.getElementById('businessLogoIcon');
+    
+    // Se tem logo personalizada
+    if (businessSettings.customLogo) {
+        logoIcon.style.display = 'none'; // Esconde o ícone
+        
+        // Verifica se já existe uma imagem
+        let img = document.getElementById('businessLogoImg');
+        if (!img) {
+            // Cria a imagem se não existir
+            img = document.createElement('img');
+            img.id = 'businessLogoImg';
+            img.style.height = '30px';
+            img.style.marginRight = '10px';
+            document.getElementById('businessLogo').prepend(img);
         }
+        
+        // Coloca o link da imagem (válido para todos os dispositivos)
+        img.src = businessSettings.customLogo;
+    }
+}
 
         function loadBusinessProfile() {
             const savedProfile = localStorage.getItem('businessProfile');
