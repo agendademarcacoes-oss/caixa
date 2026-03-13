@@ -8136,6 +8136,7 @@
             reader.readAsDataURL(file);
         }
 
+        // FUNÇÃO CORRIGIDA PARA SALVAR AS INFORMAÇÕES DA EMPRESA NO BANCO DE DADOS
         function saveBusinessSettings() {
             const name = document.getElementById('businessNameInput').value;
             const logoType = document.getElementById('businessLogoType').value;
@@ -8144,7 +8145,7 @@
             businessSettings.name = name;
             businessSettings.logoType = logoType;
             
-            // Função para salvar no Firebase
+            // Função para salvar no Firebase - AGORA OBRIGATÓRIA E FUNCIONAL
             const saveToFirebase = (imageUrl) => {
                 if (imageUrl) {
                     businessSettings.customLogo = imageUrl;
@@ -8152,34 +8153,61 @@
                     businessSettings.customLogo = null;
                 }
                 
-                // Salvar NO BANCO DE DADOS (Firestore)
-                if (currentUser) {
-                    showLoading('Salvando configurações...');
-                    
-                    db.collection('businessSettings').doc(currentUser.uid).set(businessSettings)
-                        .then(() => {
-                            // Também salvar no localStorage como backup
-                            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                            
-                            updateAllLogoInstances();
-                            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                            showSuccess('Configurações salvas no banco de dados com sucesso!');
-                        })
-                        .catch((error) => {
-                            console.error('Erro ao salvar no Firebase:', error);
-                            // Se falhar, pelo menos salva localmente
-                            localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                            updateAllLogoInstances();
-                            bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                            showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
-                        });
-                } else {
-                    // Se não tiver usuário logado, salva só local
-                    localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
-                    updateAllLogoInstances();
-                    bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal')).hide();
-                    showSuccess('Configurações salvas localmente!');
+                // Verificar se usuário está logado
+                if (!currentUser) {
+                    showError('Você precisa estar logado para salvar as configurações.');
+                    return;
                 }
+                
+                // MOSTRAR LOADING
+                showLoading('Salvando configurações no banco de dados...');
+                
+                // SALVAR NO BANCO DE DADOS (Firestore)
+                db.collection('businessSettings').doc(currentUser.uid).set(businessSettings, { merge: true })
+                    .then(() => {
+                        console.log('✅ Configurações salvas no Firestore com sucesso!');
+                        
+                        // Também salvar no localStorage como backup
+                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                        
+                        // Atualizar todas as logos
+                        updateAllLogoInstances();
+                        
+                        // Fechar modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal'));
+                        if (modal) modal.hide();
+                        
+                        // Mostrar sucesso
+                        Swal.close();
+                        showSuccess('Configurações salvas no banco de dados com sucesso!');
+                        
+                        // Notificar outras abas
+                        if (window.BroadcastChannel) {
+                            try {
+                                const channel = new BroadcastChannel('logo-updates');
+                                channel.postMessage({ 
+                                    type: 'LOGO_UPDATED', 
+                                    settings: businessSettings 
+                                });
+                            } catch (e) {
+                                console.log('BroadcastChannel não suportado');
+                            }
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('❌ Erro ao salvar no Firestore:', error);
+                        Swal.close();
+                        
+                        // Se falhar, pelo menos salva localmente
+                        localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+                        updateAllLogoInstances();
+                        
+                        // Fechar modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('businessSettingsModal'));
+                        if (modal) modal.hide();
+                        
+                        showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
+                    });
             };
             
             // Se tem arquivo de logo, upload para Cloudinary primeiro
@@ -8191,6 +8219,7 @@
                     })
                     .catch(error => {
                         console.error('Erro no upload da logo:', error);
+                        Swal.close();
                         showError('Erro no upload. Salvando sem a nova logo...');
                         saveToFirebase(null);
                     });
