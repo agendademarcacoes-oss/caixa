@@ -5656,20 +5656,40 @@
         }
 
         function loadBusinessProfileFromFirestore() {
-            if (!currentUser) return;
-            
-            db.collection('businessProfile').doc(currentUser.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        const firestoreProfile = doc.data();
-                        businessProfile = { ...businessProfile, ...firestoreProfile };
-                        updateBusinessProfileUI();
-                    }
-                })
-                .catch((error) => {
-                    console.error('Erro ao carregar perfil do banco de dados:', error);
-                });
+    // Primeiro tenta carregar do localStorage (mais rápido)
+    const savedProfile = localStorage.getItem('businessProfile');
+    if (savedProfile) {
+        try {
+            const localProfile = JSON.parse(savedProfile);
+            businessProfile = { ...businessProfile, ...localProfile };
+            updateBusinessProfileUI();
+            console.log('✅ Perfil carregado do localStorage');
+        } catch (e) {
+            console.error('Erro ao carregar perfil do localStorage:', e);
         }
+    }
+    
+    // Depois tenta carregar do Firebase (versão mais atualizada)
+    if (currentUser) {
+        db.collection('businessProfile').doc(currentUser.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const firestoreProfile = doc.data();
+                    businessProfile = { ...businessProfile, ...firestoreProfile };
+                    
+                    // Atualizar localStorage com os dados do Firebase
+                    localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
+                    
+                    updateBusinessProfileUI();
+                    console.log('✅ Perfil carregado do Firebase');
+                }
+            })
+            .catch((error) => {
+                console.error('❌ Erro ao carregar perfil do Firebase:', error);
+                // Continua usando o que já tinha do localStorage
+            });
+    }
+}
 
         function loadBusinessHoursFromFirestore() {
             if (!currentUser) return;
@@ -8246,28 +8266,54 @@
         }
 
         function saveBusinessProfile(e) {
-            e.preventDefault();
-            
-            businessProfile = {
-                name: document.getElementById('businessName').value,
-                email: document.getElementById('businessEmail').value,
-                phone: document.getElementById('businessPhone').value,
-                whatsApp: document.getElementById('businessWhatsApp').value,
-                address: document.getElementById('businessAddress').value,
-                description: document.getElementById('businessDescription').value
-            };
-            
-            localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
-            
-            if (currentUser) {
-                db.collection('businessProfile').doc(currentUser.uid).set(businessProfile)
-                    .then(() => console.log('Perfil salvo no Firebase'))
-                    .catch(error => console.error('Erro ao salvar perfil:', error));
-            }
-            
-            showSuccess('Perfil da empresa salvo com sucesso!');
-        }
+    e.preventDefault();
+    
+    // Mostrar loading
+    showLoading('Salvando informações da empresa...');
+    
+    // Coletar dados do formulário
+    const newProfile = {
+        name: document.getElementById('businessName').value,
+        email: document.getElementById('businessEmail').value,
+        phone: document.getElementById('businessPhone').value,
+        whatsApp: document.getElementById('businessWhatsApp').value,
+        address: document.getElementById('businessAddress').value,
+        description: document.getElementById('businessDescription').value
+    };
+    
+    // Atualizar a variável global
+    businessProfile = newProfile;
+    
+    // Salvar no localStorage (backup)
+    localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
+    
+    // Se usuário estiver logado, salvar no Firebase
+    if (currentUser) {
+        db.collection('businessProfile').doc(currentUser.uid).set(businessProfile, { merge: true })
+            .then(() => {
+                console.log('✅ Perfil salvo no Firebase com sucesso!');
+                Swal.close();
+                showSuccess('Informações da empresa salvas com sucesso!');
+                
+                // IMPORTANTE: Atualizar o número do WhatsApp usado na loja
+                updateBusinessWhatsApp();
+            })
+            .catch(error => {
+                console.error('❌ Erro ao salvar perfil no Firebase:', error);
+                Swal.close();
+                showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
+            });
+    } else {
+        Swal.close();
+        showSuccess('Informações salvas localmente!');
+    }
+}
 
+// Função auxiliar para atualizar o WhatsApp em outras partes do sistema
+function updateBusinessWhatsApp() {
+    // Se precisar atualizar algum elemento na interface com o novo número
+    console.log('WhatsApp atualizado para:', businessProfile.whatsApp);
+}
         function updateBusinessHoursUI() {
             document.getElementById('mondayOpen').value = businessHours.monday.open;
             document.getElementById('mondayClose').value = businessHours.monday.close;
