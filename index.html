@@ -2495,6 +2495,50 @@
             padding-left: 5px;
             padding-right: 5px;
         }
+
+        /* Estilos para a seção de clientes inativos */
+        .inactive-client-card {
+            background-color: #fff8e7;
+            border-left: 4px solid #ffd700;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .inactive-client-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .inactive-client-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .days-away-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .message-preview {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-left: 3px solid #25D366;
+        }
     </style>
 </head>
 <body>
@@ -2631,6 +2675,10 @@
                         <a class="nav-link" href="#" data-section="birthdays">
                             <i class="fas fa-birthday-cake"></i> Aniversários
                         </a>
+                        <!-- NOVO ITEM NO MENU: Resgatar Clientes Inativos -->
+                        <a class="nav-link" href="#" data-section="inactive-clients">
+                            <i class="fas fa-user-clock"></i> Clientes Inativos
+                        </a>
                     </nav>
                 </div>
 
@@ -2730,6 +2778,14 @@
                                         <i class="fas fa-birthday-cake"></i>
                                         <h5>Anivers.</h5>
                                         <p>Aniversariantes</p>
+                                    </div>
+                                </div>
+                                <!-- NOVO CARD MOBILE: Clientes Inativos -->
+                                <div class="col-6">
+                                    <div class="mobile-card" data-section="inactive-clients">
+                                        <i class="fas fa-user-clock"></i>
+                                        <h5>Inativos</h5>
+                                        <p>Clientes ausentes</p>
                                     </div>
                                 </div>
                             </div>
@@ -4018,6 +4074,24 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- NOVA SEÇÃO: Clientes Inativos -->
+                        <div id="inactive-clients" class="section">
+                            <h2 class="mb-4">Clientes Inativos</h2>
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Clientes que não visitam há 2 meses ou mais</h5>
+                                    <button class="btn btn-sm btn-primary" id="refreshInactiveClients">
+                                        <i class="fas fa-sync-alt me-1"></i> Atualizar
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="inactiveClientsList">
+                                        <p class="text-muted">Carregando clientes inativos...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4601,6 +4675,7 @@
                         }
                         renderStore(); // Renderizar a loja após carregar dados
                         setupStoreFilters(); // Configurar filtros da loja
+                        loadInactiveClients(); // Carregar clientes inativos
                     }, 100);
                 } else {
                     currentUser = null;
@@ -4844,6 +4919,9 @@
                     }
                 };
             }
+            
+            // Eventos da seção de clientes inativos
+            document.getElementById('refreshInactiveClients')?.addEventListener('click', loadInactiveClients);
         }
 
         // ============================================
@@ -7946,6 +8024,11 @@ debugProductCategories(); // Para ver as categorias no console
                 
                 // Fechar popup se estiver aberto
                 closeProductPopup();
+                
+                // Carregar clientes inativos quando a seção for aberta
+                if (section === 'inactive-clients') {
+                    loadInactiveClients();
+                }
             }
         }
 
@@ -11328,6 +11411,257 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
         }
 
         // ============================================
+        // NOVAS FUNÇÕES: CLIENTES INATIVOS E WHATSAPP
+        // ============================================
+
+        // Função para carregar clientes inativos (não visitam há 2 meses ou mais)
+        function loadInactiveClients() {
+            const container = document.getElementById('inactiveClientsList');
+            
+            if (!container) return;
+            
+            if (!currentUser) {
+                container.innerHTML = '<p class="text-center text-muted">Faça login para ver clientes inativos.</p>';
+                return;
+            }
+            
+            if (clients.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">Nenhum cliente cadastrado.</p>';
+                return;
+            }
+            
+            showLoading('Buscando clientes inativos...');
+            
+            // Data atual
+            const today = new Date();
+            
+            // Calcular data limite (2 meses atrás)
+            const twoMonthsAgo = new Date();
+            twoMonthsAgo.setMonth(today.getMonth() - 2);
+            
+            // Array para armazenar clientes inativos com detalhes
+            let inactiveClients = [];
+            
+            // Para cada cliente, verificar a última data de serviço
+            clients.forEach(client => {
+                // Filtrar serviços do cliente
+                const clientServices = allServices.filter(service => service.clientId === client.id);
+                
+                if (clientServices.length === 0) {
+                    // Cliente nunca fez serviço - considerar inativo
+                    inactiveClients.push({
+                        client: client,
+                        lastVisit: null,
+                        daysAway: null
+                    });
+                } else {
+                    // Ordenar serviços por data (mais recente primeiro)
+                    const sortedServices = clientServices.sort((a, b) => {
+                        const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || a.date || 0);
+                        const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || b.date || 0);
+                        return dateB - dateA;
+                    });
+                    
+                    const lastService = sortedServices[0];
+                    const lastServiceDate = lastService.timestamp && lastService.timestamp.toDate ? 
+                        lastService.timestamp.toDate() : new Date(lastService.timestamp || lastService.date);
+                    
+                    // Verificar se a última visita foi há mais de 2 meses
+                    if (lastServiceDate < twoMonthsAgo) {
+                        const diffTime = today - lastServiceDate;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        inactiveClients.push({
+                            client: client,
+                            lastVisit: lastServiceDate,
+                            daysAway: diffDays
+                        });
+                    }
+                }
+            });
+            
+            // Ordenar por dias ausentes (mais tempo sem vir primeiro)
+            inactiveClients.sort((a, b) => {
+                if (a.daysAway === null && b.daysAway === null) return 0;
+                if (a.daysAway === null) return -1;
+                if (b.daysAway === null) return 1;
+                return b.daysAway - a.daysAway;
+            });
+            
+            Swal.close();
+            
+            if (inactiveClients.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                        <h5>Parabéns!</h5>
+                        <p>Todos os seus clientes visitaram nos últimos 2 meses.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Gerar HTML para cada cliente inativo
+            let html = `
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Encontramos <strong>${inactiveClients.length}</strong> cliente(s) que não visitam há 2 meses ou mais.
+                </div>
+            `;
+            
+            inactiveClients.forEach(item => {
+                const client = item.client;
+                const daysAway = item.daysAway;
+                const lastVisitDate = item.lastVisit ? formatDate(item.lastVisit) : 'Nunca visitou';
+                const daysAwayText = daysAway ? `há ${daysAway} dias` : 'nunca visitou';
+                
+                // Mensagem padrão (editável)
+                const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
+                    `Sentimos muito a sua falta no Studio DeVitto! ✂️💇\n\n` +
+                    `Que tal vir cuidar dos cabelos e aproveitar um desconto especial?\n\n` +
+                    `🎁 *10% DE DESCONTO* em qualquer serviço!\n\n` +
+                    `Estamos te esperando com muito carinho! 💕\n\n` +
+                    `Agende já o seu horário! ✨\n\n` +
+                    `${businessSettings.name || 'Studio DeVitto'}`;
+                
+                html += `
+                    <div class="inactive-client-card mb-3" id="client-${client.id}">
+                        <div class="d-flex flex-wrap align-items-start">
+                            <div class="inactive-client-avatar me-3">
+                                ${client.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h5 class="mb-1">${client.name}</h5>
+                                        <p class="text-muted small mb-2">
+                                            <i class="fas fa-phone-alt me-1"></i> ${client.phone || 'Sem telefone'} | 
+                                            <i class="fas fa-calendar-alt me-1"></i> Última visita: ${lastVisitDate} (${daysAwayText})
+                                        </p>
+                                    </div>
+                                    <span class="days-away-badge">
+                                        ${daysAway ? `${daysAway} dias ausente` : 'Nunca visitou'}
+                                    </span>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <label class="form-label fw-bold">Mensagem para WhatsApp (editável):</label>
+                                    <textarea class="form-control mb-2" id="message-${client.id}" rows="3">${defaultMessage}</textarea>
+                                    
+                                    <div class="d-flex justify-content-end gap-2 mt-2">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="resetMessage('${client.id}')">
+                                            <i class="fas fa-undo me-1"></i> Restaurar
+                                        </button>
+                                        <button class="btn btn-success btn-sm" onclick="sendWhatsAppToInactive('${client.id}', '${client.phone}')">
+                                            <i class="fab fa-whatsapp me-1"></i> Enviar WhatsApp
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Função para restaurar mensagem padrão
+        function resetMessage(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            
+            const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
+                `Sentimos muito a sua falta no Studio DeVitto! ✂️💇\n\n` +
+                `Que tal vir cuidar dos cabelos e aproveitar um desconto especial?\n\n` +
+                `🎁 *10% DE DESCONTO* em qualquer serviço!\n\n` +
+                `Estamos te esperando com muito carinho! 💕\n\n` +
+                `Agende já o seu horário! ✨\n\n` +
+                `${businessSettings.name || 'Studio DeVitto'}`;
+            
+            const textarea = document.getElementById(`message-${clientId}`);
+            if (textarea) {
+                textarea.value = defaultMessage;
+            }
+        }
+        
+        // Função para enviar WhatsApp para cliente inativo
+        function sendWhatsAppToInactive(clientId, phone) {
+            if (!phone) {
+                showError('Cliente não possui telefone cadastrado.');
+                return;
+            }
+            
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            
+            // Obter mensagem personalizada do textarea
+            const messageTextarea = document.getElementById(`message-${clientId}`);
+            let message = messageTextarea ? messageTextarea.value.trim() : '';
+            
+            // Se não houver mensagem personalizada, usar padrão
+            if (!message) {
+                message = `Olá ${client.name}! 🥰\n\n` +
+                    `Sentimos muito a sua falta no Studio DeVitto! ✂️💇\n\n` +
+                    `Que tal vir cuidar dos cabelos e aproveitar um desconto especial?\n\n` +
+                    `🎁 *10% DE DESCONTO* em qualquer serviço!\n\n` +
+                    `Estamos te esperando com muito carinho! 💕\n\n` +
+                    `Agende já o seu horário! ✨\n\n` +
+                    `${businessSettings.name || 'Studio DeVitto'}`;
+            }
+            
+            // Garantir que o nome do cliente esteja na mensagem (obrigatório)
+            if (!message.includes(client.name)) {
+                message = `Olá ${client.name}! ` + message;
+            }
+            
+            // Formatando telefone
+            const formattedPhone = phone.replace(/\D/g, '');
+            const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+            
+            // Perguntar confirmação
+            Swal.fire({
+                title: 'Enviar WhatsApp',
+                html: `
+                    <p>Deseja enviar esta mensagem para <strong>${client.name}</strong>?</p>
+                    <div class="message-preview p-3 bg-light rounded text-start mt-3">
+                        <small class="text-muted">Pré-visualização:</small>
+                        <p class="mt-2 mb-0 small" style="white-space: pre-line;">${message}</p>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#25D366',
+                confirmButtonText: '<i class="fab fa-whatsapp me-2"></i>Abrir WhatsApp',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(whatsappUrl, '_blank');
+                    
+                    showSuccess('WhatsApp aberto! Confirme o envio da mensagem.');
+                    
+                    // Registrar no console/log (opcional)
+                    console.log(`Mensagem enviada para ${client.name} (${client.phone})`);
+                    
+                    // Opcional: salvar no Firebase que foi enviada mensagem
+                    if (currentUser) {
+                        const logData = {
+                            clientId: clientId,
+                            clientName: client.name,
+                            type: 'inactive_reminder',
+                            message: message.substring(0, 100), // Salvar apenas início
+                            sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            userId: currentUser.uid
+                        };
+                        
+                        db.collection('messageLogs').add(logData)
+                            .catch(error => console.error('Erro ao registrar envio:', error));
+                    }
+                }
+            });
+        }
+
+        // ============================================
         // SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
         // ============================================
 
@@ -11377,6 +11711,11 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                         
                         if (sectionId === 'store') {
                             renderStore();
+                        }
+                        
+                        // Carregar clientes inativos se a seção for aberta
+                        if (sectionId === 'inactive-clients') {
+                            loadInactiveClients();
                         }
                     } else {
                         console.log(`❌ Seção ${sectionId} não encontrada!`);
