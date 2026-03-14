@@ -610,6 +610,7 @@
             max-width: 100%;
         }
         
+        /* --- FICHA DO CLIENTE (MOBILE/DESKTOP) --- */
         .client-record-mobile {
             position: fixed;
             bottom: 0;
@@ -620,7 +621,7 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
-            z-index: 1001;
+            z-index: 2000; /* Z-index alto para ficar acima de tudo */
             transform: translateY(100%);
             transition: transform 0.3s ease-out;
             overflow-y: auto;
@@ -638,7 +639,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 1999;
             display: none;
         }
         
@@ -657,14 +658,26 @@
             top: 0;
             background-color: white;
             z-index: 10;
+            padding-top: 10px;
         }
         
         .client-record-close {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px; /* Tamanho maior */
+            font-weight: bold;
             color: var(--primary-color);
             cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .client-record-close:hover {
+            background-color: #f0f0f0;
         }
         
         .low-stock-alert-compact {
@@ -11880,10 +11893,10 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const lastVisitDate = item.lastVisit ? formatDate(item.lastVisit) : 'Nunca visitou';
                 const daysAwayText = daysAway ? `há ${daysAway} dias` : 'nunca visitou';
                 
-                // Foto do cliente
+                // Foto do cliente - AGORA COM A FUNÇÃO showClientRecord() NO CLIQUE
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="inactive-client-avatar-img" onclick="showInactiveClientRecord('${client.id}')" style="cursor: pointer;">` : 
-                    `<div class="inactive-client-avatar" onclick="showInactiveClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<img src="${client.photoUrl}" class="inactive-client-avatar-img" onclick="showClientRecord('${client.id}')" style="cursor: pointer; border: 2px solid var(--primary-color);" title="Clique para ver ficha completa">` : 
+                    `<div class="inactive-client-avatar" onclick="showClientRecord('${client.id}')" style="cursor: pointer; font-size: 20px; background: linear-gradient(135deg, #26196b, #4a3a9c);" title="Clique para ver ficha completa">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 // Mensagem padrão (editável)
                 const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
@@ -11900,12 +11913,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                             <i class="fas fa-pen"></i>
                         </button>
                         <div class="d-flex flex-wrap align-items-start">
-                            <div class="me-3">
+                            <div class="me-3" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
                                 ${photoHtml}
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-start flex-wrap">
-                                    <div>
+                                    <div onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
                                         <h5 class="mb-1">${client.name}</h5>
                                         <p class="text-muted small mb-2">
                                             <i class="fas fa-phone-alt me-1"></i> ${client.phone || 'Sem telefone'} | 
@@ -11938,23 +11951,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             
             container.innerHTML = html;
         }
-
-        // NOVA FUNÇÃO: Mostrar a ficha completa do cliente a partir da seção de inativos
-        function showInactiveClientRecord(clientId) {
-            const client = clients.find(c => c.id === clientId);
-            if (!client) return;
-
-            // Usar a mesma lógica da função showClientRecord, que já existe e está completa
-            // Vamos reutilizá-la
-            showClientRecord(clientId);
-
-            // Opcional: Fechar a seção de inativos no mobile se necessário
-            if (window.innerWidth <= 768) {
-                // A seção de inativos ainda está ativa, mas a ficha já abriu sobreposta
-                // Não precisamos fazer nada, pois o overlay da ficha já cobre a tela
-            }
-        }
-
+        
         // Função para restaurar mensagem padrão
         function resetMessage(clientId) {
             const client = clients.find(c => c.id === clientId);
