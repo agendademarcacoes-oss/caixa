@@ -610,7 +610,6 @@
             max-width: 100%;
         }
         
-        /* --- FICHA DO CLIENTE (MOBILE/DESKTOP) --- */
         .client-record-mobile {
             position: fixed;
             bottom: 0;
@@ -621,7 +620,7 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
-            z-index: 2000; /* Z-index alto para ficar acima de tudo */
+            z-index: 1001;
             transform: translateY(100%);
             transition: transform 0.3s ease-out;
             overflow-y: auto;
@@ -639,7 +638,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 1999;
+            z-index: 1000;
             display: none;
         }
         
@@ -654,30 +653,17 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            background-color: white;
-            z-index: 10;
-            padding-top: 10px;
         }
         
         .client-record-close {
             background: none;
             border: none;
-            font-size: 28px; /* Tamanho maior */
-            font-weight: bold;
+            font-size: 24px;
             color: var(--primary-color);
             cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .client-record-close:hover {
-            background-color: #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .low-stock-alert-compact {
@@ -2645,6 +2631,50 @@
             padding-left: 5px;
             padding-right: 5px;
         }
+
+        /* NOVOS ESTILOS: Círculo do cliente com funcionalidade de abrir perfil */
+        .client-avatar-container {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .client-avatar-container:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Estilo do botão X fixo no topo */
+        .client-record-close {
+            position: sticky;
+            top: 0;
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 10001;
+            margin-left: auto;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .client-record-close:hover {
+            background: var(--accent-color);
+        }
+
+        .client-record-mobile .client-record-close {
+            margin-bottom: 15px;
+        }
+
+        .client-record-mobile {
+            padding-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -3149,64 +3179,64 @@
                         </div>
 
                         <!-- NOVA SEÇÃO: LOJA - COM CABEÇALHO MAIS ALTO -->
-<div id="store" class="section" style="padding-top: 0 !important;">
-    
-    <!-- CABEÇALHO FIXO DA LOJA - AGORA MAIS COLADO NO TOPO -->
-    <div class="store-header" style="position: sticky; top: 0; background: var(--light-bg); z-index: 100; padding: 5px 0; margin-top: -10px;">
-        
-        <!-- Primeira linha: Logo e nome ficam acima, então não mechemos -->
-        
-        <!-- Campo de busca - MAIS EM CIMA -->
-        <div class="row mb-1"> <!-- Reduzi o mb-4 para mb-1 -->
-            <div class="col-12">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="fas fa-search text-primary"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0 ps-0" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria...">
-                </div>
-            </div>
-        </div>
-        
-        <!-- Filtros rápidos - MAIS EM CIMA (reduzi margens) -->
-<div class="row mb-1">
-    <div class="col-12">
-        <div class="filter-buttons" id="filterButtons" style="gap: 5px; margin-bottom: 2px;">
-            <button class="filter-button active" data-filter="all">Todos</button>
-            <button class="filter-button" data-filter="shampoo">Shampoo</button>
-            <button class="filter-button" data-filter="mascara">Máscara</button>
-            <button class="filter-button" data-filter="condicionador">Condicionador</button>
-            <button class="filter-button" data-filter="cabelo">Cabelo</button>
-            <button class="filter-button" data-filter="pele">Pele</button>
-            <button class="filter-button" data-filter="tintas">Tintas</button>  <!-- Mudei para minúsculo -->
-            <button class="filter-button" data-filter="maquiagem">Maquiagem</button>
-        </div>
-    </div>
-</div>
-        
-        <!-- Ordenação e contagem - MAIS COMPACTAS -->
-        <div class="filters-row" style="margin-bottom: 5px;"> <!-- Reduzi margin -->
-            <div class="products-count">
-                <span id="productsCount" style="font-size: 0.85rem;">0 produto(s) encontrado(s)</span> <!-- Fonte menor -->
-            </div>
-            <div class="d-flex align-items-center">
-                <label class="me-2 text-muted small" style="font-size: 0.8rem;">Ordenar:</label> <!-- Texto menor -->
-                <select class="form-select form-select-sm sort-dropdown" id="sortProducts" style="width: 130px; font-size: 0.8rem; padding: 4px 8px;"> <!-- Mais compacto -->
-                    <option value="relevance">Relevância</option>
-                    <option value="price-asc">Menor preço</option>
-                    <option value="price-desc">Maior preço</option>
-                    <option value="name-asc">A-Z</option>
-                    <option value="name-desc">Z-A</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Vitrine de produtos - COMEÇA MAIS EM CIMA -->
-    <div class="row" id="storeProductList" style="margin-top: 0;">
-        <!-- Cards de produtos serão inseridos aqui dinamicamente -->
-    </div>
-</div>
+                        <div id="store" class="section" style="padding-top: 0 !important;">
+                            
+                            <!-- CABEÇALHO FIXO DA LOJA - AGORA MAIS COLADO NO TOPO -->
+                            <div class="store-header" style="position: sticky; top: 0; background: var(--light-bg); z-index: 100; padding: 5px 0; margin-top: -10px;">
+                                
+                                <!-- Primeira linha: Logo e nome ficam acima, então não mechemos -->
+                                
+                                <!-- Campo de busca - MAIS EM CIMA -->
+                                <div class="row mb-1"> <!-- Reduzi o mb-4 para mb-1 -->
+                                    <div class="col-12">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="fas fa-search text-primary"></i>
+                                            </span>
+                                            <input type="text" class="form-control border-start-0 ps-0" id="storeSearch" placeholder="Buscar produtos por nome, descrição ou categoria...">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtros rápidos - MAIS EM CIMA (reduzi margens) -->
+                                <div class="row mb-1">
+                                    <div class="col-12">
+                                        <div class="filter-buttons" id="filterButtons" style="gap: 5px; margin-bottom: 2px;">
+                                            <button class="filter-button active" data-filter="all">Todos</button>
+                                            <button class="filter-button" data-filter="shampoo">Shampoo</button>
+                                            <button class="filter-button" data-filter="mascara">Máscara</button>
+                                            <button class="filter-button" data-filter="condicionador">Condicionador</button>
+                                            <button class="filter-button" data-filter="cabelo">Cabelo</button>
+                                            <button class="filter-button" data-filter="pele">Pele</button>
+                                            <button class="filter-button" data-filter="tintas">Tintas</button>
+                                            <button class="filter-button" data-filter="maquiagem">Maquiagem</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ordenação e contagem - MAIS COMPACTAS -->
+                                <div class="filters-row" style="margin-bottom: 5px;"> <!-- Reduzi margin -->
+                                    <div class="products-count">
+                                        <span id="productsCount" style="font-size: 0.85rem;">0 produto(s) encontrado(s)</span> <!-- Fonte menor -->
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label class="me-2 text-muted small" style="font-size: 0.8rem;">Ordenar:</label> <!-- Texto menor -->
+                                        <select class="form-select form-select-sm sort-dropdown" id="sortProducts" style="width: 130px; font-size: 0.8rem; padding: 4px 8px;"> <!-- Mais compacto -->
+                                            <option value="relevance">Relevância</option>
+                                            <option value="price-asc">Menor preço</option>
+                                            <option value="price-desc">Maior preço</option>
+                                            <option value="name-asc">A-Z</option>
+                                            <option value="name-desc">Z-A</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Vitrine de produtos - COMEÇA MAIS EM CIMA -->
+                            <div class="row" id="storeProductList" style="margin-top: 0;">
+                                <!-- Cards de produtos serão inseridos aqui dinamicamente -->
+                            </div>
+                        </div>
                         <!-- Caixa -->
                         <div id="cashier" class="section">
                             <h2 class="mb-4">Caixa</h2>
@@ -5240,72 +5270,72 @@
 
         // FUNÇÕES DA LOJA COM FILTROS E ORDENAÇÃO
         function setupStoreFilters() {
-    // Adicionar eventos aos botões de filtro
-    document.querySelectorAll('.filter-button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            // Adicionar eventos aos botões de filtro
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Forçar a atualização dos produtos
+                    filterStoreProducts();
+                    
+                    // Se estiver na aba "store", garantir que a lista seja atualizada
+                    if (document.getElementById('store').classList.contains('active')) {
+                        console.log('Filtro aplicado:', this.getAttribute('data-filter'));
+                    }
+                });
+            });
             
-            // Forçar a atualização dos produtos
-            filterStoreProducts();
-            
-            // Se estiver na aba "store", garantir que a lista seja atualizada
-            if (document.getElementById('store').classList.contains('active')) {
-                console.log('Filtro aplicado:', this.getAttribute('data-filter'));
-            }
-        });
-    });
-    
-    console.log('Filtros da loja configurados');
-}
+            console.log('Filtros da loja configurados');
+        }
 
         function filterStoreProducts() {
-    const searchTerm = document.getElementById('storeSearch').value.toLowerCase().trim();
-    const activeFilter = document.querySelector('.filter-button.active')?.getAttribute('data-filter') || 'all';
-    const productCards = document.querySelectorAll('#storeProductList .col-md-4');
-    let visibleCount = 0;
-    
-    console.log('Filtro ativo:', activeFilter); // Para debug
-    console.log('Termo de busca:', searchTerm);
-    
-    productCards.forEach(card => {
-        const productCard = card.querySelector('.product-card');
-        const name = (productCard.getAttribute('data-product-name') || '').toLowerCase();
-        const description = (productCard.getAttribute('data-product-description') || '').toLowerCase();
-        const category = (productCard.getAttribute('data-product-category') || '').toLowerCase();
-        
-        console.log('Produto:', name, 'Categoria:', category); // Para debug
-        
-        // Aplicar filtro de busca
-        let matchesSearch = true;
-        if (searchTerm) {
-            matchesSearch = name.includes(searchTerm) || 
-                           description.includes(searchTerm) || 
-                           category.includes(searchTerm);
-        }
-        
-        // Aplicar filtro de categoria
-        let matchesFilter = true;
-        if (activeFilter !== 'all') {
-            // Verificar se o filtro atual corresponde à categoria do produto
-            matchesFilter = category.includes(activeFilter);
+            const searchTerm = document.getElementById('storeSearch').value.toLowerCase().trim();
+            const activeFilter = document.querySelector('.filter-button.active')?.getAttribute('data-filter') || 'all';
+            const productCards = document.querySelectorAll('#storeProductList .col-md-4');
+            let visibleCount = 0;
             
-            // Também verificar no nome e descrição como fallback
-            if (!matchesFilter) {
-                matchesFilter = name.includes(activeFilter) || description.includes(activeFilter);
-            }
+            console.log('Filtro ativo:', activeFilter); // Para debug
+            console.log('Termo de busca:', searchTerm);
+            
+            productCards.forEach(card => {
+                const productCard = card.querySelector('.product-card');
+                const name = (productCard.getAttribute('data-product-name') || '').toLowerCase();
+                const description = (productCard.getAttribute('data-product-description') || '').toLowerCase();
+                const category = (productCard.getAttribute('data-product-category') || '').toLowerCase();
+                
+                console.log('Produto:', name, 'Categoria:', category); // Para debug
+                
+                // Aplicar filtro de busca
+                let matchesSearch = true;
+                if (searchTerm) {
+                    matchesSearch = name.includes(searchTerm) || 
+                                   description.includes(searchTerm) || 
+                                   category.includes(searchTerm);
+                }
+                
+                // Aplicar filtro de categoria
+                let matchesFilter = true;
+                if (activeFilter !== 'all') {
+                    // Verificar se o filtro atual corresponde à categoria do produto
+                    matchesFilter = category.includes(activeFilter);
+                    
+                    // Também verificar no nome e descrição como fallback
+                    if (!matchesFilter) {
+                        matchesFilter = name.includes(activeFilter) || description.includes(activeFilter);
+                    }
+                }
+                
+                if (matchesSearch && matchesFilter) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('productsCount').textContent = `${visibleCount} produto(s) encontrado(s)`;
         }
-        
-        if (matchesSearch && matchesFilter) {
-            card.style.display = '';
-            visibleCount++;
-        } else {
-            card.style.display = 'none';
-        }
-    });
-    
-    document.getElementById('productsCount').textContent = `${visibleCount} produto(s) encontrado(s)`;
-}
         function sortStoreProducts() {
             const sortBy = document.getElementById('sortProducts').value;
             const container = document.getElementById('storeProductList');
@@ -5390,8 +5420,8 @@
             filterStoreProducts();
 
             // No final da função renderStore(), adicione:
-console.log('Loja renderizada com', products.length, 'produtos');
-debugProductCategories(); // Para ver as categorias no console
+            console.log('Loja renderizada com', products.length, 'produtos');
+            debugProductCategories(); // Para ver as categorias no console
             
             // Adicionar evento de clique nos cards para mobile
             if (window.innerWidth <= 768) {
@@ -5410,20 +5440,20 @@ debugProductCategories(); // Para ver as categorias no console
         }
 
         function debugProductCategories() {
-    console.log('=== DEBUG CATEGORIAS DE PRODUTOS ===');
-    products.forEach(product => {
-        console.log(`Produto: ${product.name}`);
-        console.log(`  Categoria no banco: "${product.category}"`);
-        console.log(`  Categoria (lowercase): "${(product.category || '').toLowerCase()}"`);
-        console.log(`  Filtro "tintas" corresponde? ${(product.category || '').toLowerCase().includes('tintas')}`);
-        console.log('---');
-    });
-    
-    // Verificar os botões de filtro
-    document.querySelectorAll('.filter-button').forEach(btn => {
-        console.log(`Botão filtro: "${btn.textContent}" -> data-filter="${btn.getAttribute('data-filter')}"`);
-    });
-}
+            console.log('=== DEBUG CATEGORIAS DE PRODUTOS ===');
+            products.forEach(product => {
+                console.log(`Produto: ${product.name}`);
+                console.log(`  Categoria no banco: "${product.category}"`);
+                console.log(`  Categoria (lowercase): "${(product.category || '').toLowerCase()}"`);
+                console.log(`  Filtro "tintas" corresponde? ${(product.category || '').toLowerCase().includes('tintas')}`);
+                console.log('---');
+            });
+            
+            // Verificar os botões de filtro
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                console.log(`Botão filtro: "${btn.textContent}" -> data-filter="${btn.getAttribute('data-filter')}"`);
+            });
+        }
 
         // Função para mostrar popup do produto com imagem ampliada
         function showProductPopup(productId) {
@@ -5978,40 +6008,40 @@ debugProductCategories(); // Para ver as categorias no console
         }
 
         function loadBusinessProfileFromFirestore() {
-    // Primeiro tenta carregar do localStorage (mais rápido)
-    const savedProfile = localStorage.getItem('businessProfile');
-    if (savedProfile) {
-        try {
-            const localProfile = JSON.parse(savedProfile);
-            businessProfile = { ...businessProfile, ...localProfile };
-            updateBusinessProfileUI();
-            console.log('✅ Perfil carregado do localStorage');
-        } catch (e) {
-            console.error('Erro ao carregar perfil do localStorage:', e);
-        }
-    }
-    
-    // Depois tenta carregar do Firebase (versão mais atualizada)
-    if (currentUser) {
-        db.collection('businessProfile').doc(currentUser.uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    const firestoreProfile = doc.data();
-                    businessProfile = { ...businessProfile, ...firestoreProfile };
-                    
-                    // Atualizar localStorage com os dados do Firebase
-                    localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
-                    
+            // Primeiro tenta carregar do localStorage (mais rápido)
+            const savedProfile = localStorage.getItem('businessProfile');
+            if (savedProfile) {
+                try {
+                    const localProfile = JSON.parse(savedProfile);
+                    businessProfile = { ...businessProfile, ...localProfile };
                     updateBusinessProfileUI();
-                    console.log('✅ Perfil carregado do Firebase');
+                    console.log('✅ Perfil carregado do localStorage');
+                } catch (e) {
+                    console.error('Erro ao carregar perfil do localStorage:', e);
                 }
-            })
-            .catch((error) => {
-                console.error('❌ Erro ao carregar perfil do Firebase:', error);
-                // Continua usando o que já tinha do localStorage
-            });
-    }
-}
+            }
+            
+            // Depois tenta carregar do Firebase (versão mais atualizada)
+            if (currentUser) {
+                db.collection('businessProfile').doc(currentUser.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            const firestoreProfile = doc.data();
+                            businessProfile = { ...businessProfile, ...firestoreProfile };
+                            
+                            // Atualizar localStorage com os dados do Firebase
+                            localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
+                            
+                            updateBusinessProfileUI();
+                            console.log('✅ Perfil carregado do Firebase');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('❌ Erro ao carregar perfil do Firebase:', error);
+                        // Continua usando o que já tinha do localStorage
+                    });
+            }
+        }
 
         function loadBusinessHoursFromFirestore() {
             if (!currentUser) return;
@@ -6759,8 +6789,8 @@ debugProductCategories(); // Para ver as categorias no console
             clients.forEach(client => {
                 // Criar visualização da foto
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="client-avatar-small" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">` : 
-                    `<div class="client-avatar-initial-small" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial-small">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
                     <tr>
@@ -8300,10 +8330,10 @@ debugProductCategories(); // Para ver as categorias no console
                     })
                     .slice(0, 3);
                 
-                // Foto do cliente
+                // Foto do cliente com container de clique
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="client-avatar-img" onclick="showClientRecord('${client.id}')" style="cursor: pointer;" title="Clique para ver ficha">` : 
-                    `<div class="client-avatar-initial" onclick="showClientRecord('${client.id}')" style="cursor: pointer;" title="Clique para ver ficha">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
                     <div class="client-card card mb-2" style="position: relative;">
@@ -8315,7 +8345,7 @@ debugProductCategories(); // Para ver as categorias no console
                                 <div class="me-3">
                                     ${photoHtml}
                                 </div>
-                                <div class="flex-grow-1" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                                <div class="flex-grow-1">
                                     <h6 class="mb-0">${client.name}</h6>
                                     <p class="text-muted small mb-0">${client.phone || 'Sem telefone'}</p>
                                 </div>
@@ -8610,54 +8640,54 @@ debugProductCategories(); // Para ver as categorias no console
         }
 
         function saveBusinessProfile(e) {
-    e.preventDefault();
-    
-    // Mostrar loading
-    showLoading('Salvando informações da empresa...');
-    
-    // Coletar dados do formulário
-    const newProfile = {
-        name: document.getElementById('businessName').value,
-        email: document.getElementById('businessEmail').value,
-        phone: document.getElementById('businessPhone').value,
-        whatsApp: document.getElementById('businessWhatsApp').value,
-        address: document.getElementById('businessAddress').value,
-        description: document.getElementById('businessDescription').value
-    };
-    
-    // Atualizar a variável global
-    businessProfile = newProfile;
-    
-    // Salvar no localStorage (backup)
-    localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
-    
-    // Se usuário estiver logado, salvar no Firebase
-    if (currentUser) {
-        db.collection('businessProfile').doc(currentUser.uid).set(businessProfile, { merge: true })
-            .then(() => {
-                console.log('✅ Perfil salvo no Firebase com sucesso!');
+            e.preventDefault();
+            
+            // Mostrar loading
+            showLoading('Salvando informações da empresa...');
+            
+            // Coletar dados do formulário
+            const newProfile = {
+                name: document.getElementById('businessName').value,
+                email: document.getElementById('businessEmail').value,
+                phone: document.getElementById('businessPhone').value,
+                whatsApp: document.getElementById('businessWhatsApp').value,
+                address: document.getElementById('businessAddress').value,
+                description: document.getElementById('businessDescription').value
+            };
+            
+            // Atualizar a variável global
+            businessProfile = newProfile;
+            
+            // Salvar no localStorage (backup)
+            localStorage.setItem('businessProfile', JSON.stringify(businessProfile));
+            
+            // Se usuário estiver logado, salvar no Firebase
+            if (currentUser) {
+                db.collection('businessProfile').doc(currentUser.uid).set(businessProfile, { merge: true })
+                    .then(() => {
+                        console.log('✅ Perfil salvo no Firebase com sucesso!');
+                        Swal.close();
+                        showSuccess('Informações da empresa salvas com sucesso!');
+                        
+                        // IMPORTANTE: Atualizar o número do WhatsApp usado na loja
+                        updateBusinessWhatsApp();
+                    })
+                    .catch(error => {
+                        console.error('❌ Erro ao salvar perfil no Firebase:', error);
+                        Swal.close();
+                        showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
+                    });
+            } else {
                 Swal.close();
-                showSuccess('Informações da empresa salvas com sucesso!');
-                
-                // IMPORTANTE: Atualizar o número do WhatsApp usado na loja
-                updateBusinessWhatsApp();
-            })
-            .catch(error => {
-                console.error('❌ Erro ao salvar perfil no Firebase:', error);
-                Swal.close();
-                showError('Erro ao salvar no servidor, mas salvo localmente: ' + error.message);
-            });
-    } else {
-        Swal.close();
-        showSuccess('Informações salvas localmente!');
-    }
-}
+                showSuccess('Informações salvas localmente!');
+            }
+        }
 
-// Função auxiliar para atualizar o WhatsApp em outras partes do sistema
-function updateBusinessWhatsApp() {
-    // Se precisar atualizar algum elemento na interface com o novo número
-    console.log('WhatsApp atualizado para:', businessProfile.whatsApp);
-}
+        // Função auxiliar para atualizar o WhatsApp em outras partes do sistema
+        function updateBusinessWhatsApp() {
+            // Se precisar atualizar algum elemento na interface com o novo número
+            console.log('WhatsApp atualizado para:', businessProfile.whatsApp);
+        }
         function updateBusinessHoursUI() {
             document.getElementById('mondayOpen').value = businessHours.monday.open;
             document.getElementById('mondayClose').value = businessHours.monday.close;
@@ -8816,13 +8846,13 @@ function updateBusinessWhatsApp() {
                 
                 // Foto do cliente
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="birthday-avatar-img" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">` : 
-                    `<div class="avatar-inner">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<img src="${client.photoUrl}" class="birthday-avatar-img" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; cursor: pointer;" onclick="showClientRecord('${client.id}')">` : 
+                    `<div class="avatar-inner" style="cursor: pointer;" onclick="showClientRecord('${client.id}')">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 html += `
                     <div class="birthday-card ${isToday ? 'birthday-today-card' : 'birthday-upcoming-card'} mb-3">
                         <div class="d-flex align-items-center p-3">
-                            <div class="birthday-avatar ${isToday ? 'birthday-today-avatar' : ''} me-3" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                            <div class="birthday-avatar ${isToday ? 'birthday-today-avatar' : ''} me-3">
                                 ${photoHtml}
                                 ${isToday ? '<div class="birthday-sparkle"><i class="fas fa-sparkle"></i></div>' : ''}
                             </div>
@@ -9013,8 +9043,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                     .slice(0, 3);
                 
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="client-avatar-img" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">` : 
-                    `<div class="client-avatar-initial" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
                     <div class="client-card card mb-2" style="position: relative;">
@@ -9026,7 +9056,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                                 <div class="me-3">
                                     ${photoHtml}
                                 </div>
-                                <div class="flex-grow-1" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                                <div class="flex-grow-1">
                                     <h6 class="mb-1">${client.name}</h6>
                                     <p class="text-muted small mb-1">${client.phone || 'Sem telefone'}</p>
                                     ${recentServices.length > 0 ? `
@@ -10028,8 +10058,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             let html = '';
             filteredClients.forEach(client => {
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="client-avatar-small" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">` : 
-                    `<div class="client-avatar-initial-small" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial-small">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
                     <tr>
@@ -11211,8 +11241,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             clients.forEach(client => {
                 // Criar avatar com foto se disponível
                 const avatarHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px;">` : 
-                    `<div class="client-option-avatar">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<img src="${client.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${client.id}')">` : 
+                    `<div class="client-option-avatar" style="cursor: pointer;" onclick="showClientRecord('${client.id}')">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 const option = document.createElement('div');
                 option.className = 'client-option';
@@ -11396,8 +11426,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             
             // Foto do cliente
             const photoHtml = selectedClient.photoUrl ? 
-                `<img src="${selectedClient.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px;">` : 
-                `<div class="client-avatar-appointment">${selectedClient.name.charAt(0).toUpperCase()}</div>`;
+                `<img src="${selectedClient.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${selectedClient.id}')">` : 
+                `<div class="client-avatar-appointment" style="cursor: pointer;" onclick="showClientRecord('${selectedClient.id}')">${selectedClient.name.charAt(0).toUpperCase()}</div>`;
             
             container.innerHTML = `
                 <div class="client-card-header">
@@ -11893,10 +11923,10 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const lastVisitDate = item.lastVisit ? formatDate(item.lastVisit) : 'Nunca visitou';
                 const daysAwayText = daysAway ? `há ${daysAway} dias` : 'nunca visitou';
                 
-                // Foto do cliente - AGORA COM A FUNÇÃO showClientRecord() NO CLIQUE
+                // Foto do cliente - AGORA COM FUNÇÃO DE CLIQUE PARA ABRIR PERFIL
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="inactive-client-avatar-img" onclick="showClientRecord('${client.id}')" style="cursor: pointer; border: 2px solid var(--primary-color);" title="Clique para ver ficha completa">` : 
-                    `<div class="inactive-client-avatar" onclick="showClientRecord('${client.id}')" style="cursor: pointer; font-size: 20px; background: linear-gradient(135deg, #26196b, #4a3a9c);" title="Clique para ver ficha completa">${client.name.charAt(0).toUpperCase()}</div>`;
+                    `<div class="inactive-client-avatar-img-container" onclick="showClientRecord('${client.id}')" style="cursor: pointer;"><img src="${client.photoUrl}" class="inactive-client-avatar-img"></div>` : 
+                    `<div class="inactive-client-avatar" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 // Mensagem padrão (editável)
                 const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
@@ -11913,12 +11943,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                             <i class="fas fa-pen"></i>
                         </button>
                         <div class="d-flex flex-wrap align-items-start">
-                            <div class="me-3" onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                            <div class="me-3">
                                 ${photoHtml}
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-start flex-wrap">
-                                    <div onclick="showClientRecord('${client.id}')" style="cursor: pointer;">
+                                    <div>
                                         <h5 class="mb-1">${client.name}</h5>
                                         <p class="text-muted small mb-2">
                                             <i class="fas fa-phone-alt me-1"></i> ${client.phone || 'Sem telefone'} | 
