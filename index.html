@@ -2673,6 +2673,78 @@
         .client-record-mobile {
             padding-top: 0;
         }
+
+        /* ESTILO PARA AMPLIAR FOTO (TOQUE LONGO) */
+        .photo-zoomable {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .photo-zoomable:active {
+            transform: scale(0.98);
+        }
+
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 11000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .photo-modal.active {
+            display: flex;
+        }
+
+        .photo-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s ease;
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s;
+            border: 2px solid white;
+        }
+
+        .photo-modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2771,47 +2843,47 @@
                 <div class="col-md-3 col-lg-2 sidebar p-0">
                     <nav class="nav flex-column p-3" id="desktopMenu">
                         <a class="nav-link" href="#" data-section="dashboard">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                            <i class="fas fa-tachometer-alt"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="agenda">
-                            <i class="fas fa-calendar-alt"></i> Agenda
+                            <i class="fas fa-calendar-alt"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="store">
-                            <i class="fas fa-store"></i> Loja
+                            <i class="fas fa-store"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="cashier">
-                            <i class="fas fa-cash-register"></i> Caixa
+                            <i class="fas fa-cash-register"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="inventory">
-                            <i class="fas fa-boxes"></i> Estoque
+                            <i class="fas fa-boxes"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="clients">
-                            <i class="fas fa-users"></i> Clientes
+                            <i class="fas fa-users"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="client-records">
-                            <i class="fas fa-address-book"></i> Registros de Clientes
+                            <i class="fas fa-address-book"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="collaborators">
-                            <i class="fas fa-user-friends"></i> Colaboradores
+                            <i class="fas fa-user-friends"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="packages">
-                            <i class="fas fa-box"></i> Pacotes
+                            <i class="fas fa-box"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="financial-control">
-                            <i class="fas fa-chart-line"></i> Controle Financeiro
+                            <i class="fas fa-chart-line"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="business-profile">
-                            <i class="fas fa-building"></i> Perfil da Empresa
+                            <i class="fas fa-building"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="reports">
-                            <i class="fas fa-chart-bar"></i> Relatórios
+                            <i class="fas fa-chart-bar"></i> 
                         </a>
                         <a class="nav-link" href="#" data-section="birthdays">
-                            <i class="fas fa-birthday-cake"></i> Aniversários
+                            <i class="fas fa-birthday-cake"></i> 
                         </a>
                         <!-- NOVO ITEM NO MENU: Resgatar Clientes Inativos -->
                         <a class="nav-link" href="#" data-section="inactive-clients">
-                            <i class="fas fa-user-clock"></i> Clientes Inativos
+                            <i class="fas fa-user-clock"></i> 
                         </a>
                     </nav>
                 </div>
@@ -2927,7 +2999,6 @@
 
                         <!-- Dashboard -->
                         <div id="dashboard" class="section">
-                            <h2 class="mb-4">Dashboard</h2>
                             <div class="row">
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
@@ -3237,7 +3308,6 @@
                         </div>
                         <!-- Caixa -->
                         <div id="cashier" class="section">
-                            <h2 class="mb-4">Caixa</h2>
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="card">
@@ -3392,7 +3462,6 @@
 
                         <!-- Estoque -->
                         <div id="inventory" class="section">
-                            <h2 class="mb-4">Estoque</h2>
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="card">
@@ -3467,7 +3536,6 @@
 
                         <!-- Clientes -->
                         <div id="clients" class="section">
-                            <h2 class="mb-4">Clientes</h2>
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">Lista de Clientes</h5>
@@ -3506,7 +3574,6 @@
 
                         <!-- Registros de Clientes -->
                         <div id="client-records" class="section">
-                            <h2 class="mb-4">Registros de Clientes</h2>
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="card">
@@ -3554,7 +3621,6 @@
 
                         <!-- Colaboradores -->
                         <div id="collaborators" class="section">
-                            <h2 class="mb-4">Colaboradores</h2>
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">Lista de Colaboradores</h5>
@@ -3591,7 +3657,6 @@
 
                         <!-- Pacotes -->
                         <div id="packages" class="section">
-                            <h2 class="mb-4">Pacotes</h2>
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="card">
@@ -3710,7 +3775,6 @@
 
                         <!-- Controle Financeiro -->
                         <div id="financial-control" class="section">
-                            <h2 class="mb-4">Controle Financeiro</h2>
                             
                             <!-- Resumo Financeiro -->
                             <div class="financial-summary">
@@ -4046,7 +4110,6 @@
 
                         <!-- Perfil da Empresa -->
                         <div id="business-profile" class="section">
-                            <h2 class="mb-4">Perfil da Empresa</h2>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="card">
@@ -4156,7 +4219,6 @@
 
                         <!-- Relatórios -->
                         <div id="reports" class="section">
-                            <h2 class="mb-4">Relatórios</h2>
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">Gerar Relatório</h5>
@@ -4197,7 +4259,6 @@
 
                         <!-- Aniversários -->
                         <div id="birthdays" class="section">
-                            <h2 class="mb-4">Aniversários</h2>
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">Próximos Aniversários</h5>
@@ -4212,7 +4273,6 @@
 
                         <!-- NOVA SEÇÃO: Clientes Inativos -->
                         <div id="inactive-clients" class="section">
-                            <h2 class="mb-4">Clientes Inativos</h2>
                             <div class="card mb-4">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">Clientes que não visitam há 2 meses ou mais</h5>
@@ -4255,8 +4315,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Foto de Perfil</label>
                                     <div class="text-center">
-                                        <img id="clientPhotoPreview" src="#" alt="Preview da foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: none; margin-bottom: 10px; border: 3px solid var(--primary-color);">
-                                        <div id="clientPhotoPlaceholder" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #26196b, #4a3a9c); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 48px; border: 3px solid var(--primary-color);">
+                                        <img id="clientPhotoPreview" src="#" alt="Preview da foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: none; margin-bottom: 10px; border: 3px solid var(--primary-color;">
+                                        <div id="clientPhotoPlaceholder" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #26196b, #4a3a9c); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 48px; border: 3px solid var(--primary-color;">
                                             <i class="fas fa-user"></i>
                                         </div>
                                         <input type="file" id="clientPhotoUpload" accept="image/*" style="display: none;">
@@ -4318,8 +4378,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Foto de Perfil</label>
                                     <div class="text-center">
-                                        <img id="editClientPhotoPreview" src="#" alt="Preview da foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: none; margin-bottom: 10px; border: 3px solid var(--primary-color);">
-                                        <div id="editClientPhotoPlaceholder" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #26196b, #4a3a9c); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 48px; border: 3px solid var(--primary-color);">
+                                        <img id="editClientPhotoPreview" src="#" alt="Preview da foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: none; margin-bottom: 10px; border: 3px solid var(--primary-color;">
+                                        <div id="editClientPhotoPlaceholder" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #26196b, #4a3a9c); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 48px; border: 3px solid var(--primary-color;">
                                             <i class="fas fa-user"></i>
                                         </div>
                                         <input type="file" id="editClientPhotoUpload" accept="image/*" style="display: none;">
@@ -4760,6 +4820,14 @@
         </div>
     </div>
 
+    <!-- Modal para Ampliar Foto -->
+    <div class="photo-modal" id="photoModal">
+        <div class="photo-modal-close" id="photoModalClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <img id="photoModalImg" src="" alt="Foto ampliada">
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -5153,6 +5221,14 @@
             
             // Eventos da seção de clientes inativos
             document.getElementById('refreshInactiveClients')?.addEventListener('click', loadInactiveClients);
+
+            // Eventos para ampliar foto
+            document.getElementById('photoModalClose').addEventListener('click', closePhotoModal);
+            document.getElementById('photoModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePhotoModal();
+                }
+            });
         }
 
         // ============================================
@@ -6787,7 +6863,7 @@
             clients.forEach(client => {
                 // Criar visualização da foto
                 const photoHtml = client.photoUrl ? 
-                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')"></div>` : 
                     `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial-small">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
@@ -6809,6 +6885,9 @@
                 `;
             });
             tbody.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function updateCollaboratorsUI() {
@@ -6823,7 +6902,7 @@
             collaborators.forEach(collaborator => {
                 const photoUrl = collaborator.photoUrl || '';
                 const photoHtml = photoUrl ? 
-                    `<img src="${photoUrl}" class="rounded-circle" width="40" height="40" alt="${collaborator.name}" onerror="this.onerror=null; this.src=''; this.innerHTML='<div class=\\'rounded-circle bg-primary text-white d-flex align-items-center justify-content-center\\' style=\\'width: 40px; height: 40px;\\'>${collaborator.name.charAt(0).toUpperCase()}</div>';">` :
+                    `<img src="${photoUrl}" class="rounded-circle" width="40" height="40" alt="${collaborator.name}" ondblclick="zoomPhoto('${photoUrl}', '${collaborator.name}')" onlongpress="zoomPhoto('${photoUrl}', '${collaborator.name}')" onerror="this.onerror=null; this.src=''; this.innerHTML='<div class=\\'rounded-circle bg-primary text-white d-flex align-items-center justify-content-center\\' style=\\'width: 40px; height: 40px;\\'>${collaborator.name.charAt(0).toUpperCase()}</div>';">` :
                     `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">${collaborator.name.charAt(0).toUpperCase()}</div>`;
                 
                 html += `
@@ -6858,6 +6937,31 @@
             tbody.innerHTML = html;
             
             document.getElementById('totalCollaborators').textContent = collaborators.filter(c => c.active).length;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
+        }
+
+        function setupLongPressForPhotos() {
+            document.querySelectorAll('img[onlongpress]').forEach(img => {
+                let pressTimer;
+                
+                img.addEventListener('touchstart', (e) => {
+                    pressTimer = setTimeout(() => {
+                        const photoUrl = img.getAttribute('src');
+                        const name = img.getAttribute('alt') || 'Foto';
+                        zoomPhoto(photoUrl, name);
+                    }, 500);
+                });
+                
+                img.addEventListener('touchend', () => {
+                    clearTimeout(pressTimer);
+                });
+                
+                img.addEventListener('touchmove', () => {
+                    clearTimeout(pressTimer);
+                });
+            });
         }
 
         function updatePackagesUI() {
@@ -8330,7 +8434,7 @@
                 
                 // Foto do cliente com container de clique
                 const photoHtml = client.photoUrl ? 
-                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')"></div>` : 
                     `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
@@ -8354,6 +8458,9 @@
             });
             
             container.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function formatCurrency(value) {
@@ -8364,10 +8471,10 @@
         }
 
         function formatDate(date) {
-    if (!date) return '';
-    if (typeof date === 'string') date = new Date(date);
-    return date.toLocaleDateString('pt-PT');
-}
+            if (!date) return '';
+            if (typeof date === 'string') date = new Date(date);
+            return date.toLocaleDateString('pt-PT');
+        }
 
         function showLoading(message) {
             Swal.fire({
@@ -8844,7 +8951,7 @@
                 
                 // Foto do cliente
                 const photoHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" class="birthday-avatar-img" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; cursor: pointer;" onclick="showClientRecord('${client.id}')">` : 
+                    `<img src="${client.photoUrl}" class="birthday-avatar-img" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; cursor: pointer;" onclick="showClientRecord('${client.id}')" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
                     `<div class="avatar-inner" style="cursor: pointer;" onclick="showClientRecord('${client.id}')">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 html += `
@@ -8925,6 +9032,9 @@
                     ${html}
                 `;
             }
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function sendBirthdayWish(clientId, clientName, clientPhone, isToday) {
@@ -9041,7 +9151,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                     .slice(0, 3);
                 
                 const photoHtml = client.photoUrl ? 
-                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-img" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')"></div>` : 
                     `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
@@ -9075,6 +9185,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             });
             
             container.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         // NOVA FUNÇÃO: Mostrar ficha do cliente com foto
@@ -9095,7 +9208,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             
             // Foto do cliente na ficha
             const photoHtml = client.photoUrl ? 
-                `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;">` : 
+                `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
                 `<div class="client-avatar" style="width: 80px; height: 80px; font-size: 32px;">${client.name.charAt(0).toUpperCase()}</div>`;
             
             const desktopContent = document.getElementById('clientRecordContent');
@@ -10056,7 +10169,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             let html = '';
             filteredClients.forEach(client => {
                 const photoHtml = client.photoUrl ? 
-                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small"></div>` : 
+                    `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><img src="${client.photoUrl}" class="client-avatar-small" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')"></div>` : 
                     `<div class="client-avatar-container" onclick="showClientRecord('${client.id}')"><div class="client-avatar-initial-small">${client.name.charAt(0).toUpperCase()}</div></div>`;
                 
                 html += `
@@ -10078,6 +10191,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 `;
             });
             tbody.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function deleteClient(clientId) {
@@ -10274,7 +10390,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             filteredProducts.forEach(product => {
                 const isLowStock = product.quantity <= product.minQuantity;
                 const imageHtml = product.imageUrl ? 
-                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\\'fas fa-box fa-2x text-muted\\'></i>';">` : 
+                    `<img src="${product.imageUrl}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" ondblclick="zoomPhoto('${product.imageUrl}', '${product.name}')" onlongpress="zoomPhoto('${product.imageUrl}', '${product.name}')" onerror="this.onerror=null; this.src=''; this.innerHTML='<i class=\\'fas fa-box fa-2x text-muted\\'></i>';">` : 
                     '<i class="fas fa-box fa-2x text-muted"></i>';
                 
                 html += `
@@ -10303,6 +10419,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             });
             
             tbody.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function toggleLowStockDetails() {
@@ -10542,7 +10661,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                             `<img src="${photoUrl}" class="agenda-professional-photo" 
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
                                  alt="${collaborator.name}"
-                                 data-id="${collaborator.id}">
+                                 data-id="${collaborator.id}"
+                                 ondblclick="zoomPhoto('${photoUrl}', '${collaborator.name}')"
+                                 onlongpress="zoomPhoto('${photoUrl}', '${collaborator.name}')">
                              <div class="agenda-professional-placeholder" 
                                   data-id="${collaborator.id}"
                                   style="display: none; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #26196b 0%, #4a3a9c 100%); color: white; font-size: 20px; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
@@ -10580,6 +10701,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                     }
                 });
             });
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function renderTimeColumn() {
@@ -11239,7 +11363,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             clients.forEach(client => {
                 // Criar avatar com foto se disponível
                 const avatarHtml = client.photoUrl ? 
-                    `<img src="${client.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${client.id}')">` : 
+                    `<img src="${client.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${client.id}')" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
                     `<div class="client-option-avatar" style="cursor: pointer;" onclick="showClientRecord('${client.id}')">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 const option = document.createElement('div');
@@ -11259,6 +11383,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 
                 container.appendChild(option);
             });
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
 
         function searchClientsForAgenda() {
@@ -11424,7 +11551,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             
             // Foto do cliente
             const photoHtml = selectedClient.photoUrl ? 
-                `<img src="${selectedClient.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${selectedClient.id}')">` : 
+                `<img src="${selectedClient.photoUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; cursor: pointer;" onclick="showClientRecord('${selectedClient.id}')" ondblclick="zoomPhoto('${selectedClient.photoUrl}', '${selectedClient.name}')" onlongpress="zoomPhoto('${selectedClient.photoUrl}', '${selectedClient.name}')">` : 
                 `<div class="client-avatar-appointment" style="cursor: pointer;" onclick="showClientRecord('${selectedClient.id}')">${selectedClient.name.charAt(0).toUpperCase()}</div>`;
             
             container.innerHTML = `
@@ -11922,9 +12049,9 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const daysAwayText = daysAway ? `há ${daysAway} dias` : 'nunca visitou';
                 
                 // Foto do cliente - AGORA ABRE A FICHA DIRETO NA TELA DE INATIVOS
-const photoHtml = client.photoUrl ? 
-    `<div class="inactive-client-avatar-img-container" onclick="showClientRecordInPlace('${client.id}')" style="cursor: pointer;"><img src="${client.photoUrl}" class="inactive-client-avatar-img"></div>` : 
-    `<div class="inactive-client-avatar" onclick="showClientRecordInPlace('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
+                const photoHtml = client.photoUrl ? 
+                    `<div class="inactive-client-avatar-img-container" onclick="showClientRecordInPlace('${client.id}')" style="cursor: pointer;"><img src="${client.photoUrl}" class="inactive-client-avatar-img" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')"></div>` : 
+                    `<div class="inactive-client-avatar" onclick="showClientRecordInPlace('${client.id}')" style="cursor: pointer;">${client.name.charAt(0).toUpperCase()}</div>`;
                 
                 // Mensagem padrão (editável)
                 const defaultMessage = `Olá ${client.name}! 🥰\n\n` +
@@ -11978,6 +12105,9 @@ const photoHtml = client.photoUrl ?
             });
             
             container.innerHTML = html;
+            
+            // Adicionar evento de toque longo para fotos
+            setupLongPressForPhotos();
         }
         
         // Função para restaurar mensagem padrão
@@ -12168,6 +12298,150 @@ const photoHtml = client.photoUrl ?
         window.addEventListener('load', function() {
             setTimeout(fixMenuNavigation, 1500);
         });
+        
+        // NOVA FUNÇÃO: Abre a ficha do cliente diretamente na tela de inativos
+        function showClientRecordInPlace(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            
+            const clientServices = allServices.filter(service => service.clientId === client.id)
+                .sort((a, b) => {
+                    const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
+                    const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+                    return dateB - dateA;
+                });
+            
+            const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
+            const clientNote = clientNotes[client.id] || { notes: '' };
+            
+            // Foto do cliente na ficha
+            const photoHtml = client.photoUrl ? 
+                `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
+                `<div class="client-avatar" style="width: 80px; height: 80px; font-size: 32px;">${client.name.charAt(0).toUpperCase()}</div>`;
+            
+            // Criar um modal popup diretamente na tela de inativos
+            Swal.fire({
+                title: client.name,
+                html: `
+                    <div class="text-start">
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                ${photoHtml}
+                            </div>
+                            <h4>${client.name}</h4>
+                            <p class="text-muted">${client.phone || 'Sem telefone'}</p>
+                            <p class="text-muted">${client.email || 'Sem e-mail'}</p>
+                            <p class="text-muted">${client.birthdate ? `Nascimento: ${formatDate(client.birthdate)}` : ''}</p>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Resumo</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Total de Serviços:</strong> ${clientServices.length}</p>
+                                        <p><strong>Valor Total Gasto:</strong> ${formatCurrency(totalSpent)}</p>
+                                        <p><strong>Última Visita:</strong> ${clientServices.length > 0 ? 
+                                            formatDate(clientServices[0].timestamp.toDate ? 
+                                                clientServices[0].timestamp.toDate() : 
+                                                new Date(clientServices[0].timestamp)) : 
+                                            'Nunca'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Notas</h6>
+                                        <button class="btn btn-sm btn-primary" onclick="editClientNotes('${client.id}'); Swal.close();">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        ${clientNote.notes ? `
+                                            <div style="white-space: pre-wrap;">${clientNote.notes}</div>
+                                        ` : `
+                                            <p class="text-muted">Nenhuma nota cadastrada.</p>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Histórico de Serviços</h6>
+                                <button class="btn btn-sm btn-warning" onclick="editClientFromRecords('${client.id}'); Swal.close();">
+                                    <i class="fas fa-pen me-1"></i> Editar Cliente
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                ${clientServices.length > 0 ? `
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-hover table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data</th>
+                                                    <th>Serviço</th>
+                                                    <th>Colaborador</th>
+                                                    <th>Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${clientServices.slice(0, 10).map(service => {
+                                                    const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
+                                                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                                                    return `
+                                                        <tr>
+                                                            <td>${formatDate(serviceDate)}</td>
+                                                            <td>${service.description}</td>
+                                                            <td>${collaborator.name}</td>
+                                                            <td>${formatCurrency(service.value)}</td>
+                                                        </tr>
+                                                    `;
+                                                }).join('')}
+                                                ${clientServices.length > 10 ? `<tr><td colspan="4" class="text-center text-muted">... e mais ${clientServices.length - 10} serviços</td></tr>` : ''}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ` : `
+                                    <p class="text-muted">Nenhum serviço registrado.</p>
+                                `}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 text-center">
+                            <button class="btn btn-success" onclick="sendWhatsAppToInactive('${client.id}', '${client.phone}'); Swal.close();" ${!client.phone ? 'disabled' : ''}>
+                                <i class="fab fa-whatsapp me-2"></i>Enviar WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                `,
+                width: '800px',
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    container: 'client-record-popup'
+                }
+            });
+        }
+
+        // NOVA FUNÇÃO: Ampliar foto (toque longo / duplo clique)
+        function zoomPhoto(photoUrl, name) {
+            const modal = document.getElementById('photoModal');
+            const img = document.getElementById('photoModalImg');
+            
+            img.src = photoUrl;
+            img.alt = name || 'Foto';
+            
+            modal.classList.add('active');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.remove('active');
+        }
     </script>
     
     <!-- Service Worker -->
@@ -12184,140 +12458,6 @@ const photoHtml = client.photoUrl ?
                 navigator.serviceWorker.register(swUrl);
             });
         } 
-        
-        
-        
-        // NOVA FUNÇÃO: Abre a ficha do cliente diretamente na tela de inativos
-function showClientRecordInPlace(clientId) {
-    const client = clients.find(c => c.id === clientId);
-    if (!client) return;
-    
-    const clientServices = allServices.filter(service => service.clientId === client.id)
-        .sort((a, b) => {
-            const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-            const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
-            return dateB - dateA;
-        });
-    
-    const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
-    const clientNote = clientNotes[client.id] || { notes: '' };
-    
-    // Foto do cliente na ficha
-    const photoHtml = client.photoUrl ? 
-        `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;">` : 
-        `<div class="client-avatar" style="width: 80px; height: 80px; font-size: 32px;">${client.name.charAt(0).toUpperCase()}</div>`;
-    
-    // Criar um modal popup diretamente na tela de inativos
-    Swal.fire({
-        title: client.name,
-        html: `
-            <div class="text-start">
-                <div class="text-center mb-4">
-                    <div class="position-relative d-inline-block">
-                        ${photoHtml}
-                    </div>
-                    <h4>${client.name}</h4>
-                    <p class="text-muted">${client.phone || 'Sem telefone'}</p>
-                    <p class="text-muted">${client.email || 'Sem e-mail'}</p>
-                    <p class="text-muted">${client.birthdate ? `Nascimento: ${formatDate(client.birthdate)}` : ''}</p>
-                </div>
-                
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Resumo</h6>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Total de Serviços:</strong> ${clientServices.length}</p>
-                                <p><strong>Valor Total Gasto:</strong> ${formatCurrency(totalSpent)}</p>
-                                <p><strong>Última Visita:</strong> ${clientServices.length > 0 ? 
-                                    formatDate(clientServices[0].timestamp.toDate ? 
-                                        clientServices[0].timestamp.toDate() : 
-                                        new Date(clientServices[0].timestamp)) : 
-                                    'Nunca'}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0">Notas</h6>
-                                <button class="btn btn-sm btn-primary" onclick="editClientNotes('${client.id}'); Swal.close();">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                ${clientNote.notes ? `
-                                    <div style="white-space: pre-wrap;">${clientNote.notes}</div>
-                                ` : `
-                                    <p class="text-muted">Nenhuma nota cadastrada.</p>
-                                `}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">Histórico de Serviços</h6>
-                        <button class="btn btn-sm btn-warning" onclick="editClientFromRecords('${client.id}'); Swal.close();">
-                            <i class="fas fa-pen me-1"></i> Editar Cliente
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        ${clientServices.length > 0 ? `
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                <table class="table table-hover table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Data</th>
-                                            <th>Serviço</th>
-                                            <th>Colaborador</th>
-                                            <th>Valor</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${clientServices.slice(0, 10).map(service => {
-                                            const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
-                                            const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
-                                            return `
-                                                <tr>
-                                                    <td>${formatDate(serviceDate)}</td>
-                                                    <td>${service.description}</td>
-                                                    <td>${collaborator.name}</td>
-                                                    <td>${formatCurrency(service.value)}</td>
-                                                </tr>
-                                            `;
-                                        }).join('')}
-                                        ${clientServices.length > 10 ? `<tr><td colspan="4" class="text-center text-muted">... e mais ${clientServices.length - 10} serviços</td></tr>` : ''}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ` : `
-                            <p class="text-muted">Nenhum serviço registrado.</p>
-                        `}
-                    </div>
-                </div>
-                
-                <div class="mt-3 text-center">
-                    <button class="btn btn-success" onclick="sendWhatsAppToInactive('${client.id}', '${client.phone}'); Swal.close();" ${!client.phone ? 'disabled' : ''}>
-                        <i class="fab fa-whatsapp me-2"></i>Enviar WhatsApp
-                    </button>
-                </div>
-            </div>
-        `,
-        width: '800px',
-        showConfirmButton: false,
-        showCloseButton: true,
-        customClass: {
-            container: 'client-record-popup'
-        }
-    });
-}
-        
-        
     </script>
-
 
 </body></html>
