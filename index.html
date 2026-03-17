@@ -9831,46 +9831,115 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             }
         }
 
+        // ============================================================
+        // FUNÇÃO CORRIGIDA - PROCEDIMENTOS DOS PACOTES
+        // ============================================================
         function markProcedureDone(packageId) {
             const pkg = packages.find(p => p.id === packageId);
             if (!pkg) return;
-            
+
+            // Buscar cliente do pacote
+            const client = clients.find(c => c.id === pkg.clientId);
+            if (!client) {
+                showError('Cliente não encontrado para este pacote.');
+                return;
+            }
+
+            // Filtrar apenas procedimentos não concluídos
+            const pendingProcedures = pkg.procedureDates ? pkg.procedureDates.filter(d => !d.completed) : [];
+
+            if (pendingProcedures.length === 0) {
+                showError('Não há procedimentos pendentes neste pacote.');
+                return;
+            }
+
+            // Criar opções para o select
+            const procedureOptions = pendingProcedures.map((proc, index) => {
+                const procIndex = pkg.procedureDates.findIndex(d => d.date === proc.date && !d.completed);
+                return `<option value="${procIndex}">${formatDate(proc.date)}</option>`;
+            }).join('');
+
             Swal.fire({
                 title: 'Marcar Procedimento',
                 html: `
+                    <p>Cliente: <strong>${client.name}</strong></p>
                     <p>Selecione o procedimento concluído:</p>
                     <select id="procedureSelect" class="form-select">
-                        ${pkg.procedureDates ? pkg.procedureDates
-                            .filter(date => !date.completed)
-                            .map((date, index) => `
-                                <option value="${index}">${formatDate(date.date)}</option>
-                            `).join('') : ''}
+                        ${procedureOptions}
                     </select>
                 `,
                 showCancelButton: true,
                 confirmButtonText: 'Marcar como Realizado',
                 cancelButtonText: 'Cancelar',
                 preConfirm: () => {
-                    return document.getElementById('procedureSelect').value;
+                    const selectedIndex = document.getElementById('procedureSelect').value;
+                    return parseInt(selectedIndex);
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const procedureIndex = parseInt(result.value);
-                    if (pkg.procedureDates && pkg.procedureDates[procedureIndex]) {
-                        pkg.procedureDates[procedureIndex].completed = true;
-                        
-                        db.collection('packages').doc(packageId).update({
-                            procedureDates: pkg.procedureDates,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        })
-                        .then(() => {
-                            loadPackages();
-                            showSuccess('Procedimento marcado como realizado!');
-                        })
-                        .catch(error => {
-                            showError('Erro ao atualizar procedimento: ' + error.message);
-                        });
+                    const procedureIndex = result.value;
+                    
+                    // Verificar se o índice é válido
+                    if (procedureIndex === undefined || procedureIndex === null || !pkg.procedureDates[procedureIndex]) {
+                        showError('Procedimento inválido.');
+                        return;
                     }
+
+                    // Marcar como concluído
+                    pkg.procedureDates[procedureIndex].completed = true;
+
+                    // Calcular progresso atualizado
+                    const completedProcedures = pkg.procedureDates.filter(d => d.completed).length;
+                    const totalProcedures = pkg.totalProcedures || pkg.procedureDates.length;
+
+                    // Atualizar no Firestore
+                    db.collection('packages').doc(packageId).update({
+                        procedureDates: pkg.procedureDates,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    })
+                    .then(() => {
+                        // Recarregar pacotes para garantir interface atualizada
+                        loadPackages();
+
+                        // Registrar no histórico de serviços do cliente para aparecer na ficha
+                        const serviceData = {
+                            clientId: client.id,
+                            clientName: client.name,
+                            packageId: packageId,
+                            packageDescription: pkg.description || 'Procedimento de Pacote',
+                            procedureDate: pkg.procedureDates[procedureIndex].date,
+                            completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            type: 'package_procedure',
+                            value: 0, // Valor zero pois já foi pago no pacote
+                            userId: currentUser.uid
+                        };
+
+                        // Adicionar à coleção de serviços como um registro
+                        db.collection('services').add(serviceData)
+                            .then(() => {
+                                console.log('✅ Procedimento registrado no histórico do cliente');
+                                // Recarregar serviços para atualizar a ficha do cliente
+                                loadAllServices();
+                            })
+                            .catch(error => {
+                                console.error('Erro ao registrar no histórico:', error);
+                            });
+
+                        // Verificar se todos os procedimentos foram concluídos
+                        if (completedProcedures + 1 >= totalProcedures) {
+                            db.collection('packages').doc(packageId).update({
+                                status: 'completed'
+                            }).then(() => {
+                                showSuccess('Pacote completo! Todos os procedimentos foram realizados!');
+                            });
+                        } else {
+                            showSuccess('Procedimento marcado como realizado e registrado na ficha do cliente!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao atualizar procedimento:', error);
+                        showError('Erro ao marcar procedimento: ' + error.message);
+                    });
                 }
             });
         }
