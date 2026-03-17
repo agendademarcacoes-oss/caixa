@@ -1,4 +1,4 @@
-11
+111
 <!DOCTYPE html><html lang="pt-BR"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
@@ -2840,53 +2840,54 @@
 
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar - CORRIGIDA (com os nomes restaurados) -->
-<div class="col-md-3 col-lg-2 sidebar p-0">
-    <nav class="nav flex-column p-3" id="desktopMenu">
-        <a class="nav-link" href="#" data-section="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="#" data-section="agenda">
-            <i class="fas fa-calendar-alt"></i> Agenda
-        </a>
-        <a class="nav-link" href="#" data-section="store">
-            <i class="fas fa-store"></i> Loja
-        </a>
-        <a class="nav-link" href="#" data-section="cashier">
-            <i class="fas fa-cash-register"></i> Caixa
-        </a>
-        <a class="nav-link" href="#" data-section="inventory">
-            <i class="fas fa-boxes"></i> Estoque
-        </a>
-        <a class="nav-link" href="#" data-section="clients">
-            <i class="fas fa-users"></i> Clientes
-        </a>
-        <a class="nav-link" href="#" data-section="client-records">
-            <i class="fas fa-address-book"></i> Registros de Clientes
-        </a>
-        <a class="nav-link" href="#" data-section="collaborators">
-            <i class="fas fa-user-friends"></i> Colaboradores
-        </a>
-        <a class="nav-link" href="#" data-section="packages">
-            <i class="fas fa-box"></i> Pacotes
-        </a>
-        <a class="nav-link" href="#" data-section="financial-control">
-            <i class="fas fa-chart-line"></i> Controle Financeiro
-        </a>
-        <a class="nav-link" href="#" data-section="business-profile">
-            <i class="fas fa-building"></i> Perfil da Empresa
-        </a>
-        <a class="nav-link" href="#" data-section="reports">
-            <i class="fas fa-chart-bar"></i> Relatórios
-        </a>
-        <a class="nav-link" href="#" data-section="birthdays">
-            <i class="fas fa-birthday-cake"></i> Aniversários
-        </a>
-        <a class="nav-link" href="#" data-section="inactive-clients">
-            <i class="fas fa-user-clock"></i> Clientes Inativos
-        </a>
-    </nav>
-</div>
+                <!-- Sidebar -->
+                <div class="col-md-3 col-lg-2 sidebar p-0">
+                    <nav class="nav flex-column p-3" id="desktopMenu">
+                        <a class="nav-link" href="#" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="agenda">
+                            <i class="fas fa-calendar-alt"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="store">
+                            <i class="fas fa-store"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="cashier">
+                            <i class="fas fa-cash-register"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="inventory">
+                            <i class="fas fa-boxes"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="clients">
+                            <i class="fas fa-users"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="client-records">
+                            <i class="fas fa-address-book"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="collaborators">
+                            <i class="fas fa-user-friends"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="packages">
+                            <i class="fas fa-box"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="financial-control">
+                            <i class="fas fa-chart-line"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="business-profile">
+                            <i class="fas fa-building"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="reports">
+                            <i class="fas fa-chart-bar"></i> 
+                        </a>
+                        <a class="nav-link" href="#" data-section="birthdays">
+                            <i class="fas fa-birthday-cake"></i> 
+                        </a>
+                        <!-- NOVO ITEM NO MENU: Resgatar Clientes Inativos -->
+                        <a class="nav-link" href="#" data-section="inactive-clients">
+                            <i class="fas fa-user-clock"></i> 
+                        </a>
+                    </nav>
+                </div>
 
                 <!-- Conteúdo Principal -->
                 <div class="col-md-9 col-lg-10 p-4 main-content-container">
@@ -5229,26 +5230,6 @@
                     closePhotoModal();
                 }
             });
-
-            // NOVA FUNÇÃO: Busca dinâmica no select de clientes do pacote
-            document.getElementById('packageClientSelect').addEventListener('input', filterPackageClients);
-        }
-
-        // NOVA FUNÇÃO: Filtrar clientes no select do pacote conforme digitação
-        function filterPackageClients() {
-            const select = document.getElementById('packageClientSelect');
-            const filter = select.value.toLowerCase();
-            const options = select.options;
-            
-            for (let i = 0; i < options.length; i++) {
-                const option = options[i];
-                const text = option.textContent.toLowerCase();
-                if (text.includes(filter) || filter === '') {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
         }
 
         // ============================================
@@ -9210,23 +9191,19 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             setupLongPressForPhotos();
         }
 
-        // NOVA FUNÇÃO CORRIGIDA: Mostrar ficha do cliente com foto e procedimentos de pacote
+        // NOVA FUNÇÃO: Mostrar ficha do cliente com foto
         function showClientRecord(clientId) {
             const client = clients.find(c => c.id === clientId);
             if (!client) return;
             
-            // Filtrar serviços normais do cliente
             const clientServices = allServices.filter(service => service.clientId === client.id)
                 .sort((a, b) => {
-                    const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || a.date || a.procedureDate || 0);
-                    const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || b.date || b.procedureDate || 0);
+                    const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
+                    const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
                     return dateB - dateA;
                 });
             
-            // Calcular total gasto (considerando apenas serviços com valor)
-            const totalSpent = clientServices
-                .filter(service => service.type !== 'package_procedure' || service.value > 0)
-                .reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
+            const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
             
             const clientNote = clientNotes[client.id] || { notes: '' };
             
@@ -9234,69 +9211,6 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             const photoHtml = client.photoUrl ? 
                 `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
                 `<div class="client-avatar" style="width: 80px; height: 80px; font-size: 32px;">${client.name.charAt(0).toUpperCase()}</div>`;
-            
-            // Gerar HTML para serviços (incluindo procedimentos de pacote)
-            let servicesHtml = '';
-            if (clientServices.length > 0) {
-                servicesHtml = `
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Serviço/Procedimento</th>
-                                    <th>Colaborador</th>
-                                    <th>Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${clientServices.map(service => {
-                                    // Determinar o nome do serviço
-                                    let serviceName = service.description || '';
-                                    let collaboratorName = 'Não informado';
-                                    
-                                    // Se for procedimento de pacote, usar packageDescription
-                                    if (service.type === 'package_procedure') {
-                                        serviceName = service.packageDescription || 'Procedimento de Pacote';
-                                        // Para pacotes, não temos colaborador
-                                        collaboratorName = 'Pacote';
-                                    } else {
-                                        // Serviço normal - buscar colaborador
-                                        const collaborator = collaborators.find(c => c.id === service.collaboratorId);
-                                        collaboratorName = collaborator ? collaborator.name : 'Não informado';
-                                    }
-                                    
-                                    // Determinar a data do serviço
-                                    let serviceDate;
-                                    if (service.timestamp && service.timestamp.toDate) {
-                                        serviceDate = service.timestamp.toDate();
-                                    } else if (service.date) {
-                                        serviceDate = new Date(service.date);
-                                    } else if (service.procedureDate) {
-                                        serviceDate = new Date(service.procedureDate);
-                                    } else {
-                                        serviceDate = new Date();
-                                    }
-                                    
-                                    // Formatar valor
-                                    const serviceValue = service.value || 0;
-                                    
-                                    return `
-                                        <tr ${service.type === 'package_procedure' ? 'class="table-info"' : ''}>
-                                            <td>${formatDate(serviceDate)}</td>
-                                            <td>${serviceName} ${service.type === 'package_procedure' ? '<span class="badge bg-info">Pacote</span>' : ''}</td>
-                                            <td>${collaboratorName}</td>
-                                            <td>${service.type === 'package_procedure' ? 'Incluso no pacote' : formatCurrency(serviceValue)}</td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            } else {
-                servicesHtml = '<p class="text-muted">Nenhum serviço registrado.</p>';
-            }
             
             const desktopContent = document.getElementById('clientRecordContent');
             desktopContent.innerHTML = `
@@ -9320,11 +9234,10 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                                 <div class="card-body">
                                     <p><strong>Total de Serviços:</strong> ${clientServices.length}</p>
                                     <p><strong>Valor Total Gasto:</strong> ${formatCurrency(totalSpent)}</p>
-                                    <p><strong>Procedimentos de Pacote:</strong> ${clientServices.filter(s => s.type === 'package_procedure').length}</p>
                                     <p><strong>Última Visita:</strong> ${clientServices.length > 0 ? 
-                                        formatDate(clientServices[0].timestamp && clientServices[0].timestamp.toDate ? 
+                                        formatDate(clientServices[0].timestamp.toDate ? 
                                             clientServices[0].timestamp.toDate() : 
-                                            new Date(clientServices[0].date || clientServices[0].procedureDate || clientServices[0].timestamp)) : 
+                                            new Date(clientServices[0].timestamp)) : 
                                         'Nunca'}</p>
                                 </div>
                             </div>
@@ -9350,13 +9263,42 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                     
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Histórico de Serviços e Procedimentos</h6>
+                            <h6 class="mb-0">Histórico de Serviços</h6>
                             <button class="btn btn-sm btn-warning" onclick="editClientFromRecords('${client.id}')">
                                 <i class="fas fa-pen me-1"></i> Editar Cliente
                             </button>
                         </div>
                         <div class="card-body">
-                            ${servicesHtml}
+                            ${clientServices.length > 0 ? `
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Serviço</th>
+                                                <th>Colaborador</th>
+                                                <th>Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${clientServices.map(service => {
+                                                const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
+                                                const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                                                return `
+                                                    <tr>
+                                                        <td>${formatDate(serviceDate)}</td>
+                                                        <td>${service.description}</td>
+                                                        <td>${collaborator.name}</td>
+                                                        <td>${formatCurrency(service.value)}</td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ` : `
+                                <p class="text-muted">Nenhum serviço registrado.</p>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -9891,118 +9833,46 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             }
         }
 
-        // ============================================================
-        // FUNÇÃO CORRIGIDA - PROCEDIMENTOS DOS PACOTES
-        // ============================================================
         function markProcedureDone(packageId) {
             const pkg = packages.find(p => p.id === packageId);
             if (!pkg) return;
-
-            // Buscar cliente do pacote
-            const client = clients.find(c => c.id === pkg.clientId);
-            if (!client) {
-                showError('Cliente não encontrado para este pacote.');
-                return;
-            }
-
-            // Filtrar apenas procedimentos não concluídos
-            const pendingProcedures = pkg.procedureDates ? pkg.procedureDates.filter(d => !d.completed) : [];
-
-            if (pendingProcedures.length === 0) {
-                showError('Não há procedimentos pendentes neste pacote.');
-                return;
-            }
-
-            // Criar opções para o select
-            const procedureOptions = pendingProcedures.map((proc, index) => {
-                const procIndex = pkg.procedureDates.findIndex(d => d.date === proc.date && !d.completed);
-                return `<option value="${procIndex}">${formatDate(proc.date)}</option>`;
-            }).join('');
-
+            
             Swal.fire({
                 title: 'Marcar Procedimento',
                 html: `
-                    <p>Cliente: <strong>${client.name}</strong></p>
                     <p>Selecione o procedimento concluído:</p>
                     <select id="procedureSelect" class="form-select">
-                        ${procedureOptions}
+                        ${pkg.procedureDates ? pkg.procedureDates
+                            .filter(date => !date.completed)
+                            .map((date, index) => `
+                                <option value="${index}">${formatDate(date.date)}</option>
+                            `).join('') : ''}
                     </select>
                 `,
                 showCancelButton: true,
                 confirmButtonText: 'Marcar como Realizado',
                 cancelButtonText: 'Cancelar',
                 preConfirm: () => {
-                    const selectedIndex = document.getElementById('procedureSelect').value;
-                    return parseInt(selectedIndex);
+                    return document.getElementById('procedureSelect').value;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const procedureIndex = result.value;
-                    
-                    // Verificar se o índice é válido
-                    if (procedureIndex === undefined || procedureIndex === null || !pkg.procedureDates[procedureIndex]) {
-                        showError('Procedimento inválido.');
-                        return;
+                    const procedureIndex = parseInt(result.value);
+                    if (pkg.procedureDates && pkg.procedureDates[procedureIndex]) {
+                        pkg.procedureDates[procedureIndex].completed = true;
+                        
+                        db.collection('packages').doc(packageId).update({
+                            procedureDates: pkg.procedureDates,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        })
+                        .then(() => {
+                            loadPackages();
+                            showSuccess('Procedimento marcado como realizado!');
+                        })
+                        .catch(error => {
+                            showError('Erro ao atualizar procedimento: ' + error.message);
+                        });
                     }
-
-                    // Marcar como concluído
-                    pkg.procedureDates[procedureIndex].completed = true;
-
-                    // Calcular progresso atualizado
-                    const completedProcedures = pkg.procedureDates.filter(d => d.completed).length;
-                    const totalProcedures = pkg.totalProcedures || pkg.procedureDates.length;
-
-                    // Atualizar no Firestore
-                    db.collection('packages').doc(packageId).update({
-                        procedureDates: pkg.procedureDates,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    })
-                    .then(() => {
-                        // Recarregar pacotes para garantir interface atualizada
-                        loadPackages();
-
-                        // Registrar no histórico de serviços do cliente para aparecer na ficha
-                        const serviceData = {
-                            clientId: client.id,
-                            clientName: client.name,
-                            packageId: packageId,
-                            packageDescription: pkg.description || 'Procedimento de Pacote',
-                            procedureDate: pkg.procedureDates[procedureIndex].date,
-                            date: pkg.procedureDates[procedureIndex].date, // Adicionar date para compatibilidade
-                            completedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp(), // Adicionar timestamp
-                            type: 'package_procedure',
-                            description: pkg.description || 'Procedimento de Pacote', // Adicionar description para compatibilidade
-                            value: 0,
-                            userId: currentUser.uid
-                        };
-
-                        // Adicionar à coleção de serviços como um registro
-                        db.collection('services').add(serviceData)
-                            .then(() => {
-                                console.log('✅ Procedimento registrado no histórico do cliente');
-                                // Recarregar serviços para atualizar a ficha do cliente
-                                loadAllServices();
-                            })
-                            .catch(error => {
-                                console.error('Erro ao registrar no histórico:', error);
-                            });
-
-                        // Verificar se todos os procedimentos foram concluídos
-                        if (completedProcedures + 1 >= totalProcedures) {
-                            db.collection('packages').doc(packageId).update({
-                                status: 'completed'
-                            }).then(() => {
-                                showSuccess('Pacote completo! Todos os procedimentos foram realizados!');
-                            });
-                        } else {
-                            showSuccess('Procedimento marcado como realizado e registrado na ficha do cliente!');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao atualizar procedimento:', error);
-                        showError('Erro ao marcar procedimento: ' + error.message);
-                    });
                 }
             });
         }
@@ -12260,44 +12130,81 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             }
         }
         
-        // ============================================
-// FUNÇÃO MAIS SIMPLES - WhatsApp na ficha do cliente inativo
-// ============================================
-function sendWhatsAppToInactive(clientId, phone) {
-    // Verifica se o cliente tem telefone
-    if (!phone) {
-        alert('Cliente não possui telefone cadastrado.');
-        return;
-    }
-    
-    // Busca o cliente
-    const client = clients.find(c => c.id === clientId);
-    if (!client) {
-        alert('Cliente não encontrado.');
-        return;
-    }
-    
-    // Busca a mensagem do textarea
-    const messageTextarea = document.getElementById(`message-${clientId}`);
-    let message = messageTextarea ? messageTextarea.value : '';
-    
-    // Se não tiver mensagem, usa uma padrão
-    if (!message) {
-        message = `Olá ${client.name}! Tudo bem? Sentimos sua falta no salão! Gostaria de agendar um horário?`;
-    }
-    
-    // LIMPA O NÚMERO (só números)
-    const cleanPhone = phone.replace(/\D/g, '');
-    
-    // CRIA O LINK DO WHATSAPP (jeito mais simples)
-    const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-    
-    // ABRE O LINK
-    window.open(whatsappLink, '_blank');
-    
-    // Aviso simples
-    alert('WhatsApp aberto! Agora é só enviar a mensagem.');
-}
+        // Função para enviar WhatsApp para cliente inativo
+        function sendWhatsAppToInactive(clientId, phone) {
+            if (!phone) {
+                showError('Cliente não possui telefone cadastrado.');
+                return;
+            }
+            
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            
+            // Obter mensagem personalizada do textarea
+            const messageTextarea = document.getElementById(`message-${clientId}`);
+            let message = messageTextarea ? messageTextarea.value.trim() : '';
+            
+            // Se não houver mensagem personalizada, usar padrão
+            if (!message) {
+                message = `Olá ${client.name}! 🥰\n\n` +
+                    `Sentimos muito a sua falta no Studio DeVitto! ✂️💇\n\n` +
+                    `Que tal vir cuidar dos cabelos e aproveitar um desconto especial?\n\n` +
+                    `🎁 *10% DE DESCONTO* em qualquer serviço!\n\n` +
+                    `Estamos te esperando com muito carinho! 💕\n\n` +
+                    `Agende já o seu horário! ✨\n\n` +
+                    `${businessSettings.name || 'Studio DeVitto'}`;
+            }
+            
+            // Garantir que o nome do cliente esteja na mensagem (obrigatório)
+            if (!message.includes(client.name)) {
+                message = `Olá ${client.name}! ` + message;
+            }
+            
+            // Formatando telefone
+            const formattedPhone = phone.replace(/\D/g, '');
+            const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+            
+            // Perguntar confirmação
+            Swal.fire({
+                title: 'Enviar WhatsApp',
+                html: `
+                    <p>Deseja enviar esta mensagem para <strong>${client.name}</strong>?</p>
+                    <div class="message-preview p-3 bg-light rounded text-start mt-3">
+                        <small class="text-muted">Pré-visualização:</small>
+                        <p class="mt-2 mb-0 small" style="white-space: pre-line;">${message}</p>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#25D366',
+                confirmButtonText: '<i class="fab fa-whatsapp me-2"></i>Abrir WhatsApp',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(whatsappUrl, '_blank');
+                    
+                    showSuccess('WhatsApp aberto! Confirme o envio da mensagem.');
+                    
+                    // Registrar no console/log (opcional)
+                    console.log(`Mensagem enviada para ${client.name} (${client.phone})`);
+                    
+                    // Opcional: salvar no Firebase que foi enviada mensagem
+                    if (currentUser) {
+                        const logData = {
+                            clientId: clientId,
+                            clientName: client.name,
+                            type: 'inactive_reminder',
+                            message: message.substring(0, 100), // Salvar apenas início
+                            sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            userId: currentUser.uid
+                        };
+                        
+                        db.collection('messageLogs').add(logData)
+                            .catch(error => console.error('Erro ao registrar envio:', error));
+                    }
+                }
+            });
+        }
 
         // ============================================
         // SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
