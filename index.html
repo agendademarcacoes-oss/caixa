@@ -5228,6 +5228,26 @@
                     closePhotoModal();
                 }
             });
+
+            // NOVA FUNÇÃO: Busca dinâmica no select de clientes do pacote
+            document.getElementById('packageClientSelect').addEventListener('input', filterPackageClients);
+        }
+
+        // NOVA FUNÇÃO: Filtrar clientes no select do pacote conforme digitação
+        function filterPackageClients() {
+            const select = document.getElementById('packageClientSelect');
+            const filter = select.value.toLowerCase();
+            const options = select.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const text = option.textContent.toLowerCase();
+                if (text.includes(filter) || filter === '') {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
         }
 
         // ============================================
@@ -9189,19 +9209,23 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             setupLongPressForPhotos();
         }
 
-        // NOVA FUNÇÃO: Mostrar ficha do cliente com foto
+        // NOVA FUNÇÃO CORRIGIDA: Mostrar ficha do cliente com foto e procedimentos de pacote
         function showClientRecord(clientId) {
             const client = clients.find(c => c.id === clientId);
             if (!client) return;
             
+            // Filtrar serviços normais do cliente
             const clientServices = allServices.filter(service => service.clientId === client.id)
                 .sort((a, b) => {
-                    const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-                    const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+                    const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || a.date || a.procedureDate || 0);
+                    const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || b.date || b.procedureDate || 0);
                     return dateB - dateA;
                 });
             
-            const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
+            // Calcular total gasto (considerando apenas serviços com valor)
+            const totalSpent = clientServices
+                .filter(service => service.type !== 'package_procedure' || service.value > 0)
+                .reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
             
             const clientNote = clientNotes[client.id] || { notes: '' };
             
@@ -9209,6 +9233,69 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             const photoHtml = client.photoUrl ? 
                 `<img src="${client.photoUrl}" class="client-avatar-img" style="width: 80px; height: 80px; margin-bottom: 10px;" ondblclick="zoomPhoto('${client.photoUrl}', '${client.name}')" onlongpress="zoomPhoto('${client.photoUrl}', '${client.name}')">` : 
                 `<div class="client-avatar" style="width: 80px; height: 80px; font-size: 32px;">${client.name.charAt(0).toUpperCase()}</div>`;
+            
+            // Gerar HTML para serviços (incluindo procedimentos de pacote)
+            let servicesHtml = '';
+            if (clientServices.length > 0) {
+                servicesHtml = `
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Serviço/Procedimento</th>
+                                    <th>Colaborador</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clientServices.map(service => {
+                                    // Determinar o nome do serviço
+                                    let serviceName = service.description || '';
+                                    let collaboratorName = 'Não informado';
+                                    
+                                    // Se for procedimento de pacote, usar packageDescription
+                                    if (service.type === 'package_procedure') {
+                                        serviceName = service.packageDescription || 'Procedimento de Pacote';
+                                        // Para pacotes, não temos colaborador
+                                        collaboratorName = 'Pacote';
+                                    } else {
+                                        // Serviço normal - buscar colaborador
+                                        const collaborator = collaborators.find(c => c.id === service.collaboratorId);
+                                        collaboratorName = collaborator ? collaborator.name : 'Não informado';
+                                    }
+                                    
+                                    // Determinar a data do serviço
+                                    let serviceDate;
+                                    if (service.timestamp && service.timestamp.toDate) {
+                                        serviceDate = service.timestamp.toDate();
+                                    } else if (service.date) {
+                                        serviceDate = new Date(service.date);
+                                    } else if (service.procedureDate) {
+                                        serviceDate = new Date(service.procedureDate);
+                                    } else {
+                                        serviceDate = new Date();
+                                    }
+                                    
+                                    // Formatar valor
+                                    const serviceValue = service.value || 0;
+                                    
+                                    return `
+                                        <tr ${service.type === 'package_procedure' ? 'class="table-info"' : ''}>
+                                            <td>${formatDate(serviceDate)}</td>
+                                            <td>${serviceName} ${service.type === 'package_procedure' ? '<span class="badge bg-info">Pacote</span>' : ''}</td>
+                                            <td>${collaboratorName}</td>
+                                            <td>${service.type === 'package_procedure' ? 'Incluso no pacote' : formatCurrency(serviceValue)}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                servicesHtml = '<p class="text-muted">Nenhum serviço registrado.</p>';
+            }
             
             const desktopContent = document.getElementById('clientRecordContent');
             desktopContent.innerHTML = `
@@ -9232,10 +9319,11 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                                 <div class="card-body">
                                     <p><strong>Total de Serviços:</strong> ${clientServices.length}</p>
                                     <p><strong>Valor Total Gasto:</strong> ${formatCurrency(totalSpent)}</p>
+                                    <p><strong>Procedimentos de Pacote:</strong> ${clientServices.filter(s => s.type === 'package_procedure').length}</p>
                                     <p><strong>Última Visita:</strong> ${clientServices.length > 0 ? 
-                                        formatDate(clientServices[0].timestamp.toDate ? 
+                                        formatDate(clientServices[0].timestamp && clientServices[0].timestamp.toDate ? 
                                             clientServices[0].timestamp.toDate() : 
-                                            new Date(clientServices[0].timestamp)) : 
+                                            new Date(clientServices[0].date || clientServices[0].procedureDate || clientServices[0].timestamp)) : 
                                         'Nunca'}</p>
                                 </div>
                             </div>
@@ -9261,42 +9349,13 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                     
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Histórico de Serviços</h6>
+                            <h6 class="mb-0">Histórico de Serviços e Procedimentos</h6>
                             <button class="btn btn-sm btn-warning" onclick="editClientFromRecords('${client.id}')">
                                 <i class="fas fa-pen me-1"></i> Editar Cliente
                             </button>
                         </div>
                         <div class="card-body">
-                            ${clientServices.length > 0 ? `
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Data</th>
-                                                <th>Serviço</th>
-                                                <th>Colaborador</th>
-                                                <th>Valor</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${clientServices.map(service => {
-                                                const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
-                                                const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
-                                                return `
-                                                    <tr>
-                                                        <td>${formatDate(serviceDate)}</td>
-                                                        <td>${service.description}</td>
-                                                        <td>${collaborator.name}</td>
-                                                        <td>${formatCurrency(service.value)}</td>
-                                                    </tr>
-                                                `;
-                                            }).join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ` : `
-                                <p class="text-muted">Nenhum serviço registrado.</p>
-                            `}
+                            ${servicesHtml}
                         </div>
                     </div>
                 </div>
@@ -9908,9 +9967,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                             packageId: packageId,
                             packageDescription: pkg.description || 'Procedimento de Pacote',
                             procedureDate: pkg.procedureDates[procedureIndex].date,
+                            date: pkg.procedureDates[procedureIndex].date, // Adicionar date para compatibilidade
                             completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(), // Adicionar timestamp
                             type: 'package_procedure',
-                            value: 0, // Valor zero pois já foi pago no pacote
+                            description: pkg.description || 'Procedimento de Pacote', // Adicionar description para compatibilidade
+                            value: 0,
                             userId: currentUser.uid
                         };
 
