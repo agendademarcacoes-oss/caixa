@@ -12128,81 +12128,44 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             }
         }
         
-        // Função para enviar WhatsApp para cliente inativo
-        function sendWhatsAppToInactive(clientId, phone) {
-            if (!phone) {
-                showError('Cliente não possui telefone cadastrado.');
-                return;
-            }
-            
-            const client = clients.find(c => c.id === clientId);
-            if (!client) return;
-            
-            // Obter mensagem personalizada do textarea
-            const messageTextarea = document.getElementById(`message-${clientId}`);
-            let message = messageTextarea ? messageTextarea.value.trim() : '';
-            
-            // Se não houver mensagem personalizada, usar padrão
-            if (!message) {
-                message = `Olá ${client.name}! 🥰\n\n` +
-                    `Sentimos muito a sua falta no Studio DeVitto! ✂️💇\n\n` +
-                    `Que tal vir cuidar dos cabelos e aproveitar um desconto especial?\n\n` +
-                    `🎁 *10% DE DESCONTO* em qualquer serviço!\n\n` +
-                    `Estamos te esperando com muito carinho! 💕\n\n` +
-                    `Agende já o seu horário! ✨\n\n` +
-                    `${businessSettings.name || 'Studio DeVitto'}`;
-            }
-            
-            // Garantir que o nome do cliente esteja na mensagem (obrigatório)
-            if (!message.includes(client.name)) {
-                message = `Olá ${client.name}! ` + message;
-            }
-            
-            // Formatando telefone
-            const formattedPhone = phone.replace(/\D/g, '');
-            const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-            
-            // Perguntar confirmação
-            Swal.fire({
-                title: 'Enviar WhatsApp',
-                html: `
-                    <p>Deseja enviar esta mensagem para <strong>${client.name}</strong>?</p>
-                    <div class="message-preview p-3 bg-light rounded text-start mt-3">
-                        <small class="text-muted">Pré-visualização:</small>
-                        <p class="mt-2 mb-0 small" style="white-space: pre-line;">${message}</p>
-                    </div>
-                `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#25D366',
-                confirmButtonText: '<i class="fab fa-whatsapp me-2"></i>Abrir WhatsApp',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.open(whatsappUrl, '_blank');
-                    
-                    showSuccess('WhatsApp aberto! Confirme o envio da mensagem.');
-                    
-                    // Registrar no console/log (opcional)
-                    console.log(`Mensagem enviada para ${client.name} (${client.phone})`);
-                    
-                    // Opcional: salvar no Firebase que foi enviada mensagem
-                    if (currentUser) {
-                        const logData = {
-                            clientId: clientId,
-                            clientName: client.name,
-                            type: 'inactive_reminder',
-                            message: message.substring(0, 100), // Salvar apenas início
-                            sentAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            userId: currentUser.uid
-                        };
-                        
-                        db.collection('messageLogs').add(logData)
-                            .catch(error => console.error('Erro ao registrar envio:', error));
-                    }
-                }
-            });
-        }
+        // ============================================
+// FUNÇÃO MAIS SIMPLES - WhatsApp na ficha do cliente inativo
+// ============================================
+function sendWhatsAppToInactive(clientId, phone) {
+    // Verifica se o cliente tem telefone
+    if (!phone) {
+        alert('Cliente não possui telefone cadastrado.');
+        return;
+    }
+    
+    // Busca o cliente
+    const client = clients.find(c => c.id === clientId);
+    if (!client) {
+        alert('Cliente não encontrado.');
+        return;
+    }
+    
+    // Busca a mensagem do textarea
+    const messageTextarea = document.getElementById(`message-${clientId}`);
+    let message = messageTextarea ? messageTextarea.value : '';
+    
+    // Se não tiver mensagem, usa uma padrão
+    if (!message) {
+        message = `Olá ${client.name}! Tudo bem? Sentimos sua falta no salão! Gostaria de agendar um horário?`;
+    }
+    
+    // LIMPA O NÚMERO (só números)
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // CRIA O LINK DO WHATSAPP (jeito mais simples)
+    const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    
+    // ABRE O LINK
+    window.open(whatsappLink, '_blank');
+    
+    // Aviso simples
+    alert('WhatsApp aberto! Agora é só enviar a mensagem.');
+}
 
         // ============================================
         // SOLUÇÃO DEFINITIVA - CORREÇÃO DO MENU
