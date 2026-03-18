@@ -2486,7 +2486,6 @@
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
 
-        
         /* Estilo para o popup da imagem do produto */
         .product-popup {
             position: fixed;
@@ -2815,6 +2814,56 @@
         .service-admin-actions {
             display: flex;
             gap: 5px;
+        }
+
+        /* ESTILOS PARA SERVIÇOS RÁPIDOS EM LINHA ÚNICA DESLIZÁVEL */
+        .quick-services-scroll {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 5px 0 15px 0;
+            margin: 0 -5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .quick-services-scroll .quick-service-btn {
+            flex: 0 0 auto;
+            margin: 0 5px;
+        }
+
+        .selected-services-tag {
+            background: #e9ecef;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .selected-service-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 0.85rem;
+        }
+
+        .selected-service-badge i {
+            margin-left: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -3377,15 +3426,21 @@
                             </div>
                         </div>
 
-                        <!-- Caixa - MODIFICADO: ADICIONADO ACESSO RÁPIDO AOS SERVIÇOS -->
+                        <!-- Caixa - MODIFICADO: ADICIONADO ACESSO RÁPIDO AOS SERVIÇOS COM BOTÕES EM LINHA ÚNICA DESLIZÁVEL E SELEÇÃO MÚLTIPLA -->
                         <div id="cashier" class="section">
                             <div class="row">
                                 <div class="col-md-8">
-                                    <!-- NOVA SEÇÃO: Acesso Rápido aos Serviços -->
+                                    <!-- NOVA SEÇÃO: Acesso Rápido aos Serviços em Linha Única Deslizável -->
                                     <div class="services-quick-access">
                                         <h6><i class="fas fa-bolt me-2"></i>Serviços Rápidos</h6>
-                                        <div class="d-flex flex-wrap gap-2" id="quickServicesContainer">
+                                        <div class="quick-services-scroll" id="quickServicesContainer">
                                             <!-- Botões de serviços serão adicionados dinamicamente -->
+                                        </div>
+                                        
+                                        <!-- Container para serviços selecionados -->
+                                        <div id="selectedServicesDisplay" class="selected-services-tag" style="display: none;">
+                                            <strong>Serviços selecionados:</strong> 
+                                            <div id="selectedServicesTags"></div>
                                         </div>
                                     </div>
 
@@ -3426,27 +3481,13 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                        <div class="row">
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="serviceType" class="form-label">Tipo de Serviço</label>
-                                                                <select class="form-select" id="serviceType" required disabled>
-                                                                    <option value="">Selecione o tipo</option>
-                                                                    <option value="manual">Manual (Corte, Brushing, etc.)</option>
-                                                                    <option value="product">Com Produtos (Madeixas, Coloração, etc.)</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="serviceValue" class="form-label">Valor do Serviço (€)</label>
-                                                                <input type="number" class="form-control" id="serviceValue" step="0.01" min="0" required disabled>
-                                                            </div>
-                                                        </div>
                                                         <div class="mb-3">
                                                             <label for="serviceDescription" class="form-label">Descrição do Serviço</label>
-                                                            <textarea class="form-control" id="serviceDescription" rows="2" disabled></textarea>
+                                                            <textarea class="form-control" id="serviceDescription" rows="3" readonly disabled></textarea>
                                                         </div>
                                                         <div class="d-grid gap-2">
-                                                            <button type="submit" class="btn btn-primary" id="addServiceBtn" disabled>Adicionar Serviço</button>
-                                                            <button type="button" class="btn btn-outline-primary" id="addAnotherServiceBtn" disabled>Adicionar Outro Serviço</button>
+                                                            <button type="button" class="btn btn-primary" id="addServiceBtn" disabled>Adicionar Serviços</button>
+                                                            <button type="button" class="btn btn-outline-primary" id="clearServicesBtn" disabled>Limpar Seleção</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -4959,11 +5000,10 @@
                                 <input type="number" class="form-control" id="serviceAdminPrice" step="0.01" min="0" required>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="serviceAdminDescription" class="form-label">Descrição (opcional)</label>
-                            <textarea class="form-control" id="serviceAdminDescription" rows="2" placeholder="Breve descrição do serviço..."></textarea>
-                        </div>
                     </form>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i> Tipo e valor padrão são informativos. No caixa você define o valor real do serviço.
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -5016,6 +5056,11 @@
         
         // NOVA VARIÁVEL: Serviços da Empresa
         let companyServices = [];
+        
+        // NOVAS VARIÁVEIS: Seleção múltipla de serviços no caixa
+        let selectedQuickServices = [];
+        let selectedServiceNames = [];
+        let selectedServiceIds = [];
         
         // Controle Financeiro
         let expenses = [];
@@ -5245,8 +5290,12 @@
             // Caixa - eventos existentes
             document.getElementById('openCashierBtn').addEventListener('click', openCashier);
             document.getElementById('closeCashierBtn').addEventListener('click', closeCashier);
-            document.getElementById('serviceForm').addEventListener('submit', addService);
-            document.getElementById('addAnotherServiceBtn').addEventListener('click', addAnotherService);
+            
+            // NOVOS EVENTOS PARA SELEÇÃO MÚLTIPLA DE SERVIÇOS
+            document.getElementById('addServiceBtn').addEventListener('click', addMultipleServices);
+            document.getElementById('clearServicesBtn').addEventListener('click', clearSelectedServices);
+            
+            // Formulário de produto permanece
             document.getElementById('productSaleForm').addEventListener('submit', addProductSale);
             
             // Clientes
@@ -5455,7 +5504,6 @@
                         <div class="service-admin-info">
                             <h6>${service.name}</h6>
                             <p>${service.type === 'manual' ? 'Manual' : 'Com Produtos'} | ${formatCurrency(service.price)}</p>
-                            ${service.description ? `<small class="text-muted">${service.description}</small>` : ''}
                         </div>
                         <div class="service-admin-actions">
                             <button class="btn btn-sm btn-outline-primary" onclick="editServiceAdmin('${service.id}')" title="Editar">
@@ -5483,8 +5531,7 @@
             }
             
             const filtered = companyServices.filter(service => 
-                service.name.toLowerCase().includes(searchTerm) ||
-                (service.description && service.description.toLowerCase().includes(searchTerm))
+                service.name.toLowerCase().includes(searchTerm)
             );
             
             if (filtered.length === 0) {
@@ -5499,7 +5546,6 @@
                         <div class="service-admin-info">
                             <h6>${service.name}</h6>
                             <p>${service.type === 'manual' ? 'Manual' : 'Com Produtos'} | ${formatCurrency(service.price)}</p>
-                            ${service.description ? `<small class="text-muted">${service.description}</small>` : ''}
                         </div>
                         <div class="service-admin-actions">
                             <button class="btn btn-sm btn-outline-primary" onclick="editServiceAdmin('${service.id}')" title="Editar">
@@ -5536,7 +5582,6 @@
             document.getElementById('serviceAdminName').value = service.name;
             document.getElementById('serviceAdminType').value = service.type;
             document.getElementById('serviceAdminPrice').value = service.price;
-            document.getElementById('serviceAdminDescription').value = service.description || '';
             
             const modal = new bootstrap.Modal(document.getElementById('serviceAdminModal'));
             modal.show();
@@ -5548,18 +5593,16 @@
             const name = document.getElementById('serviceAdminName').value;
             const type = document.getElementById('serviceAdminType').value;
             const price = parseFloat(document.getElementById('serviceAdminPrice').value);
-            const description = document.getElementById('serviceAdminDescription').value;
             
-            if (!name || !type || !price) {
-                showError('Por favor, preencha todos os campos obrigatórios.');
+            if (!name || !type) {
+                showError('Por favor, preencha o nome do serviço.');
                 return;
             }
             
             const serviceData = {
                 name: name,
                 type: type,
-                price: price,
-                description: description,
+                price: price || 0,
                 userId: currentUser.uid,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -5615,7 +5658,7 @@
             });
         }
 
-        // Atualizar botões de acesso rápido no caixa
+        // Atualizar botões de acesso rápido no caixa (em linha única deslizável)
         function updateQuickServicesInCashier() {
             const container = document.getElementById('quickServicesContainer');
             if (!container) return;
@@ -5631,30 +5674,137 @@
                 const button = document.createElement('button');
                 button.className = 'quick-service-btn';
                 button.textContent = service.name;
+                button.setAttribute('data-service-id', service.id);
                 button.setAttribute('data-service-name', service.name);
-                button.setAttribute('data-service-price', service.price);
+                button.setAttribute('data-service-price', service.price || 0);
                 button.setAttribute('data-service-type', service.type);
-                button.setAttribute('data-service-description', service.description || service.name);
                 
                 button.addEventListener('click', function() {
-                    quickAddServiceFromButton(this);
+                    toggleQuickServiceSelection(this);
                 });
                 
                 container.appendChild(button);
             });
         }
 
-        // Adicionar serviço rapidamente a partir do botão
-        function quickAddServiceFromButton(button) {
+        // Alternar seleção de serviço rápido
+        function toggleQuickServiceSelection(button) {
+            if (!currentCashier) {
+                showError('É necessário abrir o caixa antes de selecionar serviços.');
+                return;
+            }
+            
+            const clientId = document.getElementById('selectedClientId').value;
+            
+            if (!clientId) {
+                showError('Selecione um cliente primeiro.');
+                document.getElementById('clientSelect').focus();
+                return;
+            }
+            
+            const serviceId = button.getAttribute('data-service-id');
+            const serviceName = button.getAttribute('data-service-name');
+            
+            // Verificar se já está selecionado
+            if (button.classList.contains('btn-primary')) {
+                // Remover seleção
+                button.classList.remove('btn-primary');
+                button.classList.add('quick-service-btn');
+                
+                // Remover da lista de selecionados
+                const index = selectedServiceIds.indexOf(serviceId);
+                if (index > -1) {
+                    selectedServiceIds.splice(index, 1);
+                    selectedServiceNames.splice(index, 1);
+                }
+            } else {
+                // Adicionar seleção
+                button.classList.remove('quick-service-btn');
+                button.classList.add('btn-primary');
+                button.classList.add('text-white');
+                
+                selectedServiceIds.push(serviceId);
+                selectedServiceNames.push(serviceName);
+            }
+            
+            // Atualizar descrição do serviço
+            updateServiceDescription();
+        }
+
+        // Atualizar campo de descrição com os serviços selecionados
+        function updateServiceDescription() {
+            const descField = document.getElementById('serviceDescription');
+            if (selectedServiceNames.length > 0) {
+                descField.value = selectedServiceNames.join(' + ');
+            } else {
+                descField.value = '';
+            }
+            
+            // Mostrar/esconder container de serviços selecionados
+            const displayDiv = document.getElementById('selectedServicesDisplay');
+            const tagsDiv = document.getElementById('selectedServicesTags');
+            
+            if (selectedServiceNames.length > 0) {
+                displayDiv.style.display = 'block';
+                
+                let tagsHtml = '';
+                selectedServiceNames.forEach((name, index) => {
+                    tagsHtml += `<span class="selected-service-badge">${name} <i class="fas fa-times" onclick="removeSelectedService(${index})"></i></span>`;
+                });
+                tagsDiv.innerHTML = tagsHtml;
+            } else {
+                displayDiv.style.display = 'none';
+            }
+        }
+
+        // Remover serviço selecionado pelo índice
+        function removeSelectedService(index) {
+            if (index >= 0 && index < selectedServiceIds.length) {
+                const serviceId = selectedServiceIds[index];
+                
+                // Encontrar e desselecionar o botão correspondente
+                const buttons = document.querySelectorAll('.quick-service-btn, .btn-primary');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('data-service-id') === serviceId) {
+                        btn.classList.remove('btn-primary', 'text-white');
+                        btn.classList.add('quick-service-btn');
+                    }
+                });
+                
+                // Remover dos arrays
+                selectedServiceIds.splice(index, 1);
+                selectedServiceNames.splice(index, 1);
+                
+                updateServiceDescription();
+            }
+        }
+
+        // Limpar todos os serviços selecionados
+        function clearSelectedServices() {
+            // Desselecionar todos os botões
+            const buttons = document.querySelectorAll('.btn-primary[data-service-id]');
+            buttons.forEach(btn => {
+                btn.classList.remove('btn-primary', 'text-white');
+                btn.classList.add('quick-service-btn');
+            });
+            
+            // Limpar arrays
+            selectedServiceIds = [];
+            selectedServiceNames = [];
+            
+            // Limpar descrição
+            document.getElementById('serviceDescription').value = '';
+            
+            // Esconder display
+            document.getElementById('selectedServicesDisplay').style.display = 'none';
+        }
+
+        // Adicionar múltiplos serviços de uma vez
+        function addMultipleServices() {
             if (!currentCashier) {
                 showError('É necessário abrir o caixa antes de adicionar serviços.');
                 return;
             }
-            
-            const serviceName = button.getAttribute('data-service-name');
-            const servicePrice = parseFloat(button.getAttribute('data-service-price'));
-            const serviceType = button.getAttribute('data-service-type');
-            const serviceDescription = button.getAttribute('data-service-description');
             
             const clientId = document.getElementById('selectedClientId').value;
             const collaboratorId = document.getElementById('collaboratorSelect').value;
@@ -5671,25 +5821,56 @@
                 return;
             }
             
-            const serviceData = {
-                clientId: clientId,
-                collaboratorId: collaboratorId,
-                type: serviceType,
-                value: servicePrice,
-                description: serviceDescription,
-                date: new Date().toISOString().split('T')[0],
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: currentUser.uid
-            };
+            if (selectedServiceIds.length === 0) {
+                showError('Selecione pelo menos um serviço.');
+                return;
+            }
             
-            db.collection('services').add(serviceData)
-                .then(() => {
-                    loadAllServices();
-                    showSuccess(`Serviço "${serviceName}" adicionado!`);
-                })
-                .catch((error) => {
-                    showError('Erro ao adicionar serviço: ' + error.message);
-                });
+            // Perguntar o valor total
+            Swal.fire({
+                title: 'Valor Total dos Serviços',
+                html: `
+                    <p>Serviços selecionados: <strong>${selectedServiceNames.join(' + ')}</strong></p>
+                    <input type="number" id="serviceTotalValue" class="form-control" placeholder="Valor total (€)" step="0.01" min="0" required>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Adicionar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const value = parseFloat(document.getElementById('serviceTotalValue').value);
+                    if (isNaN(value) || value <= 0) {
+                        Swal.showValidationMessage('Digite um valor válido');
+                        return false;
+                    }
+                    return value;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const totalValue = result.value;
+                    
+                    const serviceData = {
+                        clientId: clientId,
+                        collaboratorId: collaboratorId,
+                        type: 'manual', // Tipo padrão
+                        value: totalValue,
+                        description: selectedServiceNames.join(' + '),
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: currentUser.uid
+                    };
+                    
+                    db.collection('services').add(serviceData)
+                        .then(() => {
+                            // Limpar seleção após adicionar
+                            clearSelectedServices();
+                            loadAllServices();
+                            showSuccess(`Serviços "${selectedServiceNames.join(' + ')}" adicionados com sucesso!`);
+                        })
+                        .catch((error) => {
+                            showError('Erro ao adicionar serviços: ' + error.message);
+                        });
+                }
+            });
         }
 
         // ============================================
@@ -8480,120 +8661,6 @@
             });
         }
 
-        function addService(e) {
-            e.preventDefault();
-            saveService(true);
-        }
-
-        function addAnotherService() {
-            saveService(false);
-        }
-
-        function saveService(clearForm = true) {
-            if (!currentCashier) {
-                showError('É necessário abrir o caixa antes de adicionar serviços.');
-                return;
-            }
-            
-            const clientId = document.getElementById('selectedClientId').value;
-            const collaboratorId = document.getElementById('collaboratorSelect').value;
-            const serviceType = document.getElementById('serviceType').value;
-            const serviceValue = parseFloat(document.getElementById('serviceValue').value);
-            const serviceDescription = document.getElementById('serviceDescription').value;
-            
-            if (!clientId || !collaboratorId || !serviceType || !serviceValue) {
-                showError('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            const serviceData = {
-                clientId: clientId,
-                collaboratorId: collaboratorId,
-                type: serviceType,
-                value: serviceValue,
-                description: serviceDescription,
-                date: new Date().toISOString().split('T')[0],
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: currentUser.uid
-            };
-            
-            db.collection('services').add(serviceData)
-                .then(() => {
-                    if (clearForm) {
-                        document.getElementById('serviceForm').reset();
-                        document.getElementById('selectedClientId').value = '';
-                    }
-                    loadAllServices();
-                    showSuccess('Serviço adicionado com sucesso!');
-                })
-                .catch((error) => {
-                    showError('Erro ao adicionar serviço: ' + error.message);
-                });
-        }
-
-        function addProductSale(e) {
-            e.preventDefault();
-            
-            if (!currentCashier) {
-                showError('É necessário abrir o caixa antes de adicionar vendas de produtos.');
-                return;
-            }
-            
-            const productId = document.getElementById('selectedProductId').value;
-            const quantity = parseInt(document.getElementById('productSaleQuantity').value);
-            const clientId = document.getElementById('selectedProductClientId').value || null;
-            
-            if (!productId || !quantity) {
-                showError('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            const product = products.find(p => p.id === productId);
-            if (!product) {
-                showError('Produto não encontrado.');
-                return;
-            }
-            
-            if (product.quantity < quantity) {
-                showError(`Quantidade insuficiente em estoque. Disponível: ${product.quantity}`);
-                return;
-            }
-            
-            const totalValue = quantity * parseFloat(product.salePrice);
-            
-            const saleData = {
-                productId: productId,
-                productName: product.name,
-                quantity: quantity,
-                unitPrice: product.salePrice,
-                totalValue: totalValue,
-                clientId: clientId,
-                date: new Date().toISOString().split('T')[0],
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: currentUser.uid
-            };
-            
-            const newQuantity = product.quantity - quantity;
-            
-            db.collection('products').doc(productId).update({
-                quantity: newQuantity
-            })
-            .then(() => {
-                return db.collection('productSales').add(saleData);
-            })
-            .then(() => {
-                document.getElementById('productSaleForm').reset();
-                document.getElementById('selectedProductId').value = '';
-                document.getElementById('selectedProductClientId').value = '';
-                loadProducts();
-                loadAllProductSales();
-                showSuccess('Venda de produto registrada com sucesso!');
-            })
-            .catch((error) => {
-                showError('Erro ao registrar venda de produto: ' + error.message);
-            });
-        }
-
         function deleteService(serviceId) {
             Swal.fire({
                 title: 'Tem certeza?',
@@ -8887,7 +8954,8 @@
                 }
 
                 if (section === 'cashier') {
-                    // Atualizar botões de serviços rápidos
+                    // Atualizar botões de serviços rápidos e limpar seleções
+                    clearSelectedServices();
                     updateQuickServicesInCashier();
                 }
                 
