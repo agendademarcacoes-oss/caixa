@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Studio DeVitto - Sistema de Gestão</title>
@@ -4954,6 +4956,8 @@
                 if (user) {
                     currentUser = user;
                     showMainScreen();
+                    
+                    // Carregar todos os dados imediatamente
                     loadInitialData();
                     
                     // ADICIONAR LISTENER EM TEMPO REAL PARA A LOGO
@@ -4967,7 +4971,11 @@
                         renderStore(); // Renderizar a loja após carregar dados
                         setupStoreFilters(); // Configurar filtros da loja
                         loadInactiveClients(); // Carregar clientes inativos
-                    }, 100);
+                        
+                        // FORÇAR ATUALIZAÇÃO DO DASHBOARD E FINANCEIRO
+                        updateDashboard();
+                        updateFinancialSummary();
+                    }, 1000);
                 } else {
                     currentUser = null;
                     showLoginScreen();
@@ -6013,24 +6021,39 @@
                 document.getElementById('userName').textContent = currentUser.email;
                 loadUserData();
                 loadCashierStatus();
-                loadAllServices();
-                loadAllProductSales();
-                loadClients();
-                loadCollaborators();
-                loadPackages();
-                loadProducts();
-                loadClientNotes();
-                loadFinancialData();
                 
-                // Carregar dados do perfil da empresa do Firestore
-                loadBusinessProfileFromFirestore();
-                loadBusinessHoursFromFirestore();
-                
-                // Carregar configurações do Firebase
-                loadBusinessSettings();
-                
-                // Inicializar agenda
-                initAgenda();
+                // Carregar todos os dados em paralelo
+                Promise.all([
+                    loadAllServices(),
+                    loadAllProductSales(),
+                    loadClients(),
+                    loadCollaborators(),
+                    loadPackages(),
+                    loadProducts(),
+                    loadClientNotes(),
+                    loadFinancialData()
+                ]).then(() => {
+                    // Após todos os dados carregados, atualizar UI
+                    console.log('Todos os dados carregados com sucesso!');
+                    
+                    // Carregar dados do perfil da empresa do Firestore
+                    loadBusinessProfileFromFirestore();
+                    loadBusinessHoursFromFirestore();
+                    
+                    // Carregar configurações do Firebase
+                    loadBusinessSettings();
+                    
+                    // Inicializar agenda
+                    initAgenda();
+                    
+                    // Forçar atualização do dashboard e financeiro
+                    updateDashboard();
+                    updateFinancialSummary();
+                    updateMonthlySalesChart();
+                    updateProductsSoldStats();
+                }).catch(error => {
+                    console.error('Erro ao carregar dados:', error);
+                });
             }
         }
 
@@ -6048,56 +6071,72 @@
         }
 
         function loadFinancialData() {
-            loadExpenses();
-            loadSalaryPayments();
+            return Promise.all([
+                loadExpenses(),
+                loadSalaryPayments()
+            ]);
         }
 
         function loadExpenses() {
-            if (!currentUser) return;
-            
-            db.collection('expenses')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    expenses = [];
-                    querySnapshot.forEach((doc) => {
-                        expenses.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                if (!currentUser) {
+                    resolve();
+                    return;
+                }
+                
+                db.collection('expenses')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        expenses = [];
+                        querySnapshot.forEach((doc) => {
+                            expenses.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        updateExpensesUI();
+                        updateFinancialSummary();
+                        updateExpenseChart();
+                        loadUpcomingDueExpenses();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar despesas: ", error);
+                        reject(error);
                     });
-                    
-                    updateExpensesUI();
-                    updateFinancialSummary();
-                    updateExpenseChart();
-                    loadUpcomingDueExpenses();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar despesas: ", error);
-                });
+            });
         }
 
         function loadSalaryPayments() {
-            if (!currentUser) return;
-            
-            db.collection('salaryPayments')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    salaryPayments = [];
-                    querySnapshot.forEach((doc) => {
-                        salaryPayments.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                if (!currentUser) {
+                    resolve();
+                    return;
+                }
+                
+                db.collection('salaryPayments')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        salaryPayments = [];
+                        querySnapshot.forEach((doc) => {
+                            salaryPayments.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        updateSalariesUI();
+                        updateFinancialSummary();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar pagamentos de salário: ", error);
+                        reject(error);
                     });
-                    
-                    updateSalariesUI();
-                    updateFinancialSummary();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar pagamentos de salário: ", error);
-                });
+            });
         }
 
         function loadBusinessProfileFromFirestore() {
@@ -6176,208 +6215,236 @@
         }
 
         function loadAllServices() {
-            db.collection('services')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    allServices = [];
-                    todayServices = [];
-                    const today = new Date().toISOString().split('T')[0];
-                    
-                    querySnapshot.forEach((doc) => {
-                        const service = {
-                            id: doc.id,
-                            ...doc.data()
-                        };
-                        allServices.push(service);
+            return new Promise((resolve, reject) => {
+                db.collection('services')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        allServices = [];
+                        todayServices = [];
+                        const today = new Date().toISOString().split('T')[0];
                         
-                        if (service.date === today) {
-                            todayServices.push(service);
-                        }
+                        querySnapshot.forEach((doc) => {
+                            const service = {
+                                id: doc.id,
+                                ...doc.data()
+                            };
+                            allServices.push(service);
+                            
+                            if (service.date === today) {
+                                todayServices.push(service);
+                            }
+                        });
+                        
+                        allServices.sort((a, b) => {
+                            const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                            const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                            return dateB - dateA;
+                        });
+                        
+                        todayServices.sort((a, b) => {
+                            const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                            const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                            return dateB - dateA;
+                        });
+                        
+                        updateTodaySalesUI();
+                        updateDashboard();
+                        calculatePeriodSales();
+                        updateMonthlySalesChart();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar serviços: ", error);
+                        reject(error);
                     });
-                    
-                    allServices.sort((a, b) => {
-                        const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-                        const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
-                        return dateB - dateA;
-                    });
-                    
-                    todayServices.sort((a, b) => {
-                        const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-                        const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
-                        return dateB - dateA;
-                    });
-                    
-                    updateTodaySalesUI();
-                    updateDashboard();
-                    calculatePeriodSales();
-                    updateMonthlySalesChart();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar serviços: ", error);
-                });
+            });
         }
 
         function loadAllProductSales() {
-            db.collection('productSales')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    allProductSales = [];
-                    todayProductSales = [];
-                    const today = new Date().toISOString().split('T')[0];
-                    
-                    querySnapshot.forEach((doc) => {
-                        const sale = {
-                            id: doc.id,
-                            ...doc.data()
-                        };
-                        allProductSales.push(sale);
+            return new Promise((resolve, reject) => {
+                db.collection('productSales')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        allProductSales = [];
+                        todayProductSales = [];
+                        const today = new Date().toISOString().split('T')[0];
                         
-                        if (sale.date === today) {
-                            todayProductSales.push(sale);
-                        }
+                        querySnapshot.forEach((doc) => {
+                            const sale = {
+                                id: doc.id,
+                                ...doc.data()
+                            };
+                            allProductSales.push(sale);
+                            
+                            if (sale.date === today) {
+                                todayProductSales.push(sale);
+                            }
+                        });
+                        
+                        updateTodaySalesUI();
+                        updateDashboard();
+                        updateMonthlySalesChart();
+                        updateProductsSoldStats();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar vendas de produtos: ", error);
+                        reject(error);
                     });
-                    
-                    updateTodaySalesUI();
-                    updateDashboard();
-                    updateMonthlySalesChart();
-                    updateProductsSoldStats();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar vendas de produtos: ", error);
-                });
+            });
         }
 
         // NOVA FUNÇÃO: Carregar clientes com fotos
         function loadClients() {
-            console.log("Carregando clientes...");
-            db.collection('clients')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    clients = [];
-                    querySnapshot.forEach((doc) => {
-                        console.log("Cliente encontrado:", doc.data());
-                        clients.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                console.log("Carregando clientes...");
+                db.collection('clients')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        clients = [];
+                        querySnapshot.forEach((doc) => {
+                            console.log("Cliente encontrado:", doc.data());
+                            clients.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
+                        
+                        console.log("Total de clientes carregados:", clients.length);
+                        updateClientsUI();
+                        updatePackageClientSelect();
+                        document.getElementById('totalClients').textContent = clients.length;
+                        
+                        updateClientRecordsList();
+                        
+                        loadUpcomingBirthdays();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar clientes: ", error);
+                        showError('Erro ao carregar clientes: ' + error.message);
+                        reject(error);
                     });
-                    
-                    clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
-                    
-                    console.log("Total de clientes carregados:", clients.length);
-                    updateClientsUI();
-                    updatePackageClientSelect();
-                    document.getElementById('totalClients').textContent = clients.length;
-                    
-                    updateClientRecordsList();
-                    
-                    loadUpcomingBirthdays();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar clientes: ", error);
-                    showError('Erro ao carregar clientes: ' + error.message);
-                });
+            });
         }
 
         function loadCollaborators() {
-            console.log("Carregando colaboradores...");
-            db.collection('collaborators')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    collaborators = [];
-                    querySnapshot.forEach((doc) => {
-                        console.log("Colaborador encontrado:", doc.data());
-                        collaborators.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                console.log("Carregando colaboradores...");
+                db.collection('collaborators')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        collaborators = [];
+                        querySnapshot.forEach((doc) => {
+                            console.log("Colaborador encontrado:", doc.data());
+                            collaborators.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        collaborators.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
+                        
+                        console.log("Total de colaboradores carregados:", collaborators.length);
+                        updateCollaboratorsUI();
+                        updateCollaboratorSelect();
+                        updateReportCollaboratorSelect();
+                        updateSalaryCollaboratorSelect();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar colaboradores: ", error);
+                        showError('Erro ao carregar colaboradores: ' + error.message);
+                        reject(error);
                     });
-                    
-                    collaborators.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
-                    
-                    console.log("Total de colaboradores carregados:", collaborators.length);
-                    updateCollaboratorsUI();
-                    updateCollaboratorSelect();
-                    updateReportCollaboratorSelect();
-                    updateSalaryCollaboratorSelect();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar colaboradores: ", error);
-                    showError('Erro ao carregar colaboradores: ' + error.message);
-                });
+            });
         }
 
         function loadProducts() {
-            console.log("Carregando produtos...");
-            db.collection('products')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    products = [];
-                    querySnapshot.forEach((doc) => {
-                        console.log("Produto encontrado:", doc.data());
-                        products.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                console.log("Carregando produtos...");
+                db.collection('products')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        products = [];
+                        querySnapshot.forEach((doc) => {
+                            console.log("Produto encontrado:", doc.data());
+                            products.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        products.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
+                        
+                        updateInventoryUI();
+                        checkLowStock();
+                        renderStore(); // Atualizar a loja quando produtos carregarem
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar produtos: ", error);
+                        showError('Erro ao carregar produtos: ' + error.message);
+                        reject(error);
                     });
-                    
-                    products.sort((a, b) => a.name.localeCompare(b.name, 'pt-PT'));
-                    
-                    updateInventoryUI();
-                    checkLowStock();
-                    renderStore(); // Atualizar a loja quando produtos carregarem
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar produtos: ", error);
-                    showError('Erro ao carregar produtos: ' + error.message);
-                });
+            });
         }
 
         function loadPackages() {
-            console.log("Carregando pacotes...");
-            db.collection('packages')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    packages = [];
-                    querySnapshot.forEach((doc) => {
-                        console.log("Pacote encontrado:", doc.data());
-                        packages.push({
-                            id: doc.id,
-                            ...doc.data()
+            return new Promise((resolve, reject) => {
+                console.log("Carregando pacotes...");
+                db.collection('packages')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        packages = [];
+                        querySnapshot.forEach((doc) => {
+                            console.log("Pacote encontrado:", doc.data());
+                            packages.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
                         });
+                        
+                        updatePackagesUI();
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar pacotes: ", error);
+                        showError('Erro ao carregar pacotes: ' + error.message);
+                        reject(error);
                     });
-                    
-                    updatePackagesUI();
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar pacotes: ", error);
-                    showError('Erro ao carregar pacotes: ' + error.message);
-                });
+            });
         }
 
         function loadClientNotes() {
-            db.collection('clientNotes')
-                .where('userId', '==', currentUser.uid)
-                .get()
-                .then((querySnapshot) => {
-                    clientNotes = {};
-                    querySnapshot.forEach((doc) => {
-                        const noteData = doc.data();
-                        clientNotes[noteData.clientId] = {
-                            id: doc.id,
-                            notes: noteData.notes
-                        };
+            return new Promise((resolve, reject) => {
+                db.collection('clientNotes')
+                    .where('userId', '==', currentUser.uid)
+                    .get()
+                    .then((querySnapshot) => {
+                        clientNotes = {};
+                        querySnapshot.forEach((doc) => {
+                            const noteData = doc.data();
+                            clientNotes[noteData.clientId] = {
+                                id: doc.id,
+                                notes: noteData.notes
+                            };
+                        });
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao carregar notas dos clientes: ", error);
+                        reject(error);
                     });
-                })
-                .catch((error) => {
-                    console.error("Erro ao carregar notas dos clientes: ", error);
-                });
+            });
         }
 
         // Função para atualizar estatísticas de produtos vendidos
@@ -6387,15 +6454,15 @@
             const currentYear = today.getFullYear();
             
             const monthProductSales = allProductSales.filter(sale => {
-                const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
+                const saleDate = sale.timestamp && sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp || 0);
                 return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
             });
             
             const monthProductsCount = monthProductSales.reduce((sum, sale) => sum + sale.quantity, 0);
-            const monthProductsValue = monthProductSales.reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+            const monthProductsValue = monthProductSales.reduce((sum, sale) => sum + parseFloat(sale.totalValue || 0), 0);
             
             const totalProductsCount = allProductSales.reduce((sum, sale) => sum + sale.quantity, 0);
-            const totalProductsValue = allProductSales.reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+            const totalProductsValue = allProductSales.reduce((sum, sale) => sum + parseFloat(sale.totalValue || 0), 0);
             
             document.getElementById('monthProductsCount').textContent = monthProductsCount;
             document.getElementById('monthProductsValue').textContent = formatCurrency(monthProductsValue);
@@ -6418,21 +6485,21 @@
                 months.push(monthName);
                 
                 const monthServices = allServices.filter(service => {
-                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                    const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || 0);
                     return serviceDate.getMonth() === monthDate.getMonth() && 
                            serviceDate.getFullYear() === monthDate.getFullYear();
                 });
                 
-                const servicesValue = monthServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
+                const servicesValue = monthServices.reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
                 servicesData.push(servicesValue);
                 
                 const monthProducts = allProductSales.filter(sale => {
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
+                    const saleDate = sale.timestamp && sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp || 0);
                     return saleDate.getMonth() === monthDate.getMonth() && 
                            saleDate.getFullYear() === monthDate.getFullYear();
                 });
                 
-                const productsValue = monthProducts.reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+                const productsValue = monthProducts.reduce((sum, sale) => sum + parseFloat(sale.totalValue || 0), 0);
                 productsData.push(productsValue);
             }
             
@@ -6508,8 +6575,8 @@
             let monthServiceCount = 0;
             
             allServices.forEach(service => {
-                const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
-                const serviceValue = parseFloat(service.value);
+                const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || 0);
+                const serviceValue = parseFloat(service.value || 0);
                 
                 if (serviceDate >= startOfWeek) {
                     weekSales += serviceValue;
@@ -6526,7 +6593,6 @@
             document.getElementById('weekServices').textContent = `${weekServiceCount} serviços`;
             document.getElementById('monthSales').textContent = formatCurrency(monthSales);
             document.getElementById('monthServices').textContent = `${monthServiceCount} serviços`;
-            document.getElementById('totalServices').textContent = allServices.length;
         }
 
         function updateCashierUI(isOpen) {
@@ -6549,8 +6615,8 @@
                     element.disabled = false;
                 });
                 
-                const todayServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value), 0);
-                const todayProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue), 0);
+                const todayServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value || 0), 0);
+                const todayProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue || 0), 0);
                 const currentCashValue = (currentCashier.initialValue || 0) + todayServicesValue + todayProductsValue;
                 document.getElementById('currentCash').textContent = formatCurrency(currentCashValue);
             } else {
@@ -6591,14 +6657,14 @@
                 const client = clients.find(c => c.id === service.clientId) || { name: 'Cliente não encontrado' };
                 const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Colaborador não encontrado' };
                 
-                const serviceValue = parseFloat(service.value);
+                const serviceValue = parseFloat(service.value || 0);
                 totalServicesValue += serviceValue;
                 
                 let collaboratorPercent = 0;
                 if (service.type === 'manual') {
-                    collaboratorPercent = parseFloat(collaborator.manualPercent) || 0;
+                    collaboratorPercent = parseFloat(collaborator.manualPercent || 0);
                 } else if (service.type === 'product') {
-                    collaboratorPercent = parseFloat(collaborator.productPercent) || 0;
+                    collaboratorPercent = parseFloat(collaborator.productPercent || 0);
                 }
                 
                 const collaboratorValue = serviceValue * (collaboratorPercent / 100);
@@ -6618,7 +6684,7 @@
                     <div class="service-item mb-2">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="mb-1">${service.description}</h6>
+                                <h6 class="mb-1">${service.description || 'Serviço'}</h6>
                                 <p class="mb-1 text-muted small">
                                     Cliente: ${client.name} | 
                                     Colaborador: ${collaborator.name} |
@@ -6643,7 +6709,7 @@
                 const product = products.find(p => p.id === sale.productId) || { name: 'Produto não encontrado' };
                 const client = sale.clientId ? clients.find(c => c.id === sale.clientId) : null;
                 
-                const saleValue = parseFloat(sale.totalValue);
+                const saleValue = parseFloat(sale.totalValue || 0);
                 totalProductsValue += saleValue;
                 
                 html += `
@@ -6653,7 +6719,7 @@
                                 <h6 class="mb-1">${product.name}</h6>
                                 <p class="mb-1 text-muted small">
                                     ${client ? `Cliente: ${client.name} | ` : ''}
-                                    Quantidade: ${sale.quantity}
+                                    Quantidade: ${sale.quantity || 0}
                                 </p>
                             </div>
                             <div class="text-end">
@@ -6711,10 +6777,11 @@
         }
 
         function updateDashboard() {
-            const todayServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value), 0);
-            const todayProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue), 0);
+            const todayServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value || 0), 0);
+            const todayProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue || 0), 0);
             
             document.getElementById('totalCollaborators').textContent = collaborators.filter(c => c.active).length;
+            document.getElementById('totalClients').textContent = clients.length;
             
             const recentContainer = document.getElementById('recentServicesList');
             if (todayServices.length === 0) {
@@ -6764,8 +6831,8 @@
             
             products.forEach(product => {
                 const isLowStock = product.quantity <= product.minQuantity;
-                const stockValue = product.quantity * parseFloat(product.salePrice);
-                const investmentValue = product.quantity * parseFloat(product.purchasePrice);
+                const stockValue = product.quantity * parseFloat(product.salePrice || 0);
+                const investmentValue = product.quantity * parseFloat(product.purchasePrice || 0);
                 
                 totalValue += stockValue;
                 totalInvestment += investmentValue;
@@ -6804,7 +6871,7 @@
             });
             
             tbody.innerHTML = html;
-            updateInventorySummary(products.length, lowStockCount, totalValue, totalInvestment);
+            updateInventorySummary(totalProducts = products.length, lowStockCount, totalValue, totalInvestment);
         }
 
         function updateInventorySummary(totalProducts, lowStockCount, totalValue, totalInvestment) {
@@ -6986,7 +7053,7 @@
         function updatePackagesUI() {
             const container = document.getElementById('packagesList');
             const activePackages = packages.filter(p => p.status !== 'finished');
-            const totalValue = activePackages.reduce((sum, pkg) => sum + parseFloat(pkg.value), 0);
+            const totalValue = activePackages.reduce((sum, pkg) => sum + parseFloat(pkg.value || 0), 0);
             
             document.getElementById('totalActivePackages').textContent = activePackages.length;
             document.getElementById('totalPackagesValue').textContent = formatCurrency(totalValue);
@@ -7339,27 +7406,27 @@
             
             const monthServicesRevenue = allServices
                 .filter(service => {
-                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                    const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || 0);
                     return serviceDate.getMonth() === currentMonth && serviceDate.getFullYear() === currentYear;
                 })
-                .reduce((sum, service) => sum + parseFloat(service.value), 0);
+                .reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
             
             const monthProductsRevenue = allProductSales
                 .filter(sale => {
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
+                    const saleDate = sale.timestamp && sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp || 0);
                     return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
                 })
-                .reduce((sum, sale) => sum + parseFloat(sale.totalValue), 0);
+                .reduce((sum, sale) => sum + parseFloat(sale.totalValue || 0), 0);
             
             const monthProductsCost = allProductSales
                 .filter(sale => {
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
+                    const saleDate = sale.timestamp && sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp || 0);
                     return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
                 })
                 .reduce((sum, sale) => {
                     const product = products.find(p => p.id === sale.productId);
                     if (product) {
-                        return sum + (sale.quantity * parseFloat(product.purchasePrice));
+                        return sum + (sale.quantity * parseFloat(product.purchasePrice || 0));
                     }
                     return sum;
                 }, 0);
@@ -7371,7 +7438,7 @@
                            expenseDate.getFullYear() === currentYear && 
                            expense.paid;
                 })
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + parseFloat(expense.value || 0), 0);
             
             const monthServicesPendingExpenses = expenses
                 .filter(expense => {
@@ -7380,7 +7447,7 @@
                            expenseDate.getFullYear() === currentYear && 
                            !expense.paid;
                 })
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + parseFloat(expense.value || 0), 0);
             
             const monthServicesSalaries = salaryPayments
                 .filter(salary => {
@@ -7396,7 +7463,7 @@
             
             const recurringExpensesTotal = expenses
                 .filter(expense => expense.recurring)
-                .reduce((sum, expense) => sum + parseFloat(expense.value), 0);
+                .reduce((sum, expense) => sum + parseFloat(expense.value || 0), 0);
             
             const monthProductsProfit = monthProductsRevenue - monthProductsCost;
             const servicesFinalCash = monthServicesRevenue - monthServicesExpenses - monthServicesSalaries;
@@ -7462,7 +7529,7 @@
                     if (!categories[category]) {
                         categories[category] = 0;
                     }
-                    categories[category] += parseFloat(expense.value);
+                    categories[category] += parseFloat(expense.value || 0);
                 }
             });
             
@@ -7954,8 +8021,8 @@
         function closeCashier() {
             if (!currentCashier) return;
             
-            const totalServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value), 0);
-            const totalProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue), 0);
+            const totalServicesValue = todayServices.reduce((total, service) => total + parseFloat(service.value || 0), 0);
+            const totalProductsValue = todayProductSales.reduce((total, sale) => total + parseFloat(sale.totalValue || 0), 0);
             const totalSales = totalServicesValue + totalProductsValue;
             const finalValue = currentCashier.initialValue + totalSales;
             
@@ -9163,8 +9230,8 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const recentServices = allServices
                     .filter(service => service.clientId === client.id)
                     .sort((a, b) => {
-                        const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-                        const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+                        const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                        const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
                         return dateB - dateA;
                     })
                     .slice(0, 3);
@@ -9619,12 +9686,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const serviceData = filteredServices.map(service => {
                     const client = clients.find(c => c.id === service.clientId) || { name: 'Não encontrado' };
                     const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
-                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                    const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || service.date);
                     
                     return [
                         formatDate(serviceDate),
                         client.name,
-                        service.description,
+                        service.description || 'Serviço',
                         collaborator.name,
                         formatCurrency(service.value)
                     ];
@@ -9647,12 +9714,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const productData = filteredProducts.map(sale => {
                     const product = products.find(p => p.id === sale.productId) || { name: 'Não encontrado' };
                     const client = sale.clientId ? clients.find(c => c.id === sale.clientId) : null;
-                    const saleDate = sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp);
+                    const saleDate = sale.timestamp && sale.timestamp.toDate ? sale.timestamp.toDate() : new Date(sale.timestamp || sale.date);
                     
                     return [
                         formatDate(saleDate),
                         product.name,
-                        sale.quantity,
+                        sale.quantity || 0,
                         client ? client.name : 'Venda avulsa',
                         formatCurrency(sale.totalValue)
                     ];
@@ -9766,12 +9833,12 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
             doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-PT')} às ${new Date().toLocaleTimeString('pt-PT')}`, 105, 35, { align: 'center' });
             
             const monthServices = allServices.filter(s => {
-                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date);
+                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date || 0);
                 return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
             });
             
             const monthProducts = allProductSales.filter(s => {
-                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date);
+                const d = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp || s.date || 0);
                 return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
             });
             
@@ -10609,14 +10676,14 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const client = clients.find(c => c.id === service.clientId) || { name: 'Cliente não encontrado' };
                 const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Colaborador não encontrado' };
                 
-                const serviceValue = parseFloat(service.value);
+                const serviceValue = parseFloat(service.value || 0);
                 totalServicesValue += serviceValue;
                 
                 let collaboratorPercent = 0;
                 if (service.type === 'manual') {
-                    collaboratorPercent = parseFloat(collaborator.manualPercent) || 0;
+                    collaboratorPercent = parseFloat(collaborator.manualPercent || 0);
                 } else if (service.type === 'product') {
-                    collaboratorPercent = parseFloat(collaborator.productPercent) || 0;
+                    collaboratorPercent = parseFloat(collaborator.productPercent || 0);
                 }
                 
                 const collaboratorValue = serviceValue * (collaboratorPercent / 100);
@@ -10661,7 +10728,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const product = products.find(p => p.id === sale.productId) || { name: 'Produto não encontrado' };
                 const client = sale.clientId ? clients.find(c => c.id === sale.clientId) : null;
                 
-                const saleValue = parseFloat(sale.totalValue);
+                const saleValue = parseFloat(sale.totalValue || 0);
                 totalProductsValue += saleValue;
                 
                 html += `
@@ -11578,7 +11645,7 @@ Equipe ${businessSettings.name || 'Studio DeVitto'}`;
                 const card = document.createElement('div');
                 card.className = 'recent-service-card';
                 
-                const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || service.date);
                 const collaborator = collaborators.find(c => c.id === service.collaboratorId);
                 
                 card.innerHTML = `
@@ -12399,12 +12466,12 @@ function sendWhatsAppToInactive(clientId, phone) {
             
             const clientServices = allServices.filter(service => service.clientId === client.id)
                 .sort((a, b) => {
-                    const dateA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-                    const dateB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+                    const dateA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                    const dateB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
                     return dateB - dateA;
                 });
             
-            const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value), 0);
+            const totalSpent = clientServices.reduce((sum, service) => sum + parseFloat(service.value || 0), 0);
             const clientNote = clientNotes[client.id] || { notes: '' };
             
             // Foto do cliente na ficha
@@ -12437,9 +12504,9 @@ function sendWhatsAppToInactive(clientId, phone) {
                                         <p><strong>Total de Serviços:</strong> ${clientServices.length}</p>
                                         <p><strong>Valor Total Gasto:</strong> ${formatCurrency(totalSpent)}</p>
                                         <p><strong>Última Visita:</strong> ${clientServices.length > 0 ? 
-                                            formatDate(clientServices[0].timestamp.toDate ? 
+                                            formatDate(clientServices[0].timestamp && clientServices[0].timestamp.toDate ? 
                                                 clientServices[0].timestamp.toDate() : 
-                                                new Date(clientServices[0].timestamp)) : 
+                                                new Date(clientServices[0].timestamp || clientServices[0].date)) : 
                                             'Nunca'}</p>
                                     </div>
                                 </div>
@@ -12485,11 +12552,11 @@ function sendWhatsAppToInactive(clientId, phone) {
                                             <tbody>
                                                 ${clientServices.slice(0, 10).map(service => {
                                                     const collaborator = collaborators.find(c => c.id === service.collaboratorId) || { name: 'Não informado' };
-                                                    const serviceDate = service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp);
+                                                    const serviceDate = service.timestamp && service.timestamp.toDate ? service.timestamp.toDate() : new Date(service.timestamp || service.date);
                                                     return `
                                                         <tr>
                                                             <td>${formatDate(serviceDate)}</td>
-                                                            <td>${service.description}</td>
+                                                            <td>${service.description || 'Serviço'}</td>
                                                             <td>${collaborator.name}</td>
                                                             <td>${formatCurrency(service.value)}</td>
                                                         </tr>
@@ -12553,4 +12620,5 @@ function sendWhatsAppToInactive(clientId, phone) {
         } 
     </script>
 
-</body></html>
+</body>
+</html>
