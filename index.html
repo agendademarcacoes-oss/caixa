@@ -1969,6 +1969,42 @@
             .footer-action-btn.icon {
                 flex: 0 0 48px;
             }
+
+            /* NOVO LAYOT DO DASHBOARD EM MOBILE */
+            #dashboard .row:first-child .col-md-3 {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            #dashboard .row:first-child .col-md-3:first-child {
+                width: 100%;
+            }
+            
+            #dashboard .row:first-child .col-md-3:not(:first-child) {
+                width: 50%;
+                float: left;
+            }
+            
+            #dashboard .row:nth-child(2) .col-md-3 {
+                width: 50%;
+                float: left;
+                margin-bottom: 15px;
+            }
+            
+            #dashboard .row:first-child::after,
+            #dashboard .row:nth-child(2)::after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+            
+            #dashboard .row:first-child .col-md-3 .card-body {
+                min-height: 120px;
+            }
+            
+            #dashboard .stats-number {
+                font-size: 1.3rem;
+            }
         }
         
         @media (min-width: 769px) {
@@ -3154,9 +3190,10 @@
                             </div>
                         </div>
 
-                        <!-- Dashboard -->
+                        <!-- Dashboard - MODIFICADO: LAYOT MOBILE OTIMIZADO -->
                         <div id="dashboard" class="section">
                             <div class="row">
+                                <!-- CAIXA ATUAL (linha inteira) -->
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
                                         <div class="card-body">
@@ -3174,6 +3211,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <!-- VENDAS HOJE | PRODUTOS HOJE (lado a lado) -->
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
                                         <div class="card-body">
@@ -3202,6 +3241,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- VENDAS SEMANA | VENDAS MÊS (lado a lado) -->
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
                                         <div class="card-body">
@@ -3216,9 +3257,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
                                         <div class="card-body text-center">
@@ -3228,15 +3266,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 mb-4">
-                                    <div class="card dashboard-card">
-                                        <div class="card-body text-center">
-                                            <h5 class="card-title">Aniversários</h5>
-                                            <h3 class="stats-number text-danger" id="upcomingBirthdays">0</h3>
-                                            <p class="stats-label">Próximos 7 dias</p>
-                                        </div>
-                                    </div>
-                                </div>
+
+                                <!-- COLABORADORES | CLIENTES (lado a lado) -->
                                 <div class="col-md-3 mb-4">
                                     <div class="card dashboard-card">
                                         <div class="card-body text-center">
@@ -3252,6 +3283,17 @@
                                             <h5 class="card-title">Clientes</h5>
                                             <h3 class="stats-number text-success" id="totalClients">0</h3>
                                             <p class="stats-label">Cadastrados</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ANIVERSÁRIOS (linha inteira) -->
+                                <div class="col-md-3 mb-4">
+                                    <div class="card dashboard-card">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Aniversários</h5>
+                                            <h3 class="stats-number text-danger" id="upcomingBirthdays">0</h3>
+                                            <p class="stats-label">Próximos 7 dias</p>
                                         </div>
                                     </div>
                                 </div>
