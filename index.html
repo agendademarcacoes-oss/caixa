@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -2776,6 +2776,7 @@
             color: var(--primary-color);
             transition: all 0.3s;
             white-space: nowrap;
+            cursor: pointer;
         }
 
         .quick-service-btn:hover {
@@ -5691,18 +5692,56 @@
                 
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // Adiciona o nome do serviço ao campo de descrição
+                    
                     const descField = document.getElementById('serviceDescription');
                     const currentText = descField.value;
-                    if (currentText) {
-                        descField.value = currentText + ' + ' + service.name;
+                    const serviceName = this.getAttribute('data-service-name');
+                    
+                    // Verificar se o serviço já está na descrição
+                    const servicePattern = new RegExp('(^|\\s\\+\\s)' + escapeRegExp(serviceName) + '($|\\s\\+\\s)', 'i');
+                    
+                    if (servicePattern.test(currentText)) {
+                        // REMOVER o serviço da descrição
+                        let newText = currentText.replace(new RegExp('(^|\\s\\+\\s)' + escapeRegExp(serviceName) + '($|\\s\\+\\s)', 'g'), '');
+                        
+                        // Limpar espaços extras e operadores '+'
+                        newText = newText.replace(/^\s*\+\s*|\s*\+\s*$/g, '').trim();
+                        
+                        descField.value = newText;
+                        
+                        // Feedback visual
+                        this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                        this.style.color = 'var(--primary-color)';
                     } else {
-                        descField.value = service.name;
+                        // ADICIONAR o serviço à descrição
+                        if (currentText) {
+                            descField.value = currentText + ' + ' + serviceName;
+                        } else {
+                            descField.value = serviceName;
+                        }
+                        
+                        // Feedback visual de ativo
+                        this.style.background = 'var(--primary-color)';
+                        this.style.color = 'white';
+                        
+                        // Reset após 300ms
+                        setTimeout(() => {
+                            this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                            this.style.color = 'var(--primary-color)';
+                        }, 300);
                     }
+                    
+                    // Disparar evento de mudança para possível validação
+                    descField.dispatchEvent(new Event('input', { bubbles: true }));
                 });
                 
                 container.appendChild(button);
             });
+        }
+
+        // Função auxiliar para escapar caracteres especiais em regex
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
         // ============================================
