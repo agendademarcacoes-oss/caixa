@@ -2816,6 +2816,92 @@
             display: flex;
             gap: 5px;
         }
+
+        /* NOVOS ESTILOS: ROLAGEM HORIZONTAL PARA SERVIÇOS RÁPIDOS */
+        .quick-services-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 5px 0 10px 0;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .quick-services-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .selected-services-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .selected-service-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .selected-service-tag i {
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .selected-service-tag i:hover {
+            opacity: 1;
+        }
+
+        .add-services-btn {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .add-services-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .add-services-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -3377,16 +3463,26 @@
                             </div>
                         </div>
 
-                        <!-- Caixa - MODIFICADO: ADICIONADO ACESSO RÁPIDO AOS SERVIÇOS -->
+                        <!-- Caixa - MODIFICADO: ADICIONADO ACESSO RÁPIDO AOS SERVIÇOS COM SELEÇÃO MÚLTIPLA -->
                         <div id="cashier" class="section">
                             <div class="row">
                                 <div class="col-md-8">
-                                    <!-- NOVA SEÇÃO: Acesso Rápido aos Serviços -->
+                                    <!-- NOVA SEÇÃO: Acesso Rápido aos Serviços (UMA ÚNICA LINHA DESLIZÁVEL) -->
                                     <div class="services-quick-access">
                                         <h6><i class="fas fa-bolt me-2"></i>Serviços Rápidos</h6>
-                                        <div class="d-flex flex-wrap gap-2" id="quickServicesContainer">
+                                        <div class="quick-services-scroll" id="quickServicesContainer">
                                             <!-- Botões de serviços serão adicionados dinamicamente -->
                                         </div>
+                                        
+                                        <!-- Área para mostrar serviços selecionados -->
+                                        <div class="selected-services-tags" id="selectedServicesTags">
+                                            <!-- Tags dos serviços selecionados aparecerão aqui -->
+                                        </div>
+                                        
+                                        <!-- Botão para adicionar todos os serviços selecionados -->
+                                        <button class="add-services-btn" id="addSelectedServicesBtn" disabled>
+                                            <i class="fas fa-plus-circle me-2"></i>Adicionar serviços
+                                        </button>
                                     </div>
 
                                     <div class="card">
@@ -5017,6 +5113,9 @@
         // NOVA VARIÁVEL: Serviços da Empresa
         let companyServices = [];
         
+        // NOVAS VARIÁVEIS PARA SELEÇÃO MÚLTIPLA DE SERVIÇOS
+        let selectedQuickServices = [];
+        
         // Controle Financeiro
         let expenses = [];
         let salaryPayments = [];
@@ -5249,6 +5348,9 @@
             document.getElementById('addAnotherServiceBtn').addEventListener('click', addAnotherService);
             document.getElementById('productSaleForm').addEventListener('submit', addProductSale);
             
+            // NOVO EVENTO: Botão para adicionar serviços selecionados
+            document.getElementById('addSelectedServicesBtn').addEventListener('click', addSelectedQuickServices);
+            
             // Clientes
             document.getElementById('addClientBtn').addEventListener('click', showAddClientModal);
             document.getElementById('saveClientBtn').addEventListener('click', saveClient);
@@ -5411,7 +5513,7 @@
         }
 
         // ============================================
-        // NOVAS FUNÇÕES PARA GERENCIAMENTO DE SERVIÇOS
+        // NOVAS FUNÇÕES PARA SERVIÇOS RÁPIDOS COM SELEÇÃO MÚLTIPLA
         // ============================================
 
         // Carregar serviços da empresa do Firestore
@@ -5615,12 +5717,15 @@
             });
         }
 
-        // Atualizar botões de acesso rápido no caixa
+        // Atualizar botões de acesso rápido no caixa (UMA ÚNICA LINHA DESLIZÁVEL)
         function updateQuickServicesInCashier() {
             const container = document.getElementById('quickServicesContainer');
             if (!container) return;
             
             container.innerHTML = '';
+            selectedQuickServices = []; // Limpar seleção ao recarregar
+            updateSelectedServicesTags(); // Atualizar tags vazias
+            updateAddServicesButton(); // Desabilitar botão
             
             if (companyServices.length === 0) {
                 container.innerHTML = '<p class="text-muted small">Nenhum serviço cadastrado em Perfil da Empresa.</p>';
@@ -5631,30 +5736,124 @@
                 const button = document.createElement('button');
                 button.className = 'quick-service-btn';
                 button.textContent = service.name;
+                button.setAttribute('data-service-id', service.id);
                 button.setAttribute('data-service-name', service.name);
                 button.setAttribute('data-service-price', service.price);
                 button.setAttribute('data-service-type', service.type);
                 button.setAttribute('data-service-description', service.description || service.name);
                 
-                button.addEventListener('click', function() {
-                    quickAddServiceFromButton(this);
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleQuickServiceSelection(this);
                 });
                 
                 container.appendChild(button);
             });
         }
 
-        // Adicionar serviço rapidamente a partir do botão
-        function quickAddServiceFromButton(button) {
-            if (!currentCashier) {
-                showError('É necessário abrir o caixa antes de adicionar serviços.');
-                return;
-            }
-            
+        // Alternar seleção de serviço rápido
+        function toggleQuickServiceSelection(button) {
+            const serviceId = button.getAttribute('data-service-id');
             const serviceName = button.getAttribute('data-service-name');
             const servicePrice = parseFloat(button.getAttribute('data-service-price'));
             const serviceType = button.getAttribute('data-service-type');
             const serviceDescription = button.getAttribute('data-service-description');
+            
+            // Verificar se já está selecionado
+            const existingIndex = selectedQuickServices.findIndex(s => s.id === serviceId);
+            
+            if (existingIndex >= 0) {
+                // Remover seleção
+                selectedQuickServices.splice(existingIndex, 1);
+                button.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                button.style.color = 'var(--primary-color)';
+                button.style.border = '1px solid #dee2e6';
+            } else {
+                // Adicionar seleção
+                selectedQuickServices.push({
+                    id: serviceId,
+                    name: serviceName,
+                    price: servicePrice,
+                    type: serviceType,
+                    description: serviceDescription
+                });
+                button.style.background = 'var(--primary-color)';
+                button.style.color = 'white';
+                button.style.border = 'none';
+            }
+            
+            // Atualizar tags e botão
+            updateSelectedServicesTags();
+            updateAddServicesButton();
+        }
+
+        // Atualizar tags dos serviços selecionados
+        function updateSelectedServicesTags() {
+            const container = document.getElementById('selectedServicesTags');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (selectedQuickServices.length === 0) {
+                container.innerHTML = '<p class="text-muted small mb-0">Nenhum serviço selecionado. Toque nos botões acima para adicionar.</p>';
+                return;
+            }
+            
+            selectedQuickServices.forEach((service, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-service-tag';
+                tag.innerHTML = `
+                    ${service.name} (${formatCurrency(service.price)})
+                    <i class="fas fa-times" onclick="removeSelectedService(${index})"></i>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // Remover serviço da seleção
+        function removeSelectedService(index) {
+            if (index >= 0 && index < selectedQuickServices.length) {
+                const serviceId = selectedQuickServices[index].id;
+                
+                // Remover do array
+                selectedQuickServices.splice(index, 1);
+                
+                // Atualizar estilo do botão correspondente
+                const buttons = document.querySelectorAll('.quick-service-btn');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('data-service-id') === serviceId) {
+                        btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                        btn.style.color = 'var(--primary-color)';
+                        btn.style.border = '1px solid #dee2e6';
+                    }
+                });
+                
+                // Atualizar tags e botão
+                updateSelectedServicesTags();
+                updateAddServicesButton();
+            }
+        }
+
+        // Atualizar estado do botão de adicionar serviços
+        function updateAddServicesButton() {
+            const btn = document.getElementById('addSelectedServicesBtn');
+            if (!btn) return;
+            
+            if (selectedQuickServices.length > 0) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-plus-circle me-2"></i>Adicionar ${selectedQuickServices.length} serviço(s)`;
+            } else {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fas fa-plus-circle me-2"></i>Adicionar serviços`;
+            }
+        }
+
+        // Adicionar todos os serviços selecionados
+        function addSelectedQuickServices() {
+            if (!currentCashier) {
+                showError('É necessário abrir o caixa antes de adicionar serviços.');
+                return;
+            }
             
             const clientId = document.getElementById('selectedClientId').value;
             const collaboratorId = document.getElementById('collaboratorSelect').value;
@@ -5671,24 +5870,56 @@
                 return;
             }
             
-            const serviceData = {
-                clientId: clientId,
-                collaboratorId: collaboratorId,
-                type: serviceType,
-                value: servicePrice,
-                description: serviceDescription,
-                date: new Date().toISOString().split('T')[0],
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: currentUser.uid
-            };
+            if (selectedQuickServices.length === 0) {
+                showError('Nenhum serviço selecionado.');
+                return;
+            }
             
-            db.collection('services').add(serviceData)
+            showLoading(`Adicionando ${selectedQuickServices.length} serviço(s)...`);
+            
+            // Criar promessas para adicionar todos os serviços
+            const promises = selectedQuickServices.map(service => {
+                const serviceData = {
+                    clientId: clientId,
+                    collaboratorId: collaboratorId,
+                    type: service.type,
+                    value: service.price,
+                    description: service.description,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                return db.collection('services').add(serviceData);
+            });
+            
+            // Executar todas as promessas em paralelo
+            Promise.all(promises)
                 .then(() => {
+                    Swal.close();
+                    
+                    // Limpar seleção
+                    selectedQuickServices = [];
+                    
+                    // Resetar estilo dos botões
+                    document.querySelectorAll('.quick-service-btn').forEach(btn => {
+                        btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                        btn.style.color = 'var(--primary-color)';
+                        btn.style.border = '1px solid #dee2e6';
+                    });
+                    
+                    // Atualizar tags e botão
+                    updateSelectedServicesTags();
+                    updateAddServicesButton();
+                    
+                    // Recarregar serviços
                     loadAllServices();
-                    showSuccess(`Serviço "${serviceName}" adicionado!`);
+                    
+                    showSuccess(`${selectedQuickServices.length} serviço(s) adicionado(s) com sucesso!`);
                 })
                 .catch((error) => {
-                    showError('Erro ao adicionar serviço: ' + error.message);
+                    console.error('Erro ao adicionar serviços:', error);
+                    showError('Erro ao adicionar serviços: ' + error.message);
                 });
         }
 
