@@ -2940,52 +2940,40 @@
             transform: none;
         }
 
-       /* ===== DASHBOARD OTIMIZADO PARA CELULAR - VERSÃO FINAL COM BORDAS AJUSTADAS ===== */
+       /* ===== DASHBOARD OTIMIZADO PARA CELULAR - VERSÃO FINAL COM ESPAÇO NAS LATERAIS ===== */
 @media (max-width: 768px) {
     
-    /* Container principal - SEM PADDING LATERAL */
+    /* Container principal - COM ESPAÇO NAS LATERAIS IGUAL AO MENU */
     #dashboard {
-        padding: 10px 0 !important;
+        padding: 10px 12px !important; /* Espaço de 12px nas laterais */
     }
     
-    /* Linhas do dashboard - SEM MARGEM LATERAL */
+    /* Linhas do dashboard */
     #dashboard .row {
         display: flex !important;
         flex-wrap: wrap !important;
         margin: 0 !important;
-        gap: 0 !important;
+        gap: 8px !important; /* Espaço entre os cards */
     }
     
-    /* Cards lado a lado - SEM PADDING LATERAL */
+    /* Cards lado a lado */
     #dashboard .col-md-3 {
-        width: 50% !important;
+        width: 100% !important;
         padding: 0 !important;
-        margin-bottom: 8px !important;
-        float: none !important;
+        margin: 0 !important;
         box-sizing: border-box !important;
     }
     
-    /* Primeiro card (Caixa Atual) - linha inteira */
-    #dashboard .row:first-child .col-md-3:first-child {
-        width: 100% !important;
-    }
-    
-    /* Demais cards - metade da tela cada */
+    /* Cards de 50% (todos exceto o primeiro) */
     #dashboard .row:first-child .col-md-3:not(:first-child),
     #dashboard .row:nth-child(2) .col-md-3 {
-        width: 50% !important;
+        width: calc(50% - 4px) !important; /* 50% menos 4px para caber direitinho */
     }
     
-    /* Remover floats e clearfix que atrapalham */
-    #dashboard .row:first-child::after,
-    #dashboard .row:nth-child(2)::after {
-        display: none !important;
-    }
-    
-    /* Estilo dos cards - SEM MARGEM e com bordas arredondadas */
+    /* Estilo dos cards */
     #dashboard .card {
         height: 100% !important;
-        margin: 0 4px !important; /* PEQUENA MARGEM DE 4px NAS LATERAIS */
+        margin: 0 !important;
         border-radius: 12px !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         border: none !important;
