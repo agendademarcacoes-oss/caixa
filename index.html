@@ -2940,35 +2940,161 @@
             transform: none;
         }
 
-        /* ===== CORREÇÃO DO ESPAÇAMENTO ENTRE CARDS NO CELULAR ===== */
+        /* ===== DASHBOARD OTIMIZADO PARA CELULAR - VERSÃO PREMIUM ===== */
 @media (max-width: 768px) {
+    
+    /* Container principal do dashboard */
+    #dashboard {
+        padding: 8px !important;
+    }
+    
+    /* Remove espaçamentos desnecessários */
     #dashboard .row {
-        margin-bottom: 0 !important;
+        margin: 0 !important;
+        gap: 6px !important;
     }
     
+    /* Configuração dos cards */
     #dashboard .col-md-3 {
-        margin-bottom: 8px !important;
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding: 0 !important;
+        margin-bottom: 6px !important;
+        width: 100%;
     }
     
+    /* Cards lado a lado (exceto o primeiro) */
+    #dashboard .row:first-child .col-md-3:not(:first-child),
+    #dashboard .row:nth-child(2) .col-md-3 {
+        width: calc(50% - 3px) !important;
+        float: left !important;
+        margin-right: 6px !important;
+    }
+    
+    /* Ajuste para o último card de cada linha */
+    #dashboard .row:first-child .col-md-3:last-child,
+    #dashboard .row:nth-child(2) .col-md-3:last-child {
+        margin-right: 0 !important;
+    }
+    
+    /* Clear fix para as linhas */
+    #dashboard .row:first-child::after,
+    #dashboard .row:nth-child(2)::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    /* Estilo dos cards */
+    #dashboard .card {
+        margin-bottom: 0 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        transition: transform 0.2s ease !important;
+    }
+    
+    #dashboard .card:active {
+        transform: scale(0.98) !important;
+    }
+    
+    /* Corpo do card mais compacto */
     #dashboard .card-body {
         padding: 12px 10px !important;
     }
     
+    /* Título do card */
+    #dashboard .card-title {
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
+        color: #6c757d !important;
+        margin-bottom: 4px !important;
+    }
+    
+    /* Números grandes */
     #dashboard .stats-number {
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
         margin-bottom: 2px !important;
     }
     
+    /* Labels pequenos */
     #dashboard .stats-label {
+        font-size: 0.65rem !important;
+        color: #adb5bd !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Ícones dos cards */
+    #dashboard .fa-2x {
+        font-size: 1.6rem !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Botões do caixa */
+    #dashboard .btn-sm {
+        padding: 4px 8px !important;
         font-size: 0.7rem !important;
     }
     
-    #dashboard .card-title {
-        font-size: 0.85rem !important;
-        margin-bottom: 4px !important;
+    /* Ajuste para o card do caixa (primeiro card) */
+    #dashboard .row:first-child .col-md-3:first-child .card-body {
+        padding: 15px !important;
     }
+    
+    #dashboard .row:first-child .col-md-3:first-child .stats-number {
+        font-size: 1.6rem !important;
+        color: var(--primary-color) !important;
+    }
+    
+    /* Cores dos números */
+    #dashboard .text-success {
+        color: #28a745 !important;
+    }
+    
+    #dashboard .text-info {
+        color: #17a2b8 !important;
+    }
+    
+    #dashboard .text-warning {
+        color: #ffc107 !important;
+    }
+    
+    #dashboard .text-danger {
+        color: #dc3545 !important;
+    }
+    
+    /* Linha colorida na borda esquerda */
+    #dashboard .dashboard-card {
+        border-left-width: 3px !important;
+    }
+    
+    /* Animações suaves */
+    #dashboard .card {
+        animation: fadeInUp 0.3s ease forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Delay na animação dos cards */
+    #dashboard .col-md-3:nth-child(1) .card { animation-delay: 0.05s; }
+    #dashboard .col-md-3:nth-child(2) .card { animation-delay: 0.1s; }
+    #dashboard .col-md-3:nth-child(3) .card { animation-delay: 0.15s; }
+    #dashboard .col-md-3:nth-child(4) .card { animation-delay: 0.2s; }
+    #dashboard .col-md-3:nth-child(5) .card { animation-delay: 0.25s; }
+    #dashboard .col-md-3:nth-child(6) .card { animation-delay: 0.3s; }
+    #dashboard .col-md-3:nth-child(7) .card { animation-delay: 0.35s; }
+    #dashboard .col-md-3:nth-child(8) .card { animation-delay: 0.4s; }
 }
         
     </style>
