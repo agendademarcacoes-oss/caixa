@@ -2940,26 +2940,26 @@
             transform: none;
         }
 
-       /* ===== DASHBOARD OTIMIZADO PARA CELULAR - VERSÃO CORRIGIDA COM BORDINHA ===== */
+       /* ===== DASHBOARD OTIMIZADO PARA CELULAR - VERSÃO FINAL COM BORDAS AJUSTADAS ===== */
 @media (max-width: 768px) {
     
-    /* Container principal */
+    /* Container principal - SEM PADDING LATERAL */
     #dashboard {
-        padding: 10px !important;
+        padding: 10px 0 !important;
     }
     
-    /* Linhas do dashboard */
+    /* Linhas do dashboard - SEM MARGEM LATERAL */
     #dashboard .row {
         display: flex !important;
         flex-wrap: wrap !important;
-        margin: 0 -3px !important;
+        margin: 0 !important;
         gap: 0 !important;
     }
     
-    /* Cards lado a lado - TODOS com a mesma largura */
+    /* Cards lado a lado - SEM PADDING LATERAL */
     #dashboard .col-md-3 {
         width: 50% !important;
-        padding: 0 3px !important;
+        padding: 0 !important;
         margin-bottom: 8px !important;
         float: none !important;
         box-sizing: border-box !important;
@@ -2982,10 +2982,10 @@
         display: none !important;
     }
     
-    /* Estilo dos cards */
+    /* Estilo dos cards - SEM MARGEM e com bordas arredondadas */
     #dashboard .card {
         height: 100% !important;
-        margin: 0 !important;
+        margin: 0 4px !important; /* PEQUENA MARGEM DE 4px NAS LATERAIS */
         border-radius: 12px !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         border: none !important;
