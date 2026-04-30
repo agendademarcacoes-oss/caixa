@@ -13288,494 +13288,164 @@ function sendWhatsAppToInactive(clientId, phone) {
 
 
 
-
-
+<!-- SISTEMA OFFLINE - Colar antes do </body> -->
 
 (function() {
-    // ============================================
-    // GERENCIADOR OFFLINE SIMPLES
-    // ============================================
-    
-    let isOnline = navigator.onLine;
-    let pendingData = [];
+    console.log('🟢 Sistema offline ativado');
     
     // ============================================
-    // CACHE LOCAL PARA DADOS EXISTENTES
+    // SALVAR DADOS LOCALMENTE SEMPRE QUE CARREGAR
     // ============================================
     
-    // Carregar dados pendentes
-    const saved = localStorage.getItem('pendingOfflineData');
-    if (saved) {
-        pendingData = JSON.parse(saved);
-    }
-    
-    // Carregar dados cacheados (clientes, produtos, etc.)
-    function loadCachedData() {
-        const cachedClients = localStorage.getItem('cached_clients');
-        if (cachedClients && clients) {
-            const cached = JSON.parse(cachedClients);
-            if (cached.length > 0 && clients.length === 0) {
-                clients = cached;
-                console.log('📦 Clientes carregados do cache:', clients.length);
-                if (typeof updateClientsUI === 'function') updateClientsUI();
-                if (typeof updateClientRecordsList === 'function') updateClientRecordsList();
-                if (typeof updatePackageClientSelect === 'function') updatePackageClientSelect();
-                document.getElementById('totalClients').textContent = clients.length;
-            }
-        }
-        
-        const cachedProducts = localStorage.getItem('cached_products');
-        if (cachedProducts && products) {
-            const cached = JSON.parse(cachedProducts);
-            if (cached.length > 0 && products.length === 0) {
-                products = cached;
-                console.log('📦 Produtos carregados do cache:', products.length);
-                if (typeof updateInventoryUI === 'function') updateInventoryUI();
-                if (typeof renderStore === 'function') renderStore();
-            }
-        }
-        
-        const cachedCollaborators = localStorage.getItem('cached_collaborators');
-        if (cachedCollaborators && collaborators) {
-            const cached = JSON.parse(cachedCollaborators);
-            if (cached.length > 0 && collaborators.length === 0) {
-                collaborators = cached;
-                console.log('📦 Colaboradores carregados do cache:', collaborators.length);
-                if (typeof updateCollaboratorsUI === 'function') updateCollaboratorsUI();
-                if (typeof updateCollaboratorSelect === 'function') updateCollaboratorSelect();
-            }
-        }
-        
-        const cachedServices = localStorage.getItem('cached_services');
-        if (cachedServices && allServices) {
-            const cached = JSON.parse(cachedServices);
-            if (cached.length > 0 && allServices.length === 0) {
-                allServices = cached;
-                console.log('📦 Serviços carregados do cache:', allServices.length);
-            }
-        }
-    }
-    
-    // Salvar dados no cache local (quando estiver online)
-    function saveToCache(collection, data) {
-        const cacheKey = `cached_${collection}`;
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-        console.log(`💾 ${collection} salvo no cache:`, data.length);
-    }
-    
-    // ============================================
-    // NOTIFICAÇÕES
-    // ============================================
-    
-    function showStatus(message, type) {
-        let div = document.getElementById('offlineStatus');
-        if (!div) {
-            div = document.createElement('div');
-            div.id = 'offlineStatus';
-            div.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:8px;color:white;font-size:14px;transition:0.3s;box-shadow:0 2px 10px rgba(0,0,0,0.2)';
-            document.body.appendChild(div);
-        }
-        div.style.background = type === 'offline' ? '#dc3545' : '#28a745';
-        div.innerHTML = message;
-        div.style.display = 'block';
-        setTimeout(() => { div.style.display = 'none'; }, 4000);
-    }
-    
-    // ============================================
-    // EVENTOS DE CONEXÃO
-    // ============================================
-    
-    window.addEventListener('offline', () => {
-        isOnline = false;
-        showStatus('⚠️ Modo Offline - Usando dados salvos localmente', 'offline');
-        loadCachedData(); // Carregar dados do cache quando ficar offline
-    });
-    
-    window.addEventListener('online', async () => {
-        isOnline = true;
-        showStatus('✅ Internet恢复! Sincronizando...', 'online');
-        await syncPendingData();
-        await refreshCache(); // Atualizar cache com dados mais recentes
-        loadCachedData(); // Recarregar dados atualizados
-    });
-    
-    // ============================================
-    // ATUALIZAR CACHE COM DADOS DO FIREBASE
-    // ============================================
-    
-    async function refreshCache() {
-        if (!isOnline || !currentUser) return;
-        
-        console.log('🔄 Atualizando cache...');
-        
+    function salvarBackup() {
         try {
-            // Buscar clientes do Firebase e salvar no cache
-            const clientsSnapshot = await db.collection('clients').where('userId', '==', currentUser.uid).get();
-            const cachedClients = [];
-            clientsSnapshot.forEach(doc => cachedClients.push({ id: doc.id, ...doc.data() }));
-            saveToCache('clients', cachedClients);
-            
-            // Buscar produtos
-            const productsSnapshot = await db.collection('products').where('userId', '==', currentUser.uid).get();
-            const cachedProducts = [];
-            productsSnapshot.forEach(doc => cachedProducts.push({ id: doc.id, ...doc.data() }));
-            saveToCache('products', cachedProducts);
-            
-            // Buscar colaboradores
-            const collabSnapshot = await db.collection('collaborators').where('userId', '==', currentUser.uid).get();
-            const cachedCollab = [];
-            collabSnapshot.forEach(doc => cachedCollab.push({ id: doc.id, ...doc.data() }));
-            saveToCache('collaborators', cachedCollab);
-            
-            // Buscar serviços
-            const servicesSnapshot = await db.collection('services').where('userId', '==', currentUser.uid).get();
-            const cachedServices = [];
-            servicesSnapshot.forEach(doc => cachedServices.push({ id: doc.id, ...doc.data() }));
-            saveToCache('services', cachedServices);
-            
-            console.log('✅ Cache atualizado com sucesso!');
-            
-        } catch(e) {
-            console.log('Erro ao atualizar cache:', e);
-        }
+            if (window.clients && window.clients.length > 0) {
+                localStorage.setItem('backup_clientes', JSON.stringify(window.clients));
+                console.log('💾 Clientes salvos:', window.clients.length);
+            }
+            if (window.products && window.products.length > 0) {
+                localStorage.setItem('backup_produtos', JSON.stringify(window.products));
+                console.log('💾 Produtos salvos:', window.products.length);
+            }
+            if (window.collaborators && window.collaborators.length > 0) {
+                localStorage.setItem('backup_colaboradores', JSON.stringify(window.collaborators));
+                console.log('💾 Colaboradores salvos:', window.collaborators.length);
+            }
+            if (window.allServices && window.allServices.length > 0) {
+                localStorage.setItem('backup_servicos', JSON.stringify(window.allServices));
+                console.log('💾 Serviços salvos:', window.allServices.length);
+            }
+        } catch(e) { console.log('Erro ao salvar:', e); }
     }
     
     // ============================================
-    // SALVAR DADOS LOCALMENTE (QUANDO OFFLINE)
+    // CARREGAR BACKUP QUANDO OFFLINE
     // ============================================
     
-    function saveLocal(collection, data) {
-        pendingData.push({
-            collection: collection,
-            data: data,
-            timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('pendingOfflineData', JSON.stringify(pendingData));
+    function carregarBackup() {
+        console.log('📦 Tentando carregar backup local...');
         
-        // Também salvar no cache imediatamente
-        const cacheKey = `cached_${collection}`;
-        let existing = JSON.parse(localStorage.getItem(cacheKey) || '[]');
-        const newItem = { ...data, id: 'pending_' + Date.now(), _pending: true };
-        existing.push(newItem);
-        localStorage.setItem(cacheKey, JSON.stringify(existing));
-        
-        // Atualizar variável global
-        if (collection === 'clients' && clients) {
-            clients.push(newItem);
+        const clientesBackup = localStorage.getItem('backup_clientes');
+        if (clientesBackup && (!window.clients || window.clients.length === 0)) {
+            window.clients = JSON.parse(clientesBackup);
+            console.log('✅ Clientes carregados do backup:', window.clients.length);
             if (typeof updateClientsUI === 'function') updateClientsUI();
             if (typeof updateClientRecordsList === 'function') updateClientRecordsList();
-            document.getElementById('totalClients').textContent = clients.length;
+            if (typeof updatePackageClientSelect === 'function') updatePackageClientSelect();
+            const total = document.getElementById('totalClients');
+            if (total) total.textContent = window.clients.length;
         }
         
-        if (collection === 'products' && products) {
-            products.push(newItem);
+        const produtosBackup = localStorage.getItem('backup_produtos');
+        if (produtosBackup && (!window.products || window.products.length === 0)) {
+            window.products = JSON.parse(produtosBackup);
+            console.log('✅ Produtos carregados do backup:', window.products.length);
             if (typeof updateInventoryUI === 'function') updateInventoryUI();
             if (typeof renderStore === 'function') renderStore();
         }
         
-        showStatus(`💾 ${collection} salvo localmente! Sincroniza quando a internet voltar`, 'online');
-        updateBadge();
-        return true;
-    }
-    
-    // ============================================
-    // SINCRONIZAR DADOS PENDENTES
-    // ============================================
-    
-    async function syncPendingData() {
-        if (!isOnline || pendingData.length === 0) return;
-        
-        showStatus(`🔄 Sincronizando ${pendingData.length} item(ns)...`, 'online');
-        
-        for (let i = 0; i < pendingData.length; i++) {
-            const item = pendingData[i];
-            try {
-                if (item.collection === 'clients') {
-                    await db.collection('clients').add(item.data);
-                } else if (item.collection === 'products') {
-                    await db.collection('products').add(item.data);
-                } else if (item.collection === 'services') {
-                    await db.collection('services').add(item.data);
-                } else if (item.collection === 'appointments') {
-                    await db.collection('appointments').add(item.data);
-                }
-                
-                pendingData.splice(i, 1);
-                i--;
-                
-            } catch(e) {
-                console.log('Erro ao sincronizar:', e);
-            }
+        const colaboradoresBackup = localStorage.getItem('backup_colaboradores');
+        if (colaboradoresBackup && (!window.collaborators || window.collaborators.length === 0)) {
+            window.collaborators = JSON.parse(colaboradoresBackup);
+            console.log('✅ Colaboradores carregados do backup:', window.collaborators.length);
+            if (typeof updateCollaboratorsUI === 'function') updateCollaboratorsUI();
+            if (typeof updateCollaboratorSelect === 'function') updateCollaboratorSelect();
         }
         
-        localStorage.setItem('pendingOfflineData', JSON.stringify(pendingData));
-        
-        // Atualizar cache após sincronizar
-        await refreshCache();
-        loadCachedData();
-        
-        showStatus('✅ Sincronização concluída!', 'online');
-        updateBadge();
-        
-        // Recarregar interfaces
-        if (typeof loadClients === 'function') loadClients();
-        if (typeof loadProducts === 'function') loadProducts();
-        if (typeof loadAllServices === 'function') loadAllServices();
-    }
-    
-    // ============================================
-    // BADGE DE ITENS PENDENTES
-    // ============================================
-    
-    function updateBadge() {
-        let badge = document.getElementById('pendingBadge');
-        if (pendingData.length > 0) {
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'pendingBadge';
-                badge.style.cssText = 'position:fixed;bottom:80px;right:20px;background:#ffc107;color:#000;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:9999;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px';
-                badge.onclick = () => syncPendingData();
-                badge.title = 'Clique para sincronizar dados pendentes';
-                document.body.appendChild(badge);
-            }
-            badge.textContent = pendingData.length;
-            badge.style.display = 'flex';
-        } else if (badge) {
-            badge.style.display = 'none';
+        const servicosBackup = localStorage.getItem('backup_servicos');
+        if (servicosBackup && (!window.allServices || window.allServices.length === 0)) {
+            window.allServices = JSON.parse(servicosBackup);
+            console.log('✅ Serviços carregados do backup:', window.allServices.length);
+            if (typeof updateTodaySalesUI === 'function') updateTodaySalesUI();
+            if (typeof updateDashboard === 'function') updateDashboard();
         }
     }
     
     // ============================================
-    // SUBSTITUIR FUNÇÕES ORIGINAIS
+    // CAPTURAR DADOS DAS FUNÇÕES ORIGINAIS
     // ============================================
     
-    // Salvar cliente
-    const originalSaveClient = window.saveClient;
-    if (originalSaveClient) {
-        window.saveClient = function() {
-            if (isOnline) {
-                return originalSaveClient();
-            } else {
-                const name = document.getElementById('clientName')?.value;
-                const phone = document.getElementById('clientPhone')?.value;
-                const email = document.getElementById('clientEmail')?.value;
-                const birthdate = document.getElementById('clientBirthdate')?.value;
-                
-                if (!name) {
-                    alert('Nome do cliente é obrigatório');
-                    return;
-                }
-                
-                const clientData = {
-                    name: name,
-                    phone: phone,
-                    email: email,
-                    birthdate: birthdate,
-                    userId: currentUser?.uid,
-                    createdAt: new Date().toISOString()
-                };
-                
-                saveLocal('clients', clientData);
-                
-                const modal = bootstrap.Modal.getInstance(document.getElementById('clientModal'));
-                if (modal) modal.hide();
-                
-                alert('✅ Cliente salvo localmente! Aparecerá na lista agora mesmo.');
-            }
+    // Capturar quando loadClients terminar
+    const originalLoadClients = window.loadClients;
+    if (originalLoadClients) {
+        window.loadClients = function() {
+            return originalLoadClients.apply(this, arguments).then(() => {
+                setTimeout(salvarBackup, 500);
+            }).catch(() => {
+                carregarBackup();
+            });
         };
     }
     
-    // Salvar produto
-    const originalSaveProduct = window.saveProduct;
-    if (originalSaveProduct) {
-        window.saveProduct = function() {
-            if (isOnline) {
-                return originalSaveProduct();
-            } else {
-                const name = document.getElementById('productName')?.value;
-                const quantity = parseInt(document.getElementById('productQuantity')?.value || 0);
-                const salePrice = parseFloat(document.getElementById('productSalePrice')?.value || 0);
-                
-                if (!name) {
-                    alert('Nome do produto é obrigatório');
-                    return;
-                }
-                
-                const productData = {
-                    name: name,
-                    quantity: quantity,
-                    salePrice: salePrice,
-                    userId: currentUser?.uid,
-                    createdAt: new Date().toISOString()
-                };
-                
-                saveLocal('products', productData);
-                
-                const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-                if (modal) modal.hide();
-                
-                alert('✅ Produto salvo localmente! Aparecerá na loja agora mesmo.');
-            }
+    // Capturar quando loadProducts terminar
+    const originalLoadProducts = window.loadProducts;
+    if (originalLoadProducts) {
+        window.loadProducts = function() {
+            return originalLoadProducts.apply(this, arguments).then(() => {
+                setTimeout(salvarBackup, 500);
+            }).catch(() => {
+                carregarBackup();
+            });
         };
     }
     
-    // Adicionar serviço
-    const originalAddService = window.addService;
-    if (originalAddService) {
-        window.addService = function(e) {
-            if (e) e.preventDefault();
-            
-            if (isOnline) {
-                return originalAddService(e);
-            } else {
-                const clientId = document.getElementById('selectedClientId')?.value;
-                const collaboratorId = document.getElementById('collaboratorSelect')?.value;
-                const serviceValue = parseFloat(document.getElementById('serviceValue')?.value || 0);
-                const serviceDescription = document.getElementById('serviceDescription')?.value;
-                
-                if (!clientId || !collaboratorId) {
-                    alert('Preencha todos os campos obrigatórios');
-                    return;
-                }
-                
-                const serviceData = {
-                    clientId: clientId,
-                    collaboratorId: collaboratorId,
-                    value: serviceValue,
-                    description: serviceDescription,
-                    date: new Date().toISOString().split('T')[0],
-                    userId: currentUser?.uid,
-                    createdAt: new Date().toISOString()
-                };
-                
-                saveLocal('services', serviceData);
-                
-                document.getElementById('serviceForm')?.reset();
-                alert('✅ Serviço salvo localmente!');
-            }
+    // Capturar quando loadCollaborators terminar
+    const originalLoadCollaborators = window.loadCollaborators;
+    if (originalLoadCollaborators) {
+        window.loadCollaborators = function() {
+            return originalLoadCollaborators.apply(this, arguments).then(() => {
+                setTimeout(salvarBackup, 500);
+            }).catch(() => {
+                carregarBackup();
+            });
         };
     }
     
     // ============================================
-    // CAPTURAR DADOS EXISTENTES QUANDO CARREGAR
+    // INICIAR
     // ============================================
     
-    // Observar mudanças nos dados para manter cache atualizado
-    function setupCacheCapture() {
-        // Capturar clientes quando carregarem
-        const originalLoadClients = window.loadClients;
-        if (originalLoadClients) {
-            window.loadClients = function() {
-                return originalLoadClients.apply(this, arguments).then(() => {
-                    if (clients && clients.length > 0) {
-                        saveToCache('clients', clients);
-                    }
-                });
-            };
-        }
-        
-        // Capturar produtos quando carregarem
-        const originalLoadProducts = window.loadProducts;
-        if (originalLoadProducts) {
-            window.loadProducts = function() {
-                return originalLoadProducts.apply(this, arguments).then(() => {
-                    if (products && products.length > 0) {
-                        saveToCache('products', products);
-                    }
-                });
-            };
-        }
-        
-        // Capturar colaboradores
-        const originalLoadCollaborators = window.loadCollaborators;
-        if (originalLoadCollaborators) {
-            window.loadCollaborators = function() {
-                return originalLoadCollaborators.apply(this, arguments).then(() => {
-                    if (collaborators && collaborators.length > 0) {
-                        saveToCache('collaborators', collaborators);
-                    }
-                });
-            };
-        }
-    }
-    
-    // ============================================
-    // INICIALIZAÇÃO
-    // ============================================
-    
-    // Tentar carregar cache imediatamente
+    // Tentar carregar backup imediatamente
     setTimeout(() => {
-        loadCachedData();
-        setupCacheCapture();
-        updateBadge();
-        
-        // Se estiver online, atualizar cache
-        if (isOnline && currentUser) {
-            setTimeout(refreshCache, 3000);
-        }
-        
-        console.log('✅ Sistema offline completo ativado!');
-    }, 2000);
+        carregarBackup();
+        salvarBackup();
+    }, 1000);
     
-    // Sincronizar automático quando voltar online
-    setInterval(() => {
-        if (isOnline && pendingData.length > 0) {
-            syncPendingData();
-        }
-    }, 30000); // Verificar a cada 30 segundos
+    // Salvar backup a cada 30 segundos
+    setInterval(salvarBackup, 30000);
     
+    // Notificações visuais
+    const notificacao = document.createElement('div');
+    notificacao.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#28a745;color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;display:none;font-family:sans-serif';
+    document.body.appendChild(notificacao);
+    
+    window.addEventListener('offline', () => {
+        notificacao.style.background = '#dc3545';
+        notificacao.textContent = '⚠️ Modo Offline - Usando dados salvos';
+        notificacao.style.display = 'block';
+        setTimeout(() => { notificacao.style.display = 'none'; }, 4000);
+        carregarBackup();
+    });
+    
+    window.addEventListener('online', () => {
+        notificacao.style.background = '#28a745';
+        notificacao.textContent = '✅ Online - Sincronizando';
+        notificacao.style.display = 'block';
+        setTimeout(() => { notificacao.style.display = 'none'; }, 3000);
+        setTimeout(() => {
+            if (typeof loadClients === 'function') loadClients();
+            if (typeof loadProducts === 'function') loadProducts();
+            if (typeof loadCollaborators === 'function') loadCollaborators();
+        }, 1000);
+    });
+    
+    console.log('✅ Sistema offline pronto!');
 })();
 
 
 
 
 
-<!-- Registrar Service Worker para funcionar offline -->
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('✅ Service Worker registrado!', reg))
-      .catch(err => console.log('❌ Erro no Service Worker:', err));
-  });
-}
-
-
-
-
-
-
-
-<!-- Forçar carregamento dos dados do cache antes de qualquer coisa -->
-
-// Garantir que o cache seja carregado antes de tudo
-(function() {
-    // Tentar carregar clientes do localStorage ANTES do Firebase
-    const cachedClients = localStorage.getItem('cached_clients');
-    if (cachedClients && (!window.clients || window.clients.length === 0)) {
-        try {
-            window.clients = JSON.parse(cachedClients);
-            console.log('✅ [PRELOAD] Clientes carregados:', window.clients.length);
-        } catch(e) {}
-    }
-    
-    const cachedProducts = localStorage.getItem('cached_products');
-    if (cachedProducts && (!window.products || window.products.length === 0)) {
-        try {
-            window.products = JSON.parse(cachedProducts);
-            console.log('✅ [PRELOAD] Produtos carregados:', window.products.length);
-        } catch(e) {}
-    }
-    
-    const cachedCollaborators = localStorage.getItem('cached_collaborators');
-    if (cachedCollaborators && (!window.collaborators || window.collaborators.length === 0)) {
-        try {
-            window.collaborators = JSON.parse(cachedCollaborators);
-            console.log('✅ [PRELOAD] Colaboradores carregados:', window.collaborators.length);
-        } catch(e) {}
-    }
-})();
-        
         
     </script>
 
