@@ -13740,6 +13740,41 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+
+
+
+
+
+
+<!-- Forçar carregamento dos dados do cache antes de qualquer coisa -->
+
+// Garantir que o cache seja carregado antes de tudo
+(function() {
+    // Tentar carregar clientes do localStorage ANTES do Firebase
+    const cachedClients = localStorage.getItem('cached_clients');
+    if (cachedClients && (!window.clients || window.clients.length === 0)) {
+        try {
+            window.clients = JSON.parse(cachedClients);
+            console.log('✅ [PRELOAD] Clientes carregados:', window.clients.length);
+        } catch(e) {}
+    }
+    
+    const cachedProducts = localStorage.getItem('cached_products');
+    if (cachedProducts && (!window.products || window.products.length === 0)) {
+        try {
+            window.products = JSON.parse(cachedProducts);
+            console.log('✅ [PRELOAD] Produtos carregados:', window.products.length);
+        } catch(e) {}
+    }
+    
+    const cachedCollaborators = localStorage.getItem('cached_collaborators');
+    if (cachedCollaborators && (!window.collaborators || window.collaborators.length === 0)) {
+        try {
+            window.collaborators = JSON.parse(cachedCollaborators);
+            console.log('✅ [PRELOAD] Colaboradores carregados:', window.collaborators.length);
+        } catch(e) {}
+    }
+})();
         
         
     </script>
