@@ -13288,162 +13288,485 @@ function sendWhatsAppToInactive(clientId, phone) {
 
 
 
-<!-- SISTEMA OFFLINE - Colar antes do </body> -->
 
+
+
+<!-- SISTEMA OFFLINE COMPLETO - Copiar e colar antes do </body> -->
+<script>
 (function() {
-    console.log('🟢 Sistema offline ativado');
+    console.log('🟢 Sistema offline iniciando...');
     
     // ============================================
-    // SALVAR DADOS LOCALMENTE SEMPRE QUE CARREGAR
+    // 1. FUNÇÃO PARA SALVAR CÓPIA DE TUDO
     // ============================================
     
-    function salvarBackup() {
+    function salvarCopiaTodosDados() {
+        console.log('💾 Salvando cópia de todos os dados...');
+        
+        const dadosParaSalvar = {
+            ultimaAtualizacao: new Date().toISOString(),
+            clientes: window.clients || [],
+            produtos: window.products || [],
+            colaboradores: window.collaborators || [],
+            servicos: window.allServices || [],
+            vendasProdutos: window.allProductSales || [],
+            pacotes: window.packages || [],
+            agendamentos: window.appointments || []
+        };
+        
+        // Salvar no localStorage
+        localStorage.setItem('copia_completa_sistema', JSON.stringify(dadosParaSalvar));
+        
+        // Tentar salvar também como arquivo (se o navegador permitir)
         try {
-            if (window.clients && window.clients.length > 0) {
-                localStorage.setItem('backup_clientes', JSON.stringify(window.clients));
-                console.log('💾 Clientes salvos:', window.clients.length);
+            const blob = new Blob([JSON.stringify(dadosParaSalvar, null, 2)], {type: 'application/json'});
+            // Salvar no cache do navegador
+            if (window.caches) {
+                const response = new Response(blob);
+                caches.open('backup-sistema').then(cache => {
+                    cache.put('/backup-completo.json', response);
+                });
             }
-            if (window.products && window.products.length > 0) {
-                localStorage.setItem('backup_produtos', JSON.stringify(window.products));
-                console.log('💾 Produtos salvos:', window.products.length);
-            }
-            if (window.collaborators && window.collaborators.length > 0) {
-                localStorage.setItem('backup_colaboradores', JSON.stringify(window.collaborators));
-                console.log('💾 Colaboradores salvos:', window.collaborators.length);
-            }
-            if (window.allServices && window.allServices.length > 0) {
-                localStorage.setItem('backup_servicos', JSON.stringify(window.allServices));
-                console.log('💾 Serviços salvos:', window.allServices.length);
-            }
-        } catch(e) { console.log('Erro ao salvar:', e); }
+        } catch(e) { console.log('Erro ao salvar arquivo:', e); }
+        
+        console.log('✅ Cópia salva com sucesso!', dadosParaSalvar.clientes.length, 'clientes');
+        return true;
     }
     
     // ============================================
-    // CARREGAR BACKUP QUANDO OFFLINE
+    // 2. FUNÇÃO PARA CARREGAR A ÚLTIMA CÓPIA
     // ============================================
     
-    function carregarBackup() {
-        console.log('📦 Tentando carregar backup local...');
+    function carregarUltimaCopia() {
+        console.log('📦 Tentando carregar última cópia salva...');
         
-        const clientesBackup = localStorage.getItem('backup_clientes');
-        if (clientesBackup && (!window.clients || window.clients.length === 0)) {
-            window.clients = JSON.parse(clientesBackup);
-            console.log('✅ Clientes carregados do backup:', window.clients.length);
-            if (typeof updateClientsUI === 'function') updateClientsUI();
-            if (typeof updateClientRecordsList === 'function') updateClientRecordsList();
-            if (typeof updatePackageClientSelect === 'function') updatePackageClientSelect();
-            const total = document.getElementById('totalClients');
-            if (total) total.textContent = window.clients.length;
+        // Tentar carregar do localStorage
+        const copiaSalva = localStorage.getItem('copia_completa_sistema');
+        
+        if (!copiaSalva) {
+            console.log('⚠️ Nenhuma cópia encontrada');
+            return false;
         }
         
-        const produtosBackup = localStorage.getItem('backup_produtos');
-        if (produtosBackup && (!window.products || window.products.length === 0)) {
-            window.products = JSON.parse(produtosBackup);
-            console.log('✅ Produtos carregados do backup:', window.products.length);
+        try {
+            const dados = JSON.parse(copiaSalva);
+            console.log('📅 Cópia de:', dados.ultimaAtualizacao);
+            
+            // Carregar clientes
+            if (dados.clientes && dados.clientes.length > 0) {
+                window.clients = dados.clientes;
+                console.log('✅ Clientes carregados:', window.clients.length);
+                if (typeof updateClientsUI === 'function') updateClientsUI();
+                if (typeof updateClientRecordsList === 'function') updateClientRecordsList();
+                if (typeof updatePackageClientSelect === 'function') updatePackageClientSelect();
+                const totalClients = document.getElementById('totalClients');
+                if (totalClients) totalClients.textContent = window.clients.length;
+                if (typeof loadUpcomingBirthdays === 'function') loadUpcomingBirthdays();
+            }
+            
+            // Carregar produtos
+            if (dados.produtos && dados.produtos.length > 0) {
+                window.products = dados.produtos;
+                console.log('✅ Produtos carregados:', window.products.length);
+                if (typeof updateInventoryUI === 'function') updateInventoryUI();
+                if (typeof renderStore === 'function') renderStore();
+                if (typeof checkLowStock === 'function') checkLowStock();
+            }
+            
+            // Carregar colaboradores
+            if (dados.colaboradores && dados.colaboradores.length > 0) {
+                window.collaborators = dados.colaboradores;
+                console.log('✅ Colaboradores carregados:', window.collaborators.length);
+                if (typeof updateCollaboratorsUI === 'function') updateCollaboratorsUI();
+                if (typeof updateCollaboratorSelect === 'function') updateCollaboratorSelect();
+                if (typeof updateReportCollaboratorSelect === 'function') updateReportCollaboratorSelect();
+                if (typeof updateSalaryCollaboratorSelect === 'function') updateSalaryCollaboratorSelect();
+                const totalCollab = document.getElementById('totalCollaborators');
+                if (totalCollab) totalCollab.textContent = window.collaborators.filter(c => c.active).length;
+            }
+            
+            // Carregar serviços
+            if (dados.servicos && dados.servicos.length > 0) {
+                window.allServices = dados.servicos;
+                const hoje = new Date().toISOString().split('T')[0];
+                window.todayServices = window.allServices.filter(s => s.date === hoje);
+                console.log('✅ Serviços carregados:', window.allServices.length);
+                if (typeof updateTodaySalesUI === 'function') updateTodaySalesUI();
+                if (typeof updateDashboard === 'function') updateDashboard();
+                if (typeof calculatePeriodSales === 'function') calculatePeriodSales();
+            }
+            
+            // Carregar vendas de produtos
+            if (dados.vendasProdutos && dados.vendasProdutos.length > 0) {
+                window.allProductSales = dados.vendasProdutos;
+                const hoje = new Date().toISOString().split('T')[0];
+                window.todayProductSales = window.allProductSales.filter(s => s.date === hoje);
+                console.log('✅ Vendas carregadas:', window.allProductSales.length);
+                if (typeof updateTodaySalesUI === 'function') updateTodaySalesUI();
+                if (typeof updateDashboard === 'function') updateDashboard();
+                if (typeof updateProductsSoldStats === 'function') updateProductsSoldStats();
+            }
+            
+            // Carregar pacotes
+            if (dados.pacotes && dados.pacotes.length > 0) {
+                window.packages = dados.pacotes;
+                console.log('✅ Pacotes carregados:', window.packages.length);
+                if (typeof updatePackagesUI === 'function') updatePackagesUI();
+            }
+            
+            // Carregar agendamentos
+            if (dados.agendamentos && dados.agendamentos.length > 0) {
+                window.appointments = dados.agendamentos;
+                console.log('✅ Agendamentos carregados:', window.appointments.length);
+                if (typeof renderAgenda === 'function') renderAgenda();
+            }
+            
+            return true;
+            
+        } catch(e) {
+            console.error('Erro ao carregar cópia:', e);
+            return false;
+        }
+    }
+    
+    // ============================================
+    // 3. FILA PARA NOVOS DADOS QUANDO OFFLINE
+    // ============================================
+    
+    let filaPendentes = [];
+    
+    // Carregar fila pendente salva
+    const filaSalva = localStorage.getItem('fila_sincronizacao');
+    if (filaSalva) {
+        try {
+            filaPendentes = JSON.parse(filaSalva);
+            console.log('📋 Dados pendentes para sincronizar:', filaPendentes.length);
+        } catch(e) {}
+    }
+    
+    function salvarNaFila(tipo, dados) {
+        filaPendentes.push({
+            tipo: tipo,
+            dados: dados,
+            data: new Date().toISOString()
+        });
+        localStorage.setItem('fila_sincronizacao', JSON.stringify(filaPendentes));
+        console.log(`📝 ${tipo} adicionado à fila. Total: ${filaPendentes.length}`);
+        
+        // Também adicionar à cópia local imediatamente
+        if (tipo === 'cliente' && window.clients) {
+            window.clients.push({...dados, id: 'temp_' + Date.now(), pendente: true});
+            if (typeof updateClientsUI === 'function') updateClientsUI();
+        }
+        if (tipo === 'produto' && window.products) {
+            window.products.push({...dados, id: 'temp_' + Date.now(), pendente: true});
             if (typeof updateInventoryUI === 'function') updateInventoryUI();
             if (typeof renderStore === 'function') renderStore();
         }
-        
-        const colaboradoresBackup = localStorage.getItem('backup_colaboradores');
-        if (colaboradoresBackup && (!window.collaborators || window.collaborators.length === 0)) {
-            window.collaborators = JSON.parse(colaboradoresBackup);
-            console.log('✅ Colaboradores carregados do backup:', window.collaborators.length);
-            if (typeof updateCollaboratorsUI === 'function') updateCollaboratorsUI();
-            if (typeof updateCollaboratorSelect === 'function') updateCollaboratorSelect();
-        }
-        
-        const servicosBackup = localStorage.getItem('backup_servicos');
-        if (servicosBackup && (!window.allServices || window.allServices.length === 0)) {
-            window.allServices = JSON.parse(servicosBackup);
-            console.log('✅ Serviços carregados do backup:', window.allServices.length);
+        if (tipo === 'servico' && window.allServices) {
+            window.allServices.push({...dados, id: 'temp_' + Date.now(), pendente: true});
             if (typeof updateTodaySalesUI === 'function') updateTodaySalesUI();
-            if (typeof updateDashboard === 'function') updateDashboard();
+        }
+        
+        // Salvar cópia atualizada
+        salvarCopiaTodosDados();
+        
+        // Mostrar badge com quantidade
+        atualizarBadgePendentes();
+    }
+    
+    function atualizarBadgePendentes() {
+        let badge = document.getElementById('badgePendentes');
+        if (filaPendentes.length > 0) {
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'badgePendentes';
+                badge.style.cssText = 'position:fixed;bottom:80px;right:20px;background:#ff9800;color:#000;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:9999;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:14px';
+                badge.onclick = () => sincronizarAgora();
+                badge.title = 'Clique para sincronizar dados pendentes';
+                document.body.appendChild(badge);
+            }
+            badge.textContent = filaPendentes.length;
+            badge.style.display = 'flex';
+        } else if (badge) {
+            badge.style.display = 'none';
         }
     }
     
     // ============================================
-    // CAPTURAR DADOS DAS FUNÇÕES ORIGINAIS
+    // 4. FUNÇÃO PARA SINCRONIZAR COM O BANCO
     // ============================================
     
-    // Capturar quando loadClients terminar
-    const originalLoadClients = window.loadClients;
-    if (originalLoadClients) {
-        window.loadClients = function() {
-            return originalLoadClients.apply(this, arguments).then(() => {
-                setTimeout(salvarBackup, 500);
-            }).catch(() => {
-                carregarBackup();
-            });
+    async function sincronizarAgora() {
+        if (!navigator.onLine) {
+            alert('Sem internet! Os dados serão sincronizados quando a conexão voltar.');
+            return;
+        }
+        
+        if (filaPendentes.length === 0) {
+            console.log('Nada para sincronizar');
+            return;
+        }
+        
+        console.log('🔄 Iniciando sincronização de', filaPendentes.length, 'itens...');
+        mostrarNotificacao(`Sincronizando ${filaPendentes.length} itens...`, '#17a2b8');
+        
+        for (let i = 0; i < filaPendentes.length; i++) {
+            const item = filaPendentes[i];
+            try {
+                const db = firebase.firestore();
+                
+                if (item.tipo === 'cliente') {
+                    await db.collection('clients').add(item.dados);
+                    console.log('✅ Cliente sincronizado');
+                } else if (item.tipo === 'produto') {
+                    await db.collection('products').add(item.dados);
+                    console.log('✅ Produto sincronizado');
+                } else if (item.tipo === 'servico') {
+                    await db.collection('services').add(item.dados);
+                    console.log('✅ Serviço sincronizado');
+                } else if (item.tipo === 'agendamento') {
+                    await db.collection('appointments').add(item.dados);
+                    console.log('✅ Agendamento sincronizado');
+                }
+                
+                filaPendentes.splice(i, 1);
+                i--;
+                
+            } catch(e) {
+                console.log('Erro ao sincronizar:', e);
+            }
+        }
+        
+        // Salvar fila atualizada
+        localStorage.setItem('fila_sincronizacao', JSON.stringify(filaPendentes));
+        
+        // Atualizar badge
+        atualizarBadgePendentes();
+        
+        // Recarregar dados do servidor
+        await carregarDadosServidor();
+        
+        // Salvar nova cópia
+        salvarCopiaTodosDados();
+        
+        mostrarNotificacao('✅ Sincronização concluída!', '#28a745');
+        console.log('✅ Sincronização finalizada');
+    }
+    
+    async function carregarDadosServidor() {
+        if (!navigator.onLine || !window.currentUser) return;
+        
+        console.log('🔄 Carregando dados do servidor...');
+        
+        try {
+            const db = firebase.firestore();
+            
+            const clientesSnap = await db.collection('clients').where('userId', '==', window.currentUser.uid).get();
+            const clientes = [];
+            clientesSnap.forEach(doc => clientes.push({id: doc.id, ...doc.data()}));
+            if (clientes.length > 0) window.clients = clientes;
+            
+            const produtosSnap = await db.collection('products').where('userId', '==', window.currentUser.uid).get();
+            const produtos = [];
+            produtosSnap.forEach(doc => produtos.push({id: doc.id, ...doc.data()}));
+            if (produtos.length > 0) window.products = produtos;
+            
+            const collabSnap = await db.collection('collaborators').where('userId', '==', window.currentUser.uid).get();
+            const colaboradores = [];
+            collabSnap.forEach(doc => colaboradores.push({id: doc.id, ...doc.data()}));
+            if (colaboradores.length > 0) window.collaborators = colaboradores;
+            
+        } catch(e) {
+            console.log('Erro ao carregar do servidor:', e);
+        }
+    }
+    
+    // ============================================
+    // 5. MODIFICAR FUNÇÕES DE SALVAMENTO
+    // ============================================
+    
+    // Modificar saveClient para funcionar offline
+    const saveClientOriginal = window.saveClient;
+    if (saveClientOriginal) {
+        window.saveClient = function() {
+            if (navigator.onLine) {
+                return saveClientOriginal.apply(this, arguments);
+            } else {
+                // Offline: salvar na fila
+                const nome = document.getElementById('clientName')?.value;
+                const telefone = document.getElementById('clientPhone')?.value;
+                const email = document.getElementById('clientEmail')?.value;
+                const nascimento = document.getElementById('clientBirthdate')?.value;
+                
+                if (!nome) {
+                    alert('Nome do cliente é obrigatório');
+                    return;
+                }
+                
+                const dadosCliente = {
+                    name: nome,
+                    phone: telefone,
+                    email: email,
+                    birthdate: nascimento,
+                    userId: window.currentUser?.uid,
+                    createdAt: new Date().toISOString()
+                };
+                
+                salvarNaFila('cliente', dadosCliente);
+                alert('✅ Cliente salvo localmente! Será sincronizado quando a internet voltar.');
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('clientModal'));
+                if (modal) modal.hide();
+                document.getElementById('clientForm')?.reset();
+            }
         };
     }
     
-    // Capturar quando loadProducts terminar
-    const originalLoadProducts = window.loadProducts;
-    if (originalLoadProducts) {
-        window.loadProducts = function() {
-            return originalLoadProducts.apply(this, arguments).then(() => {
-                setTimeout(salvarBackup, 500);
-            }).catch(() => {
-                carregarBackup();
-            });
+    // Modificar saveProduct
+    const saveProductOriginal = window.saveProduct;
+    if (saveProductOriginal) {
+        window.saveProduct = function() {
+            if (navigator.onLine) {
+                return saveProductOriginal.apply(this, arguments);
+            } else {
+                const nome = document.getElementById('productName')?.value;
+                const quantidade = parseInt(document.getElementById('productQuantity')?.value || 0);
+                const precoVenda = parseFloat(document.getElementById('productSalePrice')?.value || 0);
+                
+                if (!nome) {
+                    alert('Nome do produto é obrigatório');
+                    return;
+                }
+                
+                const dadosProduto = {
+                    name: nome,
+                    quantity: quantidade,
+                    salePrice: precoVenda,
+                    userId: window.currentUser?.uid,
+                    createdAt: new Date().toISOString()
+                };
+                
+                salvarNaFila('produto', dadosProduto);
+                alert('✅ Produto salvo localmente! Será sincronizado quando a internet voltar.');
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                if (modal) modal.hide();
+                document.getElementById('productForm')?.reset();
+            }
         };
     }
     
-    // Capturar quando loadCollaborators terminar
-    const originalLoadCollaborators = window.loadCollaborators;
-    if (originalLoadCollaborators) {
-        window.loadCollaborators = function() {
-            return originalLoadCollaborators.apply(this, arguments).then(() => {
-                setTimeout(salvarBackup, 500);
-            }).catch(() => {
-                carregarBackup();
-            });
+    // Modificar addService
+    const addServiceOriginal = window.addService;
+    if (addServiceOriginal) {
+        window.addService = function(e) {
+            if (e) e.preventDefault();
+            
+            if (navigator.onLine) {
+                return addServiceOriginal.apply(this, arguments);
+            } else {
+                const clienteId = document.getElementById('selectedClientId')?.value;
+                const colaboradorId = document.getElementById('collaboratorSelect')?.value;
+                const valor = parseFloat(document.getElementById('serviceValue')?.value || 0);
+                const descricao = document.getElementById('serviceDescription')?.value;
+                
+                if (!clienteId || !colaboradorId) {
+                    alert('Preencha todos os campos obrigatórios');
+                    return;
+                }
+                
+                const dadosServico = {
+                    clientId: clienteId,
+                    collaboratorId: colaboradorId,
+                    value: valor,
+                    description: descricao,
+                    date: new Date().toISOString().split('T')[0],
+                    userId: window.currentUser?.uid,
+                    createdAt: new Date().toISOString()
+                };
+                
+                salvarNaFila('servico', dadosServico);
+                alert('✅ Serviço salvo localmente! Será sincronizado quando a internet voltar.');
+                document.getElementById('serviceForm')?.reset();
+                document.getElementById('selectedClientId').value = '';
+            }
         };
     }
     
     // ============================================
-    // INICIAR
+    // 6. NOTIFICAÇÕES E EVENTOS
     // ============================================
     
-    // Tentar carregar backup imediatamente
-    setTimeout(() => {
-        carregarBackup();
-        salvarBackup();
-    }, 1000);
+    function mostrarNotificacao(mensagem, cor) {
+        let notif = document.getElementById('notificacaoOffline');
+        if (!notif) {
+            notif = document.createElement('div');
+            notif.id = 'notificacaoOffline';
+            notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#28a745;color:white;padding:10px 20px;border-radius:25px;font-size:14px;z-index:10000;font-family:sans-serif;box-shadow:0 2px 10px rgba(0,0,0,0.2);transition:0.3s';
+            document.body.appendChild(notif);
+        }
+        notif.style.background = cor || '#28a745';
+        notif.textContent = mensagem;
+        notif.style.display = 'block';
+        setTimeout(() => {
+            notif.style.display = 'none';
+        }, 4000);
+    }
     
-    // Salvar backup a cada 30 segundos
-    setInterval(salvarBackup, 30000);
-    
-    // Notificações visuais
-    const notificacao = document.createElement('div');
-    notificacao.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#28a745;color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;display:none;font-family:sans-serif';
-    document.body.appendChild(notificacao);
-    
+    // Evento quando fica offline
     window.addEventListener('offline', () => {
-        notificacao.style.background = '#dc3545';
-        notificacao.textContent = '⚠️ Modo Offline - Usando dados salvos';
-        notificacao.style.display = 'block';
-        setTimeout(() => { notificacao.style.display = 'none'; }, 4000);
-        carregarBackup();
+        console.log('⚠️ Modo OFFLINE ativado');
+        mostrarNotificacao('⚠️ Sem internet - Usando dados salvos', '#dc3545');
+        carregarUltimaCopia();
     });
     
+    // Evento quando volta online
     window.addEventListener('online', () => {
-        notificacao.style.background = '#28a745';
-        notificacao.textContent = '✅ Online - Sincronizando';
-        notificacao.style.display = 'block';
-        setTimeout(() => { notificacao.style.display = 'none'; }, 3000);
-        setTimeout(() => {
-            if (typeof loadClients === 'function') loadClients();
-            if (typeof loadProducts === 'function') loadProducts();
-            if (typeof loadCollaborators === 'function') loadCollaborators();
+        console.log('✅ Modo ONLINE ativado');
+        mostrarNotificacao('✅ Internet恢复 - Sincronizando dados...', '#28a745');
+        setTimeout(async () => {
+            await carregarDadosServidor();
+            await sincronizarAgora();
+            salvarCopiaTodosDados();
+            mostrarNotificacao('✅ Dados sincronizados com sucesso!', '#28a745');
         }, 1000);
     });
     
-    console.log('✅ Sistema offline pronto!');
+    // ============================================
+    // 7. INICIALIZAÇÃO
+    // ============================================
+    
+    // Tentar carregar cópia salva ao iniciar
+    setTimeout(() => {
+        carregarUltimaCopia();
+        atualizarBadgePendentes();
+    }, 500);
+    
+    // Salvar cópia automaticamente a cada 30 segundos quando online
+    setInterval(() => {
+        if (navigator.onLine && window.clients && window.clients.length > 0) {
+            salvarCopiaTodosDados();
+            console.log('🔄 Backup automático realizado');
+        }
+    }, 30000);
+    
+    // Salvar cópia quando o usuário fizer login
+    const observarAuth = setInterval(() => {
+        if (window.currentUser && window.clients && window.clients.length > 0) {
+            salvarCopiaTodosDados();
+            clearInterval(observarAuth);
+        }
+    }, 1000);
+    
+    console.log('✅ Sistema offline completo inicializado!');
+    console.log('📌 Dicas:');
+    console.log('   - Quando ONLINE: faz backup automático a cada 30 segundos');
+    console.log('   - Quando OFFLINE: usa a última cópia salva');
+    console.log('   - Novos dados: ficam na fila até a internet voltar');
+    
 })();
-
-
-
+</script>
 
 
         
