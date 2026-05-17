@@ -13774,30 +13774,89 @@ function sendWhatsAppToInactive(clientId, phone) {
 
 
 
+// FUNCAO PARA BLOQUEAR ROTAÇÃO DE TELA
 
-// Bloqueio de rotação de tela para dispositivos móveis
-(function () {
-function lockorientation () {
-if (screen orientation &&
-screen.orientation.lock) {
-screen orientation.lock|'portrait'). catch( fun
-ction(error) {
-console.log('Não foi possível
-bloquear a orientação: " + error);
-｝）；
-}
-else {
-console.log('Bloqueio de
-orientação não suportado neste navegador');
-}
-}
-// Tenta bloquear após o carregamento da
-página window. addEventListener('load' ,
-lockorientation);
-// Em alguns dispositivos, precisa de
-interação do usuário, então adiciona no primeiro toque
-document.body. addEventListener(' touchstart', lockOrientation, { once: true });
-3) ();
+(function() {
+    // Verificar se o dispositivo é móvel (touch screen)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     ('ontouchstart' in window) ||
+                     (navigator.maxTouchPoints > 0);
+
+    if (!isMobile) return;
+
+    // Criar overlay de aviso (aparece apenas quando a rotação for landscape)
+    const overlay = document.createElement('div');
+    overlay.id = 'rotateOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #26196b;
+        color: white;
+        z-index: 99999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        backdrop-filter: blur(5px);
+    `;
+    overlay.innerHTML = `
+        <div style="background: rgba(0,0,0,0.7); padding: 30px; border-radius: 20px; max-width: 80%;">
+            <i class="fas fa-mobile-alt" style="font-size: 60px; margin-bottom: 20px;"></i>
+            <h2>Por favor, vire o dispositivo</h2>
+            <p>Para a melhor experiência, mantenha o aparelho na posição <strong>vertical (retrato)</strong>.</p>
+            <div style="margin-top: 20px; transform: rotate(90deg); display: inline-block;">
+                <i class="fas fa-arrow-left" style="font-size: 40px;"></i>
+                <i class="fas fa-mobile-alt" style="font-size: 40px; margin: 0 10px;"></i>
+                <i class="fas fa-arrow-right" style="font-size: 40px;"></i>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Função para verificar e agir conforme orientação
+    function handleOrientation() {
+        if (window.innerHeight < window.innerWidth) {
+            // Modo paisagem (landscape) → mostra overlay
+            overlay.style.display = 'flex';
+        } else {
+            // Modo retrato (portrait) → esconde overlay
+            overlay.style.display = 'none';
+        }
+    }
+
+    // Tentar bloquear a orientação via API nativa (requer interação do usuário)
+    let orientationLockAttempted = false;
+    function attemptOrientationLock() {
+        if (orientationLockAttempted) return;
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+            screen.orientation.lock('portrait').catch(err => {
+                console.log('Bloqueio de orientação não suportado: ' + err);
+            });
+        }
+        orientationLockAttempted = true;
+    }
+
+    // Chamar o bloqueio no primeiro toque (necessário para a API funcionar)
+    document.body.addEventListener('touchstart', attemptOrientationLock, { once: true });
+    document.body.addEventListener('click', attemptOrientationLock, { once: true });
+
+    // Monitorar mudanças de orientação
+    window.addEventListener('resize', handleOrientation);
+    window.addEventListener('orientationchange', handleOrientation);
+
+    // Executar uma vez ao carregar
+    handleOrientation();
+
+    // Estilo adicional para impedir rolagem/zoom quando o overlay estiver ativo
+    overlay.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+    overlay.addEventListener('wheel', function(e) { e.preventDefault(); }, { passive: false });
+})();
+
 
 
 
