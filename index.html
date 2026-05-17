@@ -13777,63 +13777,89 @@ function sendWhatsAppToInactive(clientId, phone) {
 // FUNCAO PARA BLOQUEAR ROTAÇÃO DE TELA
 <script>
 (function() {
-    // Aplica o efeito apenas em dispositivos móveis
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                     ('ontouchstart' in window) ||
-                     (navigator.maxTouchPoints > 0);
-    if (!isMobile) return;
+    // 1. Identificar se é celular ou tablet
+    function isMobileOrTablet() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|iPad|iPhone|iPod|BlackBerry|Windows Phone|webOS|tablet|Mobile/i.test(ua) ||
+               (window.innerWidth <= 1024 && 'ontouchstart' in window);
+    }
 
-    let rotacaoAplicada = false;
+    if (!isMobileOrTablet()) return;
 
-    // Seleciona o elemento que será rotacionado (preferencialmente um container principal)
-    let container = document.getElementById('mainScreen');
-    if (!container) container = document.body;
-
-    // Garante que o container tenha altura/ largura absoluta
-    container.style.position = 'relative';
-    container.style.width = '100%';
-    container.style.height = '100%';
-
-    function corrigirOrientacao() {
-        const largura = window.innerWidth;
-        const altura = window.innerHeight;
-
-        if (largura > altura) {
-            // Está na horizontal -> aplica rotação
-            if (!rotacaoAplicada) {
-                rotacaoAplicada = true;
-                // Aplica transform rotate(90deg) para que o conteúdo fique na vertical
-                container.style.transition = 'transform 0.2s ease';
-                container.style.transformOrigin = 'center center';
-                container.style.transform = 'rotate(90deg)';
-                // Ajusta largura/altura para compensar a rotação
-                container.style.width = altura + 'px';
-                container.style.height = largura + 'px';
-                container.style.top = (largura - altura) / 2 + 'px';
-                container.style.left = (altura - largura) / 2 + 'px';
-                container.style.position = 'absolute';
-            }
+    // 2. Função para travar a orientação
+    function lockToPortrait() {
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+            screen.orientation.lock('portrait').catch(err => {
+                console.warn('Bloqueio de orientação falhou:', err);
+                // Fallback CSS (mantém o layout sem girar)
+                applyCSSLock();
+            });
         } else {
-            // Vertical -> remove rotação
-            if (rotacaoAplicada) {
-                rotacaoAplicada = false;
-                container.style.transform = 'none';
-                container.style.width = '';
-                container.style.height = '';
-                container.style.top = '';
-                container.style.left = '';
-                container.style.position = '';
-            }
+            // API não suportada, usa fallback CSS
+            applyCSSLock();
         }
     }
 
-    // Executa quando a página carrega e sempre que a tela for redimensionada
-    window.addEventListener('resize', corrigirOrientacao);
-    window.addEventListener('orientationchange', corrigirOrientacao);
-    corrigirOrientacao();
+    // 3. Fallback: impede que o layout quebre quando girar
+    function applyCSSLock() {
+        let style = document.getElementById('orientation-lock-style');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'orientation-lock-style';
+            style.textContent = `
+                /* Impede que qualquer elemento filho vire ao girar */
+                body, html, #mainScreen, .container-fluid, .row, .section-container, .section {
+                    transform: rotate(0deg) !important;
+                    transition: none !important;
+                }
+                /* Força a viewport a manter a largura correta mesmo em landscape */
+                @media (orientation: landscape) {
+                    body {
+                        transform: rotate(0deg) !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
+                        overflow-x: auto !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
 
-    // Força a correção após um pequeno atraso (evita flickering)
-    setTimeout(corrigirOrientacao, 100);
+    // 4. Tenta travar no primeiro toque/clique
+    let lockAttempted = false;
+    function handleFirstInteraction() {
+        if (lockAttempted) return;
+        lockToPortrait();
+        lockAttempted = true;
+        // Remove listeners após tentar
+        ['touchstart', 'click', 'touchend'].forEach(ev => 
+            document.body.removeEventListener(ev, handleFirstInteraction)
+        );
+    }
+
+    // Adiciona os listeners – o travamento ocorrerá quando o usuário tocar na tela
+    ['touchstart', 'click', 'touchend'].forEach(ev => 
+        document.body.addEventListener(ev, handleFirstInteraction, { passive: false })
+    );
+
+    // Se a página já estiver carregada e o usuário tiver interagido antes, tenta imediatamente
+    if (document.visibilityState === 'visible' && document.hasFocus()) {
+        setTimeout(handleFirstInteraction, 300);
+    }
+
+    // 5. Reforço: se mesmo assim o dispositivo entrar em landscape, tenta travar novamente
+    window.addEventListener('orientationchange', function() {
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+            screen.orientation.lock('portrait').catch(() => {});
+        }
+    });
+
+    // 6. Força a viewport a não escalar (opcional, mas ajuda no layout)
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (meta) {
+        meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover');
+    }
 })();
 </script>
 
