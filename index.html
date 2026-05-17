@@ -13292,7 +13292,7 @@ function sendWhatsAppToInactive(clientId, phone) {
 
 
 <!-- SISTEMA OFFLINE COMPLETO - Copiar e colar antes do </body> -->
-<script>
+
 (function() {
     console.log('🟢 Sistema offline iniciando...');
     
@@ -13766,7 +13766,41 @@ function sendWhatsAppToInactive(clientId, phone) {
     console.log('   - Novos dados: ficam na fila até a internet voltar');
     
 })();
-</script>
+
+
+
+
+
+
+
+
+
+// Bloqueio de rotação de tela para dispositivos móveis
+(function () {
+function lockorientation () {
+if (screen orientation &&
+screen.orientation.lock) {
+screen orientation.lock|'portrait'). catch( fun
+ction(error) {
+console.log('Não foi possível
+bloquear a orientação: " + error);
+｝）；
+}
+else {
+console.log('Bloqueio de
+orientação não suportado neste navegador');
+}
+}
+// Tenta bloquear após o carregamento da
+página window. addEventListener('load' ,
+lockorientation);
+// Em alguns dispositivos, precisa de
+interação do usuário, então adiciona no primeiro toque
+document.body. addEventListener(' touchstart', lockOrientation, { once: true });
+3) ();
+
+
+
 
 
         
