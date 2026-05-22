@@ -6069,52 +6069,38 @@
         }
 
         function filterStoreProducts() {
-            const searchTerm = document.getElementById('storeSearch').value.toLowerCase().trim();
-            const activeFilter = document.querySelector('.filter-button.active')?.getAttribute('data-filter') || 'all';
-            const productCards = document.querySelectorAll('#storeProductList .col-md-4');
-            let visibleCount = 0;
-            
-            console.log('Filtro ativo:', activeFilter); // Para debug
-            console.log('Termo de busca:', searchTerm);
-            
-            productCards.forEach(card => {
-                const productCard = card.querySelector('.product-card');
-                const name = (productCard.getAttribute('data-product-name') || '').toLowerCase();
-                const description = (productCard.getAttribute('data-product-description') || '').toLowerCase();
-                const category = (productCard.getAttribute('data-product-category') || '').toLowerCase();
-                
-                console.log('Produto:', name, 'Categoria:', category); // Para debug
-                
-                // Aplicar filtro de busca
-                let matchesSearch = true;
-                if (searchTerm) {
-                    matchesSearch = name.includes(searchTerm) || 
-                                   description.includes(searchTerm) || 
-                                   category.includes(searchTerm);
-                }
-                
-                // Aplicar filtro de categoria
-                let matchesFilter = true;
-                if (activeFilter !== 'all') {
-                    // Verificar se o filtro atual corresponde à categoria do produto
-                    matchesFilter = category.includes(activeFilter);
-                    
-                    // Também verificar no nome e descrição como fallback
-                    if (!matchesFilter) {
-                        matchesFilter = name.includes(activeFilter) || description.includes(activeFilter);
-                    }
-                }
-                
-                if (matchesSearch && matchesFilter) {
-                    card.style.display = '';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('productsCount').textContent = `${visibleCount} produto(s) encontrado(s)`;
+    const searchTerm = document.getElementById('storeSearch').value.toLowerCase().trim();
+    const activeFilter = document.querySelector('.filter-button.active')?.getAttribute('data-filter') || 'all';
+    const productCards = document.querySelectorAll('#storeProductList .col-md-4');
+    let visibleCount = 0;
+    
+    productCards.forEach(card => {
+        const productCard = card.querySelector('.product-card');
+        const category = (productCard.getAttribute('data-product-category') || '').toLowerCase();
+        
+        let matchesSearch = true;
+        if (searchTerm) {
+            const name = (productCard.getAttribute('data-product-name') || '').toLowerCase();
+            const description = (productCard.getAttribute('data-product-description') || '').toLowerCase();
+            matchesSearch = name.includes(searchTerm) || description.includes(searchTerm);
         }
+        
+        // CORREÇÃO: Comparação EXATA, não "includes"
+        let matchesFilter = true;
+        if (activeFilter !== 'all') {
+            matchesFilter = (category === activeFilter);
+        }
+        
+        if (matchesSearch && matchesFilter) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('productsCount').textContent = `${visibleCount} produto(s) encontrado(s)`;
+}
         function sortStoreProducts() {
             const sortBy = document.getElementById('sortProducts').value;
             const container = document.getElementById('storeProductList');
